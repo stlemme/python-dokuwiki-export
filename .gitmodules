@@ -1,0 +1,3 @@
+[submodule "python-docx"]
+	path = python-docx
+	url = https://github.com/stlemme/python-docx.git
