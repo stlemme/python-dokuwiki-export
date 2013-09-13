@@ -31,6 +31,7 @@ if __name__ == '__main__':
 	document.insert(docx.paragraph("aksdjg wagnlgbg weagbwli gbasigb ibigb regae heerah eahe3 hheah " * 15))
 	document.insertpicture('imagepy.png', 'This is a test description')
 	document.insert(docx.paragraph("aksdjg wagnlgbg weagbwli gbasigb ibigb regae heerah eahe3 hheah " * 15))
+	document.insertpicture('2.png', 'This is a test description')
 	document.insert(docx.paragraph("aksdjg wagnlgbg weagbwli gbasigb ibigb regae heerah eahe3 hheah " * 15))
 	
 
