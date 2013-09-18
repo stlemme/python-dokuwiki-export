@@ -68,7 +68,7 @@ def aggregate(toc):
 		if heading is not None:
 			increment_numbering(numbering, level)
 			target = page
-			chapters[target] = (numbering[:], heading)
+			chapters[target.lower()] = (numbering[:], heading)
 
 			print pretty_numbering(numbering), " - ", heading
 
@@ -94,7 +94,7 @@ def aggregate(toc):
 			
 			increment_numbering(numbering, sublevel)
 			target = page + "#" + subheading.replace(" ", "_")
-			chapters[target] = (numbering[:], subheading)
+			chapters[target.lower()] = (numbering[:], subheading)
 
 			print pretty_numbering(numbering), " - ", subheading
 			

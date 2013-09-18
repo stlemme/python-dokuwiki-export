@@ -11,4 +11,5 @@ def readfile(filename):
 
 def getpage(page):
 	# this could be replaced to utilize the dokuwiki xml-rpc
-	return readfile("data/pages/" + page.lower() + ".txt")
+	return readfile("pages/" + page.lower() + ".txt")
+

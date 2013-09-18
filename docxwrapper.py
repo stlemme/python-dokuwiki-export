@@ -16,14 +16,24 @@ class docxwrapper:
 		self.par = result[0]
 
 	def insert(self, elem):
+		if elem is None:
+			return
 		self.par.addprevious(elem)
 
 	def insertpicture(self, picfile, caption, size=None):
 		picrelid = "rId" + str(len(self.relationships) + 1)
-		self.pictures.append(picfile)
 
-		picpara = docx.picture2(picrelid, picfile, self.imagepath, caption, document=self.doc)
+		picpara, picfile = docx.picture2(picrelid, picfile, self.imagepath, caption, pixelsize=size, document=self.doc)
 		self.insert(picpara)
+		# print "insertpicture - picfile:", picfile
+		
+		other_rel = self.relationships.xpath("Relationship[@Target='media/" + picfile + "']")
+		# print "Relation:", picfile, len(other_rel)
+
+		if len(other_rel) > 0:
+			return
+		
+		# print "Inserted"
 		
 		rel_elm = docx.makeelement('Relationship', nsprefix=None, attributes={
 			'Id':     picrelid,
@@ -31,6 +41,7 @@ class docxwrapper:
 			'Target': 'media/' + picfile
 		})
 		self.relationships.append(rel_elm)
+		self.pictures.append(picfile)
 		
 		
 	def cleanup(self):
