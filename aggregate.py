@@ -33,7 +33,7 @@ def pretty_numbering(numbers):
 rx_tocline = re.compile(r"^([ ]{2,})\- (\[\[[^\|\]]+(\|[^\]]+)?\]\])")
 rx_heading = re.compile(r"^(=+) ([^=]+) (=+)$")
 
-def aggregate(toc):
+def aggregate(toc, wikiurl=None):
 	newdoc = []
 	chapters = {}
 	numbering = [0]
@@ -75,6 +75,10 @@ def aggregate(toc):
 			newdoc.append(wikiheading(level, heading))
 			newdoc.append("\n")
 			level += 1
+			
+			if wikiurl is not None:
+				newdoc.append("__" + wikiurl + target + "__")
+				newdoc.append("\n")
 		
 		for line in content:
 			result = rx_heading.match(line)
@@ -99,6 +103,11 @@ def aggregate(toc):
 			print pretty_numbering(numbering), " - ", subheading
 			
 			newdoc.append(wikiheading(sublevel, subheading))
+
+			if wikiurl is not None:
+				newdoc.append("\n")
+				newdoc.append("__" + wikiurl + target + "__")
+				newdoc.append("\n")
 
 		newdoc.append("\n")
 		newdoc.append("\n")

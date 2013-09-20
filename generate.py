@@ -51,7 +51,9 @@ class wikiprocessor:
 
 			if target[:4] == "http":
 				# external link
-				repl = caption + u" (see " + target + u")"
+				# repl = caption + u" (" + target + u")"
+				ref = self.doc.lookupref(target, target)
+				repl = caption + u" [" + str(ref) + u"]"
 			else:
 				# internal link
 				target = target.lower()
@@ -62,7 +64,12 @@ class wikiprocessor:
 					repl = caption + u" (see Section " + pretty_numbering(chapter) + u")"
 				else:
 					print "Unresolved Wiki Target:", target
-					repl = caption + u" (refer to the FIcontent Wiki for more information)"
+					if self.wikiurl is not None:
+						ref = self.doc.lookupref(target, self.wikiurl + target)
+						repl = caption + u" [" + str(ref) + u"]"
+					else:
+						repl = caption
+					# repl = caption + u" (refer to the FIcontent Wiki for more information)"
 					# repl = caption + u" (available within the FIcontent Wiki at " + self.wikiurl + target + u")"
 			# print found, name, repl, m.span()
 			# t = t[:m.start()] + '___' + t[m.end():]
@@ -173,10 +180,10 @@ class wikiprocessor:
 				print "Invalid image file:", filename
 				return
 
-			if caption is None:
-				caption = u"No caption available"
-			
 			print "Image:", filename, (imgwidth, imgheight)
+			if caption is None:
+				print "No caption available for image", filename
+				# caption = u"No caption available"
 			
 			if filename[-3:] not in ["png", "jpg", "gif"]:
 				print "Invalid image format!"
@@ -229,7 +236,7 @@ class wikiprocessor:
 			print
 		
 
-def generatedoc(templatefile, generatefile, imagepath, tocpage, aggregatefile=None, chapterfile=None, wikiurl=""):
+def generatedoc(templatefile, generatefile, imagepath, tocpage, aggregatefile=None, chapterfile=None, wikiurl=None, injectrefs=False):
 
 	document = docxwrapper(templatefile, imagepath)
 
@@ -237,7 +244,11 @@ def generatedoc(templatefile, generatefile, imagepath, tocpage, aggregatefile=No
 	if toc is None:
 		sys.exit("Error! Table of Contents %s not found." % tocpage)
 
-	doc, chapters = aggregate(toc)
+	if injectrefs:
+		doc, chapters = aggregate(toc, wikiurl)
+	else:
+		doc, chapters = aggregate(toc)
+	
 
 	wp = wikiprocessor(document, chapters, wikiurl)
 	
