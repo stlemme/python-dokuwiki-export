@@ -38,6 +38,8 @@ def aggregate(toc, wikiurl=None):
 	chapters = {}
 	numbering = [0]
 	
+	pageheading = False
+
 	for tocline in toc:
 		result = rx_tocline.match(tocline)
 		# print line
@@ -79,7 +81,9 @@ def aggregate(toc, wikiurl=None):
 			if wikiurl is not None:
 				newdoc.append("__" + wikiurl + target + "__")
 				newdoc.append("\n")
-		
+		else:
+			pageheading = True
+			
 		for line in content:
 			result = rx_heading.match(line)
 			if result is None:
@@ -99,6 +103,10 @@ def aggregate(toc, wikiurl=None):
 			increment_numbering(numbering, sublevel)
 			target = page + "#" + subheading.replace(" ", "_")
 			chapters[target.lower()] = (numbering[:], subheading)
+			if pageheading:
+				chapters[page.lower()] = (numbering[:], subheading)
+				pageheading = False
+				
 
 			print pretty_numbering(numbering), " - ", subheading
 			

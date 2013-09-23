@@ -28,10 +28,10 @@ class docxwrapper:
 			return
 		self.par.addprevious(elem)
 
-	def insertpicture(self, picfile, caption, size=None):
+	def insertpicture(self, picfile, caption, size=None, jc=None):
 		picrelid = "rId" + str(len(self.relationships) + 1)
 
-		picpara, picfile = docx.picture2(picrelid, picfile, self.imagepath, caption, pixelsize=size, document=self.doc)
+		picpara, picfile = docx.picture2(picrelid, picfile, self.imagepath, caption, pixelsize=size, document=self.doc, jc=jc)
 		self.insert(picpara)
 		# print "insertpicture - picfile:", picfile
 		
@@ -63,6 +63,9 @@ class docxwrapper:
 			self.refpar.addprevious(docx.paragraph(target, style='EUReference'))
 			self.references[ref] = len(self.references) + 1
 		return self.references[ref]
+		
+	def pagecontentsize(self):
+		return docx.pagecontentsize(self.doc)
 		
 	def cleanup(self):
 		result = self.doc.xpath("/w:document/w:body", namespaces=docx.nsprefixes)
