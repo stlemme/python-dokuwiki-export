@@ -37,10 +37,11 @@ rx_wiki_table = re.compile(r"[\^\|]")
 
 
 class wikiprocessor:
-    def __init__(self, document, chapters, wikiurl):
+    def __init__(self, document, chapters, wikiurl, ignore = []):
         self.doc = document
         self.chapters = chapters
         self.wikiurl = wikiurl
+        self.ignore = ignore
     
     def replacelinks(self, c):
         if not "[[" in c:
@@ -68,7 +69,15 @@ class wikiprocessor:
                         caption = heading
                     repl = caption + u" (see Section " + pretty_numbering(chapter) + u")"
                 else:
-                    print "Unresolved Wiki Target:", target
+                    ignore = False
+                    for p in self.ignore:
+                        if p.match(target) is not None:
+                            ignore = True
+                            break
+                    
+                    if not ignore:
+                        print "Unresolved Wiki Target:", target
+                        
                     if self.wikiurl is not None:
                         ref = self.doc.lookupref(target, self.wikiurl + target)
                         repl = caption + u" [" + str(ref) + u"]"
@@ -192,26 +201,31 @@ class wikiprocessor:
             else:
                 print "Invalid image file:", filename
                 return
-
-            print "Image:", filename, (imgwidth, imgheight)
-            if caption is None:
-                print "No caption available for image", filename
-                caption = u"No caption available"
-            
-            if filename[-3:] not in ["png", "jpg", "gif"]:
-                print "Invalid image format!"
-                return
-            
-            jc = None
-            
-            if fillleft:
-                jc = 'right'
-            elif fillright:
-                jc = 'left'
-            if fillleft and fillright:
-                jc = 'center'
-            
-            self.doc.insertpicture(filename, caption, (imgwidth, imgheight), jc)
+                
+            if filename[-3:] in ['png', 'jpg', 'gif']:
+                print "Image:", filename, (imgwidth, imgheight)
+                if caption is None:
+                    print "No caption available for image", filename
+                    caption = u"No caption available"
+                
+                if filename[-3:] not in ["png", "jpg", "gif"]:
+                    print "Invalid image format!"
+                    return
+                
+                jc = None
+                
+                if fillleft:
+                    jc = 'right'
+                elif fillright:
+                    jc = 'left'
+                if fillleft and fillright:
+                    jc = 'center'
+                
+                self.doc.insertpicture(filename, caption, (imgwidth, imgheight), jc)
+                
+            else:
+                print "Invalid Media:", filename
+                self.doc.insert(self.paragraph("FIXME Referencing media: " + filename))
 
     def table(self, lines):
         rows = []
@@ -293,7 +307,7 @@ class wikiprocessor:
             print
         
 
-def generatedoc(templatefile, generatefile, imagepath, tocpage, aggregatefile=None, chapterfile=None, wikiurl=None, injectrefs=False):
+def generatedoc(templatefile, generatefile, imagepath, tocpage, aggregatefile=None, chapterfile=None, wikiurl=None, injectrefs=False, ignorepagelinks=[]):
 
     document = docxwrapper(templatefile, imagepath)
 
@@ -306,8 +320,9 @@ def generatedoc(templatefile, generatefile, imagepath, tocpage, aggregatefile=No
     else:
         doc, chapters = aggregate(toc)
     
+	print
 
-    wp = wikiprocessor(document, chapters, wikiurl)
+    wp = wikiprocessor(document, chapters, wikiurl, ignorepagelinks)
     
     if aggregatefile is not None:
         fo = open(aggregatefile, "w")

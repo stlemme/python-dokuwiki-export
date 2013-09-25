@@ -5,6 +5,7 @@ class docxwrapper:
 	def __init__(self, template, imagepath=None):
 		self.template = template
 		self.pictures = []
+		self.picturemap = {}
 		self.references = {}
 		
 		if imagepath is None:
@@ -29,24 +30,41 @@ class docxwrapper:
 		self.par.addprevious(elem)
 
 	def insertpicture(self, picfile, caption, size=None, jc=None):
-		picrelid = "rId" + str(len(self.relationships) + 1)
+		# print picfile
+		# check for a conversion
+		if picfile in self.picturemap.keys():
+			picfile = self.picturemap[picfile]
+		# print picfile
+		
+		# check if it was already embedded
+		other_rel = self.relationships.xpath("Relationship[@Target='media/" + picfile + "']")
+		
+		if len(other_rel) > 0:
+			picrelid = other_rel[0].get('Id')
+		else:
+			picrelid = "rId" + str(len(self.relationships) + 1)
 
-		picpara, picfile = docx.picture2(picrelid, picfile, self.imagepath, caption, pixelsize=size, document=self.doc, jc=jc)
+		# print "insertpicture:", picfile, picrelid, len(other_rel)
+		
+		picpara, newpicfile = docx.picture2(picrelid, picfile, self.imagepath, caption, pixelsize=size, document=self.doc, jc=jc)
 		self.insert(picpara)
-		# print "insertpicture - picfile:", picfile
+		
+		# print "insertpicture - newpicfile:", newpicfile
+		if newpicfile != picfile:
+			self.picturemap[picfile] = newpicfile
+			picfile = newpicfile
+		
+		# print self.picturemap
 		
 		if caption is not None:
 			cappara = docx.imagecaption(caption, len(self.pictures) + 1, style="EUCaption")
 			self.insert(cappara)
 		
-		other_rel = self.relationships.xpath("Relationship[@Target='media/" + picfile + "']")
+		# other_rel = self.relationships.xpath("Relationship[@Target='media/" + picfile + "']")
 		# print "Relation:", picfile, len(other_rel)
-
 		if len(other_rel) > 0:
 			return
-		
-		# print "Inserted"
-		
+
 		rel_elm = docx.makeelement('Relationship', nsprefix=None, attributes={
 			'Id':     picrelid,
 			'Type':   'http://schemas.openxmlformats.org/officeDocument/2006/relationships/image',
@@ -54,6 +72,9 @@ class docxwrapper:
 		})
 		self.relationships.append(rel_elm)
 		self.pictures.append(picfile)
+
+		# print "Inserted"
+		
 		
 		# caption = 'Figure ' + str(len(self.pictures)) + ' ' + caption
 		# self.insert(docx.paragraph(caption, style='EUCaption'))
