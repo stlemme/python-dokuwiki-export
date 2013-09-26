@@ -15,6 +15,7 @@ rx_line = {
     "table": re.compile(r"^[\^\|]([^\^\|]*[\^\|])+$"),
     "code": re.compile(r"^<code.*>$"),
     "endcode": re.compile(r"^\s*</code.*>\s*$"),
+    "fixme": re.compile(r"^FIXME .*$"),
     "empty": re.compile(r"^\s*$")
 }
 
@@ -269,6 +270,10 @@ class wikiprocessor:
         if mode == "empty":
             return None
         
+        if mode == "fixme":
+            # TODO: handle FIXMEs in a prominent way
+            return None
+            
         if mode == "ulist":
             # items = ulist(lines)
             for l in lines:
