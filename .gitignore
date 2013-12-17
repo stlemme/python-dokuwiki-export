@@ -3,3 +3,5 @@ pages
 /*.pyc
 /*.docx
 /*.txt
+/archive
+/dist
