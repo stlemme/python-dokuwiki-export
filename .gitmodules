@@ -1,6 +1,3 @@
 [submodule "docx"]
 	path = docx
 	url = https://github.com/stlemme/python-docx.git
-[submodule "pydsl"]
-	path = pydsl
-	url = https://github.com/nesaro/pydsl.git
