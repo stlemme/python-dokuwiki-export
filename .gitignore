@@ -5,3 +5,4 @@ pages
 /*.txt
 /archive
 /dist
+__pycache__
