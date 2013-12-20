@@ -6,20 +6,21 @@ grammar_whitespace_mode = 'explicit'
 
 
 class MetaError(Exception):
-	def __init__(self, text):
+	def __init__(self, problem, text):
+		self.problem = problem
 		self.text = text
 		
 	def __str__(self):
-		return self.text
+		return "%s\nused in:\n%s" % (self.problem, self.text)
 	
 	
 ###############
 
 class Identifier(Grammar):
-	grammar = (WORD("[\w]", "[\w ,\-!\&\(\)]*", fullmatch=False, escapes=True, greedy=False))
+	grammar = (WORD("[\w]", "[\w ,\-!\&\(\)\/]*", fullmatch=False, escapes=True, greedy=False))
 
 class RedIdentifier(Grammar):
-	grammar = (WORD("[\w]", "[\w \-!\(\)]", fullmatch=False, escapes=True))
+	grammar = (WORD("[\w]", "[\w \-!\(\)\/]*", fullmatch=False, escapes=True))
 	
 class AsStatement(Grammar):
 	grammar = (LITERAL("AS"), WHITESPACE, LIST_OF(RedIdentifier, sep=",", whitespace_mode='optional'))
@@ -184,7 +185,11 @@ class EXPERIMENT(Grammar):
 		self.date = self.elements[9].string
 		self.scenario = self.elements[13].string
 		
-		# TODO: extract deployment information, application
+		self.application = data.application(self.elements[20].string)
+		if self.application is None:
+			raise MetaError("Unknown application: %s" % self.elements[20].string, self.string)
+		
+		# TODO: extract deployment information
 
 
 ###############

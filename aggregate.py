@@ -1,20 +1,8 @@
 
 import re
-from getpage import *
+from wiki import *
+import logging
 
-
-def wikiheading(level, heading):
-	return ("=" * (7 - level)) + " " + heading + " " + ("=" * (7 - level)) + "\n"
-
-
-rx_link = re.compile(r"^\[\[([^\|\]]+)(\|([^\]]+))?\]\]$")
-
-def parselink(link):
-	result = rx_link.match(link)
-	# print result.groups()
-	target = result.group(1)
-	text = result.group(3)
-	return target, text
 
 def increment_numbering(numbers, level):
 	while len(numbers) < level:
@@ -30,16 +18,16 @@ def pretty_numbering(numbers):
 		s += str(n) + "."
 	return s[:-1]
 
-rx_tocline = re.compile(r"^([ ]{2,})\- (\[\[[^\|\]]+(\|[^\]]+)?\]\])")
-rx_heading = re.compile(r"^(=+) ([^=]+) (=+)$")
 
-def aggregate(toc, wikiurl=None):
+rx_tocline = re.compile(r"^([ ]{2,})\- (\[\[[^\|\]]+(\|[^\]]+)?\]\])")
+
+def aggregate(dw, toc, tocns, showwikiurl = False):
 	newdoc = []
 	chapters = {}
 	numbering = [0]
 	
 	pageheading = False
-
+	
 	for tocline in toc:
 		result = rx_tocline.match(tocline)
 		# print line
@@ -53,14 +41,16 @@ def aggregate(toc, wikiurl=None):
 		indent = result.group(1)
 		link = result.group(2)
 		
-		level = len(indent) / 2
-		page, heading = parselink(link)
+		level = int(len(indent) / 2)
+		page, heading = dw.parselink(link)
 		
 		# print level, page, "(", heading, ")"
 		
 		# append page with level offset
 		
-		content = getpage(page)
+		pagens = []
+		content = dw.getpage(page, tocns, pagens)
+		# print(pagens)
 		
 		if content is None:
 			if heading is None:
@@ -72,20 +62,22 @@ def aggregate(toc, wikiurl=None):
 			target = page
 			chapters[target.lower()] = (numbering[:], heading)
 
-			print pretty_numbering(numbering), " - ", heading
+			# logging.info("%s - %s" % (pretty_numbering(numbering), heading))
 
-			newdoc.append(wikiheading(level, heading))
-			newdoc.append("\n")
+			newdoc.append(dw.heading(level, heading))
+			# newdoc.append("\n")
 			level += 1
 			
-			if wikiurl is not None:
-				newdoc.append("__" + wikiurl + target + "__")
-				newdoc.append("\n")
+			if showwikiurl:
+				url = dw.pageurl(page, pagens)
+				# print(url)
+				newdoc.append("__ %s __\n" % url)
+				# newdoc.append("\n")
 		else:
 			pageheading = True
 			
 		for line in content:
-			result = rx_heading.match(line)
+			result = wiki.rx_heading.match(line)
 			if result is None:
 				newdoc.append(line)
 				continue
@@ -93,7 +85,7 @@ def aggregate(toc, wikiurl=None):
 			indent1 = len(result.group(1))
 			indent2 = len(result.group(3))
 			if indent1 != indent2:
-				print "Warning! Invalid heading."
+				logging.warning("Warning! Invalid heading.")
 				
 			subleveloffset = 6 - indent1
 			
@@ -101,24 +93,27 @@ def aggregate(toc, wikiurl=None):
 			subheading = result.group(2)
 			
 			increment_numbering(numbering, sublevel)
-			target = page + "#" + subheading.replace(" ", "_")
+			target = page + "#" + dw.target(subheading)
 			chapters[target.lower()] = (numbering[:], subheading)
 			if pageheading:
 				chapters[page.lower()] = (numbering[:], subheading)
 				pageheading = False
 				
 
-			print pretty_numbering(numbering), " - ", subheading
+			# logging.info("%s - %s" % (pretty_numbering(numbering), subheading))
+			# print pretty_numbering(numbering), " - ", subheading
 			
-			newdoc.append(wikiheading(sublevel, subheading))
+			newdoc.append(dw.heading(sublevel, subheading))
 
-			if wikiurl is not None:
-				newdoc.append("\n")
-				newdoc.append("__" + wikiurl + target + "__")
-				newdoc.append("\n")
+			if showwikiurl:
+				url = dw.pageurl(page, pagens, subheading)
+				# print(url)
+				newdoc.append("")
+				newdoc.append("__ %s __\n" % url)
+				# newdoc.append("\n")
 
 		newdoc.append("\n")
-		newdoc.append("\n")
+		# newdoc.append("\n")
 		
 	return newdoc, chapters
 		
@@ -126,28 +121,48 @@ def aggregate(toc, wikiurl=None):
 
 if __name__ == "__main__":
 	import sys
-	
-	tocpage = "FIcontent.Wiki.Deliverables.D61"
+	import wikiconfig
+
+	tocpage = ":ficontent:private:deliverables:d65:toc"
 	if len(sys.argv) > 1:
 		tocpage = sys.argv[1]
 
-	outfile = "generated-" + tocpage + ".txt"
+	outpage = ":ficontent:private:deliverables:d65:"
 	if len(sys.argv) > 2:
-		outfile = sys.argv[2]
+		outpage = sys.argv[2]
 
-	toc = getpage(tocpage)
+
+	logging.info("Connecting to remote DokuWiki at %s" % wikiconfig.url)
+	# dw = wiki.DokuWikiLocal(url, 'pages', 'media')
+	dw = DokuWikiRemote(wikiconfig.url, wikiconfig.user, wikiconfig.passwd)
+	
+	logging.info("Loading table of contents %s ..." % tocpage)
+	# toc = getpage(tocpage)
+	tocns = []
+	toc = dw.getpage(tocpage, pagens = tocns)
 	if toc is None:
-		sys.exit("Error! Table of Contents %s not found." % tocpage)
+		logging.fatal("Table of contents %s not found." % tocpage)
+		
+	logging.info("Aggregating pages ...")
+	doc, chapters = aggregate(dw, toc, tocns, True)
 
-	doc, chapters = aggregate(toc)
-
-	fo = open(outfile, "w")
-	fo.writelines(doc)
-	fo.close()
+	logging.info("Flushing generated content to page %s ..." % outpage)
+	dw.putpage(doc, outpage)
 
 	if len(sys.argv) > 3:
-		chapterfile = sys.argv[3]
+		outfile = sys.argv[3]
+		logging.info("Writing aggregated file %s ..." % outfile)
+
+		with open(outfile, "w") as fo:
+			fo.writelines(doc)
+
+
+	if len(sys.argv) > 4:
+		chapterfile = sys.argv[4]
+		logging.info("Writing chapter file %s ..." % chapterfile)
 
 		import json
 		with open(chapterfile, 'w') as cf:
 			json.dump(chapters, cf, sort_keys = False, indent = 4)
+
+	logging.info("Finished")

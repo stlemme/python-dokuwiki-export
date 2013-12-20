@@ -4,7 +4,7 @@
 from docx import docx
 from docxwrapper import *
 from aggregate import *
-from getpage import *
+# from getpage import *
 
 
 rx_line = {
