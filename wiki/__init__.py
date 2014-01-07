@@ -27,15 +27,27 @@ class wiki(object):
 		return ("=" * (7 - level)) + " " + heading + " " + ("=" * (7 - level)) + "\n"
 
 	
-	rx_link = re.compile(r"^\[\[([^\|\]]+)(\|([^\]]+))?\]\]$")
+	rx_link = re.compile(r"\[\[([^\|\]]+)(\|([^\]]+))?\]\]")
 
 	def parselink(self, link):
 		result = self.rx_link.match(link)
 		# print result.groups()
 		target = result.group(1)
+		parts = target.split('#', 1)
+		page = parts[0]
+		section = parts[1] if len(parts) > 1 else None
 		text = result.group(3)
-		return target, text
+		return page, section, text
 		
+	def buildlink(self, page, section, text):
+		link = '[[' + page
+		if section is not None:
+			link += '#' + section
+		if text is not None:
+			link += '|' + text
+		link += ']]'
+		return link
+	
 	# def target(self, heading):
 		# target = heading.replace(' ', '_')
 		# target = re.sub('[\W]+', '', target).lower()

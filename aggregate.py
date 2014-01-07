@@ -18,6 +18,14 @@ def pretty_numbering(numbers):
 		s += str(n) + "."
 	return s[:-1]
 
+def resolve_link(dw, ns, match):
+	page, section, text = dw.parselink(match.group())
+	if page.startswith('http'):
+		fullname = page
+	else:
+		fullname = dw.resolve(page, ns)
+	return dw.buildlink(fullname, section, text)
+	
 
 rx_tocline = re.compile(r"^([ ]{2,})\- (\[\[[^\|\]]+(\|[^\]]+)?\]\])")
 
@@ -42,8 +50,9 @@ def aggregate(dw, toc, tocns, showwikiurl = False):
 		link = result.group(2)
 		
 		level = int(len(indent) / 2)
-		page, heading = dw.parselink(link)
-		
+		page, section, heading = dw.parselink(link)
+		if section is not None:
+			logging.warning("Ignoring section attribute of ToC. Including complete page %s instead." % page)
 		# print level, page, "(", heading, ")"
 		
 		# append page with level offset
@@ -51,6 +60,9 @@ def aggregate(dw, toc, tocns, showwikiurl = False):
 		pagens = []
 		content = dw.getpage(page, tocns, pagens)
 		# print(pagens)
+		
+		# resolve page to full page name
+		page = dw.resolve(page, pagens)
 		
 		if content is None:
 			if heading is None:
@@ -69,7 +81,7 @@ def aggregate(dw, toc, tocns, showwikiurl = False):
 			level += 1
 			
 			if showwikiurl:
-				url = dw.pageurl(page, pagens)
+				url = dw.pageurl(page)
 				# print(url)
 				newdoc.append("__ %s __\n" % url)
 				# newdoc.append("\n")
@@ -79,8 +91,9 @@ def aggregate(dw, toc, tocns, showwikiurl = False):
 		for line in content:
 			result = wiki.rx_heading.match(line)
 			if result is None:
-				# TODO: handle link namespaces
-				newdoc.append(line)
+				# resolve link namespaces
+				resline = wiki.rx_link.sub(lambda m: resolve_link(dw, pagens, m), line)
+				newdoc.append(resline)
 				continue
 				
 			indent1 = len(result.group(1))
@@ -107,7 +120,7 @@ def aggregate(dw, toc, tocns, showwikiurl = False):
 			newdoc.append(dw.heading(sublevel, subheading))
 
 			if showwikiurl:
-				url = dw.pageurl(page, pagens, subheading)
+				url = dw.pageurl(page, heading=subheading)
 				# print(url)
 				newdoc.append("")
 				newdoc.append("__ %s __\n" % url)
