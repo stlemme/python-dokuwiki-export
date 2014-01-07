@@ -6,3 +6,5 @@ pages
 /archive
 /dist
 __pycache__
+
+/wikiconfig.py

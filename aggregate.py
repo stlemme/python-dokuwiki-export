@@ -79,6 +79,7 @@ def aggregate(dw, toc, tocns, showwikiurl = False):
 		for line in content:
 			result = wiki.rx_heading.match(line)
 			if result is None:
+				# TODO: handle link namespaces
 				newdoc.append(line)
 				continue
 				
@@ -131,6 +132,7 @@ if __name__ == "__main__":
 	if len(sys.argv) > 2:
 		outpage = sys.argv[2]
 
+	embedwikilinks = True
 
 	logging.info("Connecting to remote DokuWiki at %s" % wikiconfig.url)
 	# dw = wiki.DokuWikiLocal(url, 'pages', 'media')
@@ -144,7 +146,7 @@ if __name__ == "__main__":
 		logging.fatal("Table of contents %s not found." % tocpage)
 		
 	logging.info("Aggregating pages ...")
-	doc, chapters = aggregate(dw, toc, tocns, True)
+	doc, chapters = aggregate(dw, toc, tocns, embedwikilinks)
 
 	logging.info("Flushing generated content to page %s ..." % outpage)
 	dw.putpage(doc, outpage)
