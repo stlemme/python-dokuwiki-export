@@ -23,5 +23,9 @@ def warning(text):
 def error(text):
 	output("[Error]  ", text)
 	
+class FatalError(Exception):
+	pass
+
 def fatal(text):
-	sys.exit("[Fatal]   %s" % text)
+	output("[Fatal]   %s" % text)
+	raise FatalError()

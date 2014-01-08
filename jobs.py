@@ -5,6 +5,7 @@ import wikiconfig
 import logging
 import datetime
 from outbuffer import PageBuffer
+import metagenerate
 
 
 class Job(object):
@@ -50,8 +51,35 @@ class Aggregation(Job):
 		logging.info("Updated %s" % updated)
 		return True
 
+		
+class MetaProcessing(Job):
+	def __init__(self, metapage, outpage):
+		Job.__init__(self)
+		self.metapage = metapage
+		self.outpage = outpage
+	
+	def summary(self):
+		return "Processing Meta Structure %s" % self.metapage
+	
+	def required(self):
+		return True
+
+	def perform(self, dw):
+		logging.info("Loading page of meta structure %s ..." % self.metapage)
+		metadoc = dw.getpage(self.metapage)
+		if metadoc is None:
+			logging.fatal("Meta structure %s not found." % self.metapage)
+
+		meta, data = metagenerate.process_meta(metadoc)
+		if meta is None:
+			logging.fatal("Invalid meta structure %s." % self.metapage)
+		
+		metagenerate.generate_page(dw, self.outpage, meta, data)
+		return True
+
 
 jobs = [
+	# MetaProcessing(":FIcontent:private:meta:", ":FIcontent:private:meta:generated"),
 	Aggregation(":ficontent:private:deliverables:d65:toc", ":ficontent:private:deliverables:d65:"),
 	Aggregation(":ficontent:private:deliverables:d42:toc", ":ficontent:private:deliverables:d42:", False)
 ]
@@ -94,13 +122,16 @@ if __name__ == "__main__":
 
 	logging.info("Connected to remote DokuWiki at %s" % wikiconfig.url)
 	
+	try:
+		for i, j in enumerate(jobs):
+			logging.info("JOB %d of %d: %s" % (i+1, len(jobs), j.summary()))
+			if not j.required():
+				logging.info("Skipped!")
+				continue
+			j.perform(dw)
 
-	for i, j in enumerate(jobs):
-		logging.info("JOB %d of %d: %s" % (i+1, len(jobs), j.summary()))
-		if not j.required():
-			logging.info("Skipped!")
-			continue
-		j.perform(dw)
+	except Exception as e:
+		logging.error("Exception occured!\n%s" % e)
 
 	logging.info("All done.")
 
