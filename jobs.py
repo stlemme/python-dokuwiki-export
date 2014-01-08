@@ -2,6 +2,9 @@
 from aggregate import *
 import sys
 import wikiconfig
+import logging
+import datetime
+from outbuffer import PageBuffer
 
 
 class Job(object):
@@ -46,12 +49,52 @@ jobs = [
 	Aggregation(":ficontent:private:deliverables:d42:toc", ":ficontent:private:deliverables:d42:")
 ]
 
+jobslog = ":ficontent:private:wikijobs.log"
+
+class PageLog(PageBuffer):
+	def __init__(self, wiki, page):
+		PageBuffer.__init__(self, wiki, page)
+		self.current = ""
+
+	def write(self, text):
+		lines = text.split('\n')
+		self.current += lines[0]
+		if len(lines) == 1:
+			return
+		
+		for l in lines[1:-1]:
+			PageBuffer.write(self, l)
+		
+		PageBuffer.write(self, self.current)
+		self.current = lines[-1]
+	
+	def flush(self):
+		PageBuffer.write(self, self.current)
+		self.current = ""
+		PageBuffer.flush(self)
+
+
 if __name__ == "__main__":
-	logging.info("Connecting to remote DokuWiki at %s" % wikiconfig.url)
 	dw = DokuWikiRemote(wikiconfig.url, wikiconfig.user, wikiconfig.passwd)
+	log = PageLog(dw, jobslog)
+	logging.out = log
+	
+	log << dw.heading(1, "Log of dokuwikibot's jobs")
+	log << ""
+	log << "Latest run at %s" % datetime.datetime.now()
+	log << ""
+	log << "<code>"
+
+	logging.info("Connected to remote DokuWiki at %s" % wikiconfig.url)
 
 	for i, j in enumerate(jobs):
 		logging.info("JOB %d of %d: %s" % (i+1, len(jobs), j.summary()))
 		j.perform(dw)
 
 	logging.info("All done.")
+
+	log << ""
+	log << "</code>"
+	log << ""
+
+	log.flush()
