@@ -14,6 +14,9 @@ class Job(object):
 	def summary(self):
 		return "Unknown Job"
 
+	def required(self):
+		return False
+		
 	def perform(self, dw):
 		return False
 		
@@ -24,9 +27,12 @@ class Aggregation(Job):
 		self.tocpage = tocpage
 		self.outpage = outpage
 		self.embedwikilinks = embedwikilinks
-		
+	
 	def summary(self):
 		return "Aggregating %s" % self.tocpage
+	
+	def required(self):
+		return True
 
 	def perform(self, dw):
 		logging.info("Loading table of contents %s ..." % self.tocpage)
@@ -40,13 +46,14 @@ class Aggregation(Job):
 		doc, chapters = aggregate(dw, toc, tocns, self.embedwikilinks)
 
 		logging.info("Flushing generated content to page %s ..." % self.outpage)
-		dw.putpage(doc, self.outpage)
+		updated = dw.putpage(doc, self.outpage)
+		logging.info("Updated %s" % updated)
 		return True
 
 
 jobs = [
 	Aggregation(":ficontent:private:deliverables:d65:toc", ":ficontent:private:deliverables:d65:"),
-	Aggregation(":ficontent:private:deliverables:d42:toc", ":ficontent:private:deliverables:d42:")
+	Aggregation(":ficontent:private:deliverables:d42:toc", ":ficontent:private:deliverables:d42:", False)
 ]
 
 jobslog = ":ficontent:private:wikijobs.log"
@@ -86,9 +93,13 @@ if __name__ == "__main__":
 	log << "<code>"
 
 	logging.info("Connected to remote DokuWiki at %s" % wikiconfig.url)
+	
 
 	for i, j in enumerate(jobs):
 		logging.info("JOB %d of %d: %s" % (i+1, len(jobs), j.summary()))
+		if not j.required():
+			logging.info("Skipped!")
+			continue
 		j.perform(dw)
 
 	logging.info("All done.")

@@ -89,6 +89,9 @@ class wiki(object):
 
 		return new if len(new) else 'section' + re.sub('[^0-9]+', '' , target)
 
+	rx_include = re.compile(r"{{page>([^}#]+)(#([^}]+))?}}")
+	
+
 
 class DokuWiki(wiki):
 	def __init__(self, url):
@@ -145,13 +148,9 @@ class DokuWikiRemote(DokuWiki):
 		self.client = dokuwikixmlrpc.DokuWikiClient(url, user, passwd)
 
 	def getpage(self, page, ns = [], pagens = None):
-		# this could be replaced to utilize the dokuwiki xml-rpc
 		fullname = self.resolve(page, ns)
 		if pagens is not None:
 			pagens[:] = fullname.split(self.ns_delimiter)[1:-1]
-			# print(pagens)
-		# filename = fullname.replace(self.ns_delimiter, '/').lower()
-		# print('getpage(%s, %s) => %s' % (page, ns, fullname))
 		content = self.client.page(fullname[1:])
 		lines = content.split('\n')
 		return lines

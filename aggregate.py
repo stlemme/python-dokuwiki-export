@@ -89,42 +89,67 @@ def aggregate(dw, toc, tocns, showwikiurl = False):
 			pageheading = True
 			
 		for line in content:
+			# line is heading
 			result = wiki.rx_heading.match(line)
-			if result is None:
-				# resolve link namespaces
-				resline = wiki.rx_link.sub(lambda m: resolve_link(dw, pagens, m), line)
-				newdoc.append(resline)
+			if result is not None:
+				indent1 = len(result.group(1))
+				indent2 = len(result.group(3))
+				if indent1 != indent2:
+					logging.warning("Warning! Invalid heading.")
+					
+				subleveloffset = 6 - indent1
+				
+				sublevel = level + subleveloffset
+				subheading = result.group(2)
+				
+				increment_numbering(numbering, sublevel)
+				target = page + "#" + dw.target(subheading)
+				chapters[target.lower()] = (numbering[:], subheading)
+				if pageheading:
+					chapters[page.lower()] = (numbering[:], subheading)
+					pageheading = False
+				
+				# logging.info("%s - %s" % (pretty_numbering(numbering), subheading))
+				# print pretty_numbering(numbering), " - ", subheading
+				
+				newdoc.append(dw.heading(sublevel, subheading))
+
+				if showwikiurl:
+					url = dw.pageurl(page, heading=subheading)
+					# print(url)
+					newdoc.append("")
+					newdoc.append("__ %s __\n" % url)
+					# newdoc.append("\n")
+				
 				continue
-				
-			indent1 = len(result.group(1))
-			indent2 = len(result.group(3))
-			if indent1 != indent2:
-				logging.warning("Warning! Invalid heading.")
-				
-			subleveloffset = 6 - indent1
 			
-			sublevel = level + subleveloffset
-			subheading = result.group(2)
+			# line is include
+			result = wiki.rx_include.match(line)
 			
-			increment_numbering(numbering, sublevel)
-			target = page + "#" + dw.target(subheading)
-			chapters[target.lower()] = (numbering[:], subheading)
-			if pageheading:
-				chapters[page.lower()] = (numbering[:], subheading)
-				pageheading = False
+			if result is not None:
+				incpage = result.group(1)
+				incsection = result.group(3)
+				# newdoc.append("INCLUDE %s - %s\n" % (incpage, incsection))
+				incdoc = dw.getpage(incpage, pagens)
 				
-
-			# logging.info("%s - %s" % (pretty_numbering(numbering), subheading))
-			# print pretty_numbering(numbering), " - ", subheading
+				for l in incdoc:
+					result = wiki.rx_heading.match(l)
+					if result is not None:
+						incheading = result.group(2)
+						skip = incheading != incsection
+						continue
+					
+					if skip:
+						continue
+					
+					newdoc.append(l)
+				
+				continue
 			
-			newdoc.append(dw.heading(sublevel, subheading))
-
-			if showwikiurl:
-				url = dw.pageurl(page, heading=subheading)
-				# print(url)
-				newdoc.append("")
-				newdoc.append("__ %s __\n" % url)
-				# newdoc.append("\n")
+			# line is usual content
+			# resolve link namespaces
+			resline = wiki.rx_link.sub(lambda m: resolve_link(dw, pagens, m), line)
+			newdoc.append(resline)
 
 		newdoc.append("\n")
 		# newdoc.append("\n")
@@ -169,7 +194,7 @@ if __name__ == "__main__":
 		logging.info("Writing aggregated file %s ..." % outfile)
 
 		with open(outfile, "w") as fo:
-			fo.writelines(doc)
+			fo.writelines([l + '\n' for l in doc])
 
 
 	if len(sys.argv) > 4:
