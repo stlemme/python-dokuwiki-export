@@ -27,6 +27,11 @@ class MetaData(object):
 			return self.app[id]
 		return None
 		
+	def location(self, id):
+		if id in self.loc:
+			return self.loc[id]
+		return None
+		
 	def insert_default(self, map, grammar, name):
 		g = grammar()
 		g.identifier = name

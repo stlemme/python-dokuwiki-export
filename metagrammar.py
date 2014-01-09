@@ -13,14 +13,26 @@ class MetaError(Exception):
 	def __str__(self):
 		return "%s\nused in:\n%s" % (self.problem, self.text)
 	
-	
+class UnknownEnabler(MetaError):
+	def __init__(self, enabler, text):
+		MetaError.__init__(self, 'Unknown Enabler (SE/GE) "%s"' % enabler, text)
+		
+class UnknownApplication(MetaError):
+	def __init__(self, app, text):
+		MetaError.__init__(self, 'Unknown application: "%s"' % app, text)
+
+class UnknownLocation(MetaError):
+	def __init__(self, loc, text):
+		MetaError.__init__(self, 'Unknown deployment location: "%s"' % loc, text)
+
+		
 ###############
 
 class Identifier(Grammar):
 	grammar = (WORD("[\w]", "[\w ,\-!\&\(\)\/]*", fullmatch=False, escapes=True, greedy=False))
 
 class RedIdentifier(Grammar):
-	grammar = (WORD("[\w]", "[\w \-!\(\)\/]*", fullmatch=False, escapes=True))
+	grammar = (WORD("[\w]", "[\w \-!\(\)\/]*", fullmatch=False, escapes=True, greedy=False))
 	
 class AsStatement(Grammar):
 	grammar = (LITERAL("AS"), WHITESPACE, LIST_OF(RedIdentifier, sep=",", whitespace_mode='optional'))
@@ -85,7 +97,7 @@ def handleUseStmts(stmts, usestates, data, hint):
 		for ename in enablers:
 			e = data.enabler(ename)
 			if e is None:
-				raise MetaError("Unknown Enabler (SE/GE) %s" % ename, hint)
+				raise UnknownEnabler(ename, hint)
 			usestates[usestate].append(e)
 
 class SE(NamedEntity):
@@ -191,10 +203,26 @@ class EXPERIMENT(Grammar):
 		
 		self.application = data.application(self.elements[20].string)
 		if self.application is None:
-			raise MetaError("Unknown application: %s" % self.elements[20].string, self.string)
+			raise UnknownApplication(self.elements[20].string, self.string)
 		
-		# TODO: extract deployment information
-
+		self.deployment = {}
+		for d in self.elements[15].find_all(DeploymentStmt):
+			for ed in d.elements[2]:
+				if not len(ed.elements):
+					continue
+				ename = ed.elements[0].string
+				locname = ed.elements[6].string
+				# print("%s  --  %s" % (ename, locname))
+				e = data.enabler(ename)
+				l = data.location(locname)
+				if e is None:
+					raise UnknownEnabler(ename, self.string)
+				if l is None:
+					raise UnknownLocation(locname, self.string)
+				# TODO: check if it's overwritten
+				self.deployment[e] = l
+				
+		# TODO: check for complete deployment information
 
 ###############
 

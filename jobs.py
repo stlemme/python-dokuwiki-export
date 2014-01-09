@@ -21,13 +21,17 @@ class Job(object):
 	def perform(self, dw):
 		return False
 		
+	def responsible(self, dw):
+		return None
+		
 
 class Aggregation(Job):
-	def __init__(self, tocpage, outpage, embedwikilinks = True):
+	def __init__(self, tocpage, outpage, editor = None, embedwikilinks = True):
 		Job.__init__(self)
 		self.tocpage = tocpage
 		self.outpage = outpage
 		self.embedwikilinks = embedwikilinks
+		self.editor = editor
 	
 	def summary(self):
 		return "Aggregating %s" % self.tocpage
@@ -47,9 +51,11 @@ class Aggregation(Job):
 		doc, chapters = aggregate(dw, toc, tocns, self.embedwikilinks)
 
 		logging.info("Flushing generated content to page %s ..." % self.outpage)
-		updated = dw.putpage(doc, self.outpage)
-		logging.info("Updated %s" % updated)
+		dw.putpage(doc, self.outpage)
 		return True
+		
+	def responsible(self, dw):
+		return self.editor
 
 		
 class MetaProcessing(Job):
@@ -77,11 +83,16 @@ class MetaProcessing(Job):
 		metagenerate.generate_page(dw, self.outpage, meta, data)
 		return True
 
+	def responsible(self, dw):
+		# TODO: retrieve last author of metapage
+		info = dw.pageinfo(self.metapage)
+		return info['author']
+
 
 jobs = [
 	MetaProcessing(":FIcontent:private:meta:", ":FIcontent:private:meta:generated"),
 	Aggregation(":ficontent:private:deliverables:d65:toc", ":ficontent:private:deliverables:d65:"),
-	Aggregation(":ficontent:private:deliverables:d42:toc", ":ficontent:private:deliverables:d42:", False)
+	Aggregation(":ficontent:private:deliverables:d42:toc", ":ficontent:private:deliverables:d42:", "stefan", False)
 ]
 
 jobslog = ":ficontent:private:wikijobs.log"
@@ -123,15 +134,24 @@ if __name__ == "__main__":
 	logging.info("Connected to remote DokuWiki at %s" % wikiconfig.url)
 	
 	try:
+		n = len(jobs)
 		for i, j in enumerate(jobs):
-			logging.info("JOB %d of %d: %s" % (i+1, len(jobs), j.summary()))
+			p = i+1
+			logging.info("JOB %d of %d: %s" % (p, n, j.summary()))
+			
 			if not j.required():
 				logging.info("Skipped!")
 				continue
+				
 			try:
-				j.perform(dw)
+				success = j.perform(dw)
 			except logging.FatalError:
-				logging.error("JOB %d of %d: Aborted!" % (i+1, len(jobs)))
+				success = False
+				
+			if not success:
+				logging.error("JOB %d of %d: Aborted!" % (p, n))
+				# TODO: notify responsible person
+				logging.info("Notify %s about failed JOB %d" % (j.responsible(dw), p))
 
 	except Exception as e:
 		logging.error("Exception occured!\n%s" % e)

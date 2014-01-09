@@ -20,7 +20,10 @@ class wiki(object):
 	def pageurl(self, page, ns = [], target = None):
 		return None
 		
-	
+	def pageinfo(self, page, ns = []):
+		return None
+
+		
 	rx_heading = re.compile(r"^(=+) ([^=]+) (=+)$")
 
 	def parseheading(self, heading):
@@ -124,7 +127,7 @@ class DokuWiki(wiki):
 		if heading is not None:
 			url += '#' + self.target(heading)
 		return url
-	
+
 	def resolve(self, page, rel_ns = []):
 		parts = page.split(self.ns_delimiter)
 
@@ -179,6 +182,10 @@ class DokuWikiRemote(DokuWiki):
 		content = '\n'.join(lines)
 		fullname = self.resolve(page, ns)
 		self.client.put_page(fullname, content, summary='regenerated', minor=False)
+
+	def pageinfo(self, page, ns = []):
+		fullname = self.resolve(page, ns)
+		return self.client.page_info(fullname[1:])
 
 
 class DokuWikiLocal(DokuWiki):

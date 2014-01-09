@@ -95,7 +95,7 @@ def generate_page(dw, outpage, meta, data):
 	#######################################
 	
 	for h, p in generated_content:
-		logging.info('Generating -> "%s" ...' % h)
+		logging.info('Generating -> %s ...' % h)
 		p.present(meta)
 
 		out << dw.heading(2, h)
@@ -116,22 +116,25 @@ if __name__ == "__main__":
 	if len(sys.argv) > 2:
 		outfile = sys.argv[2]
 
+	try:
 
-	logging.info("Connecting to remote DokuWiki at %s" % wikiconfig.url)
-	# dw = wiki.DokuWikiLocal(url, 'pages', 'media')
-	dw = wiki.DokuWikiRemote(wikiconfig.url, wikiconfig.user, wikiconfig.passwd)
-	
-	logging.info("Loading page of meta structure %s ..." % metapage)
-	metadoc = dw.getpage(metapage)
-	if metadoc is None:
-		logging.fatal("Meta structure %s not found." % metapage)
+		logging.info("Connecting to remote DokuWiki at %s" % wikiconfig.url)
+		# dw = wiki.DokuWikiLocal(url, 'pages', 'media')
+		dw = wiki.DokuWikiRemote(wikiconfig.url, wikiconfig.user, wikiconfig.passwd)
+		
+		logging.info("Loading page of meta structure %s ..." % metapage)
+		metadoc = dw.getpage(metapage)
+		if metadoc is None:
+			logging.fatal("Meta structure %s not found." % metapage)
 
-	meta, data = process_meta(metadoc)
-	if meta is None:
-		logging.fatal("Invalid meta structure %s." % metapage)
+		meta, data = process_meta(metadoc)
+		if meta is None:
+			logging.fatal("Invalid meta structure %s." % metapage)
+		
+		generate_page(dw, generatedpage, meta, data)
+		
+		logging.info("Finished")
 	
-	generate_page(dw, generatedpage, meta, data)
-	
-	logging.info("Finished")
-	
-	
+	except logging.FatalError:
+		pass
+		
