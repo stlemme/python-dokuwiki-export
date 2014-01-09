@@ -33,25 +33,49 @@ def generate_page(dw, outpage, meta, data):
 
 	out << dw.heading(1, "Generated output from FIcontent's Meta-Structure")
 	
-	generated_content = [
+	generated_content = []
+	
+	
+	# Overall timeline of experiments
+	#######################################
+	
+	generated_content += [
 		("Timeline of Experiments", presenter.ExperimentTimelinePresenter()),
-		
 	]
 	
 	
-	sites = ["Zurich", "Brittany", "Lancaster", "Cologne", "Berlin", "Barcelona"]
+	# Experiments per site
+	#######################################
 	
+	sites = ["Zurich", "Brittany", "Lancaster", "Cologne", "Berlin", "Barcelona"]
 	generated_content += [
 		("Experiments in %s" % s, presenter.ExperimentTimelinePresenter(s)) for s in sites
 	]
+
 	
-	
-	scenarios = ["Immersive Control Systems", "Virtual Character Synchronization on the Web"]
+	# All tested scenarios
+	#######################################
 	
 	generated_content += [
-		("Scenario %s" % s, presenter.DependencyPresenter(s)) for s in scenarios
+		("All Tested Scenarios", presenter.ListPresenter(ScenarioVisitor())),
 	]
 	
+	
+	# Dependencies per scenario
+	#######################################
+	
+	v = ExperimentsVisitor()
+	v.visit(meta)
+	
+	experiments = list(set([(e.scenario, e.site) for e in v.result]))
+	
+	generated_content += [
+		('Scenario "%s" on Site %s' % e, presenter.DependencyPresenter(e[0], e[1])) for e in experiments
+	]
+	
+
+	# GE Utilization
+	#######################################
 	
 	id = lambda e: e.identifier
 	ges = list(set(data.ge.values()))
@@ -64,6 +88,11 @@ def generate_page(dw, outpage, meta, data):
 		) for ge in ges
 	]
 	
+	
+	
+	#######################################
+	# main generation loop
+	#######################################
 	
 	for h, p in generated_content:
 		logging.info('Generating -> "%s" ...' % h)

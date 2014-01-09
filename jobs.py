@@ -79,7 +79,7 @@ class MetaProcessing(Job):
 
 
 jobs = [
-	# MetaProcessing(":FIcontent:private:meta:", ":FIcontent:private:meta:generated"),
+	MetaProcessing(":FIcontent:private:meta:", ":FIcontent:private:meta:generated"),
 	Aggregation(":ficontent:private:deliverables:d65:toc", ":ficontent:private:deliverables:d65:"),
 	Aggregation(":ficontent:private:deliverables:d42:toc", ":ficontent:private:deliverables:d42:", False)
 ]
