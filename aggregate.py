@@ -24,7 +24,7 @@ def resolve_link(dw, ns, match):
 		fullname = page
 	else:
 		fullname = dw.resolve(page, ns)
-	return dw.buildlink(fullname, section, text)
+	return dw.link(fullname, section, text)
 	
 
 rx_tocline = re.compile(r"^([ ]{2,})\- (\[\[[^\|\]]+(\|[^\]]+)?\]\])")

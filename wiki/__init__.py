@@ -39,7 +39,7 @@ class wiki(object):
 		text = result.group(3)
 		return page, section, text
 		
-	def buildlink(self, page, section, text):
+	def link(self, page, section, text):
 		link = '[[' + page
 		if section is not None:
 			link += '#' + section
