@@ -38,7 +38,7 @@ class FileBuffer(OutStreamBuffer):
 			self.fo = open(filename, 'w')
 			OutStreamBuffer.__init__(self, self.fo)
 		except IOError:
-			pass
+			self.fo = None
 		
 	def flush(self):
 		if self.fo is not None:
