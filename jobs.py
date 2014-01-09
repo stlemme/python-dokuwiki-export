@@ -72,7 +72,7 @@ class MetaProcessing(Job):
 
 		meta, data = metagenerate.process_meta(metadoc)
 		if meta is None:
-			logging.fatal("Invalid meta structure %s." % self.metapage)
+			logging.fatal("Invalid meta structure %s" % self.metapage)
 		
 		metagenerate.generate_page(dw, self.outpage, meta, data)
 		return True
@@ -128,7 +128,10 @@ if __name__ == "__main__":
 			if not j.required():
 				logging.info("Skipped!")
 				continue
-			j.perform(dw)
+			try:
+				j.perform(dw)
+			except logging.FatalError:
+				logging.error("JOB %d of %d: Aborted!" % (i+1, len(jobs)))
 
 	except Exception as e:
 		logging.error("Exception occured!\n%s" % e)

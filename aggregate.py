@@ -92,15 +92,16 @@ def aggregate(dw, toc, tocns, showwikiurl = False):
 			# line is heading
 			result = wiki.rx_heading.match(line)
 			if result is not None:
-				indent1 = len(result.group(1))
-				indent2 = len(result.group(3))
-				if indent1 != indent2:
-					logging.warning("Warning! Invalid heading.")
+				# indent1 = len(result.group(1))
+				# indent2 = len(result.group(3))
+				# if indent1 != indent2:
+					# logging.warning("Warning! Invalid heading.")
 					
-				subleveloffset = 6 - indent1
+				# subleveloffset = 6 - indent1
 				
+				# subheading = result.group(2)
+				subheading, subleveloffset = dw.parseheading(result.group())
 				sublevel = level + subleveloffset
-				subheading = result.group(2)
 				
 				increment_numbering(numbering, sublevel)
 				target = page + "#" + dw.target(subheading)
@@ -127,15 +128,16 @@ def aggregate(dw, toc, tocns, showwikiurl = False):
 			result = wiki.rx_include.match(line)
 			
 			if result is not None:
-				incpage = result.group(1)
-				incsection = result.group(3)
+				# incpage = result.group(1)
+				# incsection = result.group(3)
+				incpage, incsection = dw.parseinclude(result.group())
 				# newdoc.append("INCLUDE %s - %s\n" % (incpage, incsection))
 				incdoc = dw.getpage(incpage, pagens)
 				
 				for l in incdoc:
 					result = wiki.rx_heading.match(l)
 					if result is not None:
-						incheading = result.group(2)
+						incheading, inclevel = dw.parseheading(result.group())
 						skip = incheading != incsection
 						continue
 					

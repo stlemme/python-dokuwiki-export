@@ -23,6 +23,19 @@ class wiki(object):
 	
 	rx_heading = re.compile(r"^(=+) ([^=]+) (=+)$")
 
+	def parseheading(self, heading):
+		result = self.rx_heading.match(heading)
+		if result is None:
+			return None, None
+			
+		indent1 = len(result.group(1))
+		indent2 = len(result.group(3))
+		if indent1 != indent2:
+			logging.warning("Warning! Invalid heading.")
+				
+		level = 6 - indent1
+		return result.group(2), level
+	
 	def heading(self, level, heading):
 		return ("=" * (7 - level)) + " " + heading + " " + ("=" * (7 - level)) + "\n"
 
@@ -91,6 +104,13 @@ class wiki(object):
 
 	rx_include = re.compile(r"{{page>([^}#]+)(#([^}]+))?}}")
 	
+	def parseinclude(self, include):
+		result = wiki.rx_include.match(include)
+		if result is None:
+			return None, None
+		incpage = result.group(1)
+		incsection = result.group(3)
+		return incpage, incsection
 
 
 class DokuWiki(wiki):

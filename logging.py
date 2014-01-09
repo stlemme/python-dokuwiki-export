@@ -27,5 +27,5 @@ class FatalError(Exception):
 	pass
 
 def fatal(text):
-	output("[Fatal]   %s" % text)
+	output("[Fatal]  ", text)
 	raise FatalError()

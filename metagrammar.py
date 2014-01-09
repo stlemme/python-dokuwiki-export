@@ -77,12 +77,16 @@ class UseStmt(Grammar):
 		LIST_OF(RedIdentifier, sep=",", whitespace_mode='optional')
 	)
 	
-def handleUseStmts(stmts, usestates, data):
+def handleUseStmts(stmts, usestates, data, hint):
 	for u in stmts.find_all(UseStmt):
 		usestate = u.elements[0].string
 		enablers = [e.string for e in u.elements[2].find_all(RedIdentifier)]
-		l = [e for e in [data.enabler(e) for e in enablers] if e is not None]
-		usestates[usestate] += l
+		# l = [e for e in [data.enabler(e) for e in enablers] if e is not None]
+		for ename in enablers:
+			e = data.enabler(ename)
+			if e is None:
+				raise MetaError("Unknown Enabler (SE/GE) %s" % ename, hint)
+			usestates[usestate].append(e)
 
 class SE(NamedEntity):
 	grammar = (
@@ -107,7 +111,7 @@ class SE(NamedEntity):
 		}
 		
 		if self.elements[4] is not None:
-			handleUseStmts(self.elements[4], self.usestates, data)
+			handleUseStmts(self.elements[4], self.usestates, data, self.string)
 
 
 ###############
@@ -145,7 +149,7 @@ class APP(NamedEntity):
 		}
 		
 		if self.elements[4] is not None:
-			handleUseStmts(self.elements[4], self.usestates, data)
+			handleUseStmts(self.elements[4], self.usestates, data, self.string)
 
 
 ###############
