@@ -69,8 +69,15 @@ def generate_page(dw, outpage, meta, data):
 	
 	experiments = list(set([(e.scenario, e.site) for e in v.result]))
 	
+	# Dependencies per scenario (only actual usage)
 	generated_content += [
-		('Scenario "%s" on Site %s' % e, presenter.DependencyPresenter(e[0], e[1])) for e in experiments
+		('Scenario "%s" on Site %s - USES' % e, presenter.DependencyPresenter(e[0], e[1], ['USES'])) for e in experiments
+	]
+
+	# Dependencies per scenario (actual and planned usage)
+	relations = ['USES', 'WILL USE', 'MAY USE']
+	generated_content += [
+		('Scenario "%s" on Site %s - ALL' % e, presenter.DependencyPresenter(e[0], e[1], relations)) for e in experiments
 	]
 	
 

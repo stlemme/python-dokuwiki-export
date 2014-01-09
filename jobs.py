@@ -133,6 +133,8 @@ if __name__ == "__main__":
 
 	logging.info("Connected to remote DokuWiki at %s" % wikiconfig.url)
 	
+	notify = []
+	
 	try:
 		n = len(jobs)
 		for i, j in enumerate(jobs):
@@ -150,11 +152,14 @@ if __name__ == "__main__":
 				
 			if not success:
 				logging.error("JOB %d of %d: Aborted!" % (p, n))
-				# TODO: notify responsible person
-				logging.info("Notify %s about failed JOB %d" % (j.responsible(dw), p))
+				person = j.responsible(dw)
+				logging.info("Notify %s about failed JOB %d" % (person, p))
+				if person is not None:
+					notify.append(person)
 
 	except Exception as e:
 		logging.error("Exception occured!\n%s" % e)
+		notify.append("stefan")
 
 	logging.info("All done.")
 
@@ -163,3 +168,11 @@ if __name__ == "__main__":
 	log << ""
 
 	log.flush()
+
+	# TODO: notify responsible persons
+	# import notification
+	
+	# for p in notify:
+		# notification.notify(p)
+		
+

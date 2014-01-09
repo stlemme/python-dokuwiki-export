@@ -72,6 +72,12 @@ class DependencyVisitor(MetaVisitor):
 		self.nodes = []
 		self.edges = []
 
+	def retrieve_edges(self, entity):
+		edges = []
+		for rel in self.relations:
+			edges.extend([(entity, e, rel) for e in entity.usestates[rel]])
+		self.edges.extend(edges)
+		return [edge[1] for edge in edges]
 	
 	def visit_SE(self, entity):
 		if entity in self.nodes:
@@ -79,10 +85,11 @@ class DependencyVisitor(MetaVisitor):
 		
 		if self.se:
 			self.nodes.append(entity)
-			
-		uses_edges = [(entity, e) for e in entity.usestates['USES']]
-		self.edges.extend(uses_edges)
-		return entity.usestates['USES']
+		
+		# self.edges.extend(edges)
+		# uses_edges = [(entity, e) for e in entity.usestates['USES']]
+		# self.edges.extend(uses_edges)
+		return self.retrieve_edges(entity)
 		
 	def visit_APP(self, entity):
 		if entity in self.nodes:
@@ -90,9 +97,10 @@ class DependencyVisitor(MetaVisitor):
 
 		self.nodes.append(entity)
 			
-		uses_edges = [(entity, e) for e in entity.usestates['USES']]
-		self.edges.extend(uses_edges)
-		return entity.usestates['USES']
+		# uses_edges = [(entity, e) for e in entity.usestates['USES']]
+		# self.edges.extend(uses_edges)
+		# return entity.usestates['USES']
+		return self.retrieve_edges(entity)
 		
 	def visit_GE(self, entity):
 		if entity in self.nodes:
