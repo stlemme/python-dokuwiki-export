@@ -30,20 +30,79 @@ class ExperimentsVisitor(Visitor):
 		self.result.append(grammar)
 
 
-# class DependencyVisitor(Visitor):
-	# def __init__(self, entity, relations = ['USES'], se = True, ge = True):
-		# self.entity = entity
-		# self.relations = relations
-		# self.se = se
-		# self.ge = ge
-		# self.result = []
+class ScenarioVisitor(Visitor):
+	def __init__(self, site = None):
+		self.result = []
+		self.site = site
 		
-	# def visit_SE(self, grammar):
-		# if grammar == self.entity:
-			# return
+	def visit_EXPERIMENT(self, grammar):
+		if self.site is not None:
+			if grammar.site != self.site:
+				return
+
+		if not grammar.scenario in self.result:
+			self.result.append(grammar.scenario)
+		
+
+class MetaVisitor(Visitor):
+	def visit(self, entity):
+		self.stack = [entity]
+		
+		while len(self.stack):
+			entity = self.stack.pop()
+			next = self.internal_visit(entity)
+			if next is not None:
+				self.stack.extend(next)
+	
+	def internal_visit(self, entity):
+		method = 'visit_' + entity.__class__.__name__
+		visit = getattr(self, method, self.generic_visit)
+		return visit(entity)
+
+	def generic_visit(self, entity):
+		pass
+
+
+class DependencyVisitor(MetaVisitor):
+	def __init__(self, relations = ['USES'], se = True, ge = True):
+		# self.entities = entities
+		self.relations = relations
+		self.se = se
+		self.ge = ge
+		self.nodes = []
+		self.edges = []
+
+	
+	def visit_SE(self, entity):
+		if entity in self.nodes:
+			return
+		
+		if self.se:
+			self.nodes.append(entity)
 			
-		# for r in self.relations:
-			# pass
+		uses_edges = [(entity, e) for e in entity.usestates['USES']]
+		self.edges.extend(uses_edges)
+		return entity.usestates['USES']
+		
+	def visit_APP(self, entity):
+		if entity in self.nodes:
+			return
+
+		self.nodes.append(entity)
+			
+		uses_edges = [(entity, e) for e in entity.usestates['USES']]
+		self.edges.extend(uses_edges)
+		return entity.usestates['USES']
+		
+	def visit_GE(self, entity):
+		if entity in self.nodes:
+			return
+
+		if self.ge:
+			self.nodes.append(entity)
+
+		
+		
 		
 class UsedByVisitor(Visitor):
 	def __init__(self, enabler, relation = 'USES', se = True, app = True, experiment = True, transitive = False):
