@@ -192,6 +192,10 @@ class DokuWikiRemote(DokuWiki):
 	def pageinfo(self, page, ns = []):
 		fullname = self.resolve(page, ns)
 		return self.client.page_info(fullname[1:])
+		
+	def lockpage(self, page, ns = []):
+		fullname = self.resolve(page, ns)
+		return self.client.set_locks({'lock': [fullname]})
 
 
 class DokuWikiLocal(DokuWiki):

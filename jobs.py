@@ -52,6 +52,8 @@ class Aggregation(Job):
 
 		logging.info("Flushing generated content to page %s ..." % self.outpage)
 		dw.putpage(doc, self.outpage)
+		locks = dw.lockpage(self.outpage)
+		logging.info("Locks: %s" % locks)
 		return True
 		
 	def responsible(self, dw):
