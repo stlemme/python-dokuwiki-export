@@ -70,20 +70,11 @@ class wiki(object):
 		# print(target)
 		# return target
 
-	def target(self, heading):
+	def cleanid(self, id):
 		sepcharpat = '\\' + self.sep + '+';
-		# print(heading)
-		target = heading.strip().lower();
-
-		# //alternative namespace seperator
-		target = target.replace(';', ':')
-		if self.useslash:
-			target = target.replace('/', ':')
-		else:
-			target = target.replace('/', self.sep)
 
 		# //remove specials
-		target = re.sub('[^\w:\+\._\-]+', self.sep, target)
+		target = re.sub('[^\w:\+\._\-]+', self.sep, id)
 		# print(1, target)
 
 		# //clean up
@@ -99,6 +90,21 @@ class wiki(object):
 		# print(6, target)
 		
 		target = re.sub('[:\.]+', '', target)
+		return target
+	
+	def target(self, heading):
+		# print(heading)
+		target = heading.strip().lower();
+
+		# //alternative namespace seperator
+		target = target.replace(';', ':')
+		if self.useslash:
+			target = target.replace('/', ':')
+		else:
+			target = target.replace('/', self.sep)
+
+		target = self.cleanid(target)
+
 		new = target.lstrip('0123456789_-')
 		# print(7, target)
 		# print(8, new)
@@ -159,7 +165,7 @@ class DokuWiki(wiki):
 				break
 		
 		path = path + parts[trail:]
-		return self.ns_delimiter + self.ns_delimiter.join(path)
+		return self.ns_delimiter + self.ns_delimiter.join([self.cleanid(id) for id in path])
 		
 		
 
