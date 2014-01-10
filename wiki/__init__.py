@@ -89,7 +89,6 @@ class wiki(object):
 		target = re.sub('[:\._\-]+:', ':', target)
 		# print(6, target)
 		
-		target = re.sub('[:\.]+', '', target)
 		return target
 	
 	def target(self, heading):
@@ -105,6 +104,7 @@ class wiki(object):
 
 		target = self.cleanid(target)
 
+		target = re.sub('[:\.]+', '', target)
 		new = target.lstrip('0123456789_-')
 		# print(7, target)
 		# print(8, new)
