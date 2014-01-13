@@ -170,7 +170,7 @@ class DokuWikiClient(object):
                 return self._xmlrpc.wiki.getPage(page_id)
             else:
                 return self._xmlrpc.wiki.getPageVersion(page_id, revision)
-        except xmlrpclib.Fault as fault:
+        except xmlrpc.client.Fault as fault:
             raise DokuWikiXMLRPCError(fault)
 
 
@@ -194,7 +194,7 @@ class DokuWikiClient(object):
                 return self._xmlrpc.wiki.getPageInfo(page_id)
             else:
                 return self._xmlrpc.wiki.getPageInfoVersion(page_id, revision)
-        except xmlrpclib.Fault as fault:
+        except xmlrpc.client.Fault as fault:
             raise DokuWikiXMLRPCError(fault)
 
 
@@ -229,7 +229,7 @@ class DokuWikiClient(object):
             params['sum'] = summary
             params['minor'] = minor
             self._xmlrpc.wiki.putPage(page_id, text, params)
-        except xmlrpc.Fault as fault:
+        except xmlrpc.client.Fault as fault:
             raise DokuWikiXMLRPCError(fault)
 
 
@@ -275,8 +275,10 @@ class DokuWikiClient(object):
     def get_file(self, file_id):
         """Download a file from a remote Wiki."""
         try:
-            return base64.b64decode(self._xmlrpc.wiki.getAttachment(file_id))
-        except xmlrpclib.Fault as fault:
+            bin = self._xmlrpc.wiki.getAttachment(file_id)
+            return bin.data
+            # return base64.b64decode(self._xmlrpc.wiki.getAttachment(file_id))
+        except xmlrpc.client.Fault as fault:
             raise DokuWikiXMLRPCError(fault)
 
     def put_file(self, file_id, data, overwrite = False):
@@ -298,7 +300,7 @@ class DokuWikiClient(object):
         """Return information about a given file."""
         try:
             return self._xmlrpc.wiki.getAttachmentInfo(file_id)
-        except xmlrpclib.Fault as fault:
+        except xmlrpc.client.Fault as fault:
             raise DokuWikiXMLRPCError(fault)
 
     def list_files(self, namespace, recursive = False, pattern = None):

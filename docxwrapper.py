@@ -1,5 +1,7 @@
 
 from docx import docx
+import logging
+
 
 class docxwrapper:
 	def __init__(self, template, imagepath=None):
@@ -22,7 +24,7 @@ class docxwrapper:
 		if result is not None:
 			self.refpar = result[0]
 		else:
-			print "No references section"
+			logging.info("No references section")
 
 	def insert(self, elem):
 		if elem is None:
@@ -37,7 +39,7 @@ class docxwrapper:
 		# print picfile
 		
 		# check if it was already embedded
-		other_rel = self.relationships.xpath("Relationship[@Target='media/" + picfile + "']")
+		other_rel = self.relationships.xpath("Relationship[@Target='media/%s']" % picfile)
 		
 		if len(other_rel) > 0:
 			picrelid = other_rel[0].get('Id')

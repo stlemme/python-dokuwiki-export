@@ -101,7 +101,7 @@ def aggregate(dw, toc, tocns, showwikiurl = False):
 				
 				# subheading = result.group(2)
 				subheading, subleveloffset = dw.parseheading(result.group())
-				sublevel = level + subleveloffset
+				sublevel = level + (subleveloffset - 1)
 				
 				increment_numbering(numbering, sublevel)
 				target = page + "#" + dw.target(subheading)

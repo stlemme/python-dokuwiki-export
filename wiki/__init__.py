@@ -17,10 +17,13 @@ class wiki(object):
 	def putpage(self, lines, page, ns = []):
 		pass
 
-	def pageurl(self, page, ns = [], target = None):
+	def pageurl(self, page, ns = [], heading = None):
 		return None
 		
 	def pageinfo(self, page, ns = []):
+		return None
+		
+	def getfile(self, file, ns = []):
 		return None
 
 		
@@ -36,7 +39,7 @@ class wiki(object):
 		if indent1 != indent2:
 			logging.warning("Warning! Invalid heading.")
 				
-		level = 6 - indent1
+		level = 7 - indent1
 		return result.group(2), level
 	
 	def heading(self, level, heading):
@@ -196,6 +199,14 @@ class DokuWikiRemote(DokuWiki):
 	def lockpage(self, page, ns = []):
 		fullname = self.resolve(page, ns)
 		return self.client.set_locks({'lock': [fullname]})
+		
+	def getfile(self, file, ns = []):
+		fullname = self.resolve(file, ns)
+		# res1 = self.client.file_info(fullname)
+		res2 = self.client.get_file(fullname)
+		# print(res1, len(res2))
+		return res2
+
 
 
 class DokuWikiLocal(DokuWiki):
