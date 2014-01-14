@@ -244,8 +244,8 @@ class wikiprocessor:
 		if fillleft and fillright:
 			jc = 'center'
 		
-		# self.doc.insertpicture(picfilename, caption, (imgwidth, imgheight), jc)
-		self.doc.insert(self.paragraph('Image: %s with caption "%s" and params %s' % (filename, caption, (imgwidth, imgheight, jc))))
+		self.doc.insertpicture(picfilename, caption, (imgwidth, imgheight), jc)
+		# self.doc.insert(self.paragraph('Image: %s with caption "%s" and params %s' % (filename, caption, (imgwidth, imgheight, jc))))
 
 
 

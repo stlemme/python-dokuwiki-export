@@ -32,11 +32,11 @@ class docxwrapper:
 		self.par.addprevious(elem)
 
 	def insertpicture(self, picfile, caption, size=None, jc=None):
-		# print picfile
+		# print(picfile)
 		# check for a conversion
 		if picfile in self.picturemap.keys():
 			picfile = self.picturemap[picfile]
-		# print picfile
+		# print(picfile)
 		
 		# check if it was already embedded
 		other_rel = self.relationships.xpath("Relationship[@Target='media/%s']" % picfile)
@@ -46,24 +46,24 @@ class docxwrapper:
 		else:
 			picrelid = "rId" + str(len(self.relationships) + 1)
 
-		# print "insertpicture:", picfile, picrelid, len(other_rel)
+		# print("insertpicture:", picfile, picrelid, len(other_rel))
 		
 		picpara, newpicfile = docx.picture2(picrelid, picfile, self.imagepath, caption, pixelsize=size, document=self.doc, jc=jc)
 		self.insert(picpara)
 		
-		# print "insertpicture - newpicfile:", newpicfile
+		# print("insertpicture - newpicfile:", newpicfile)
 		if newpicfile != picfile:
 			self.picturemap[picfile] = newpicfile
 			picfile = newpicfile
 		
-		# print self.picturemap
+		# print(self.picturemap)
 		
 		if caption is not None:
 			cappara = docx.imagecaption(caption, len(self.pictures) + 1, style="EUCaption")
 			self.insert(cappara)
 		
 		# other_rel = self.relationships.xpath("Relationship[@Target='media/" + picfile + "']")
-		# print "Relation:", picfile, len(other_rel)
+		# print("Relation:", picfile, len(other_rel))
 		if len(other_rel) > 0:
 			return
 
@@ -75,7 +75,7 @@ class docxwrapper:
 		self.relationships.append(rel_elm)
 		self.pictures.append(picfile)
 
-		# print "Inserted"
+		# print("Inserted")
 		
 		
 		# caption = 'Figure ' + str(len(self.pictures)) + ' ' + caption
