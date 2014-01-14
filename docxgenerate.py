@@ -7,6 +7,8 @@ from aggregate import *
 import logging
 from wiki import *
 import os
+import urllib
+import hashlib
 
 
 rx_line = {
@@ -17,6 +19,8 @@ rx_line = {
 	"table": re.compile(r"^[\^\|]([^\^\|]*[\^\|])+$"),
 	"code": re.compile(r"^<code.*>$"),
 	"endcode": re.compile(r"^\s*</code.*>\s*$"),
+	"graph": re.compile(r"^<graphviz(.*)>$"),
+	"endgraph": re.compile(r"^</graphviz>$"),
 	"fixme": re.compile(r"^FIXME .*$"),
 	"empty": re.compile(r"^\s*$")
 }
@@ -258,6 +262,30 @@ class wikiprocessor:
 		self.doc.insertpicture(picfilename, caption, (imgwidth, imgheight), jc)
 		# self.doc.insert(self.paragraph('Image: %s with caption "%s" and params %s' % (filename, caption, (imgwidth, imgheight, jc))))
 
+		
+	def insertgraph(self, lines, align):
+		gchapi = "https://chart.googleapis.com/chart"
+		
+		values = {
+			'cht': 'gv',
+			'chof': 'png',
+			'chl': '\n'.join(lines)
+		}
+		data = urllib.parse.urlencode(values)
+		data = data.encode('utf-8') # data should be bytes
+		
+		picfilename = 'graph-%s.png' % hashlib.md5(data).hexdigest()
+		caption = None
+		
+		req = urllib.request.Request(gchapi, data)
+		response = urllib.request.urlopen(req)
+		imagedata = response.read()
+		with open(os.path.join(self.imagepath, picfilename),'wb') as output:
+			output.write(imagedata)
+		
+		self.doc.insertpicture(picfilename, caption, jc=align)
+
+		return None
 
 
 	def table(self, lines):
@@ -305,6 +333,7 @@ class wikiprocessor:
 		
 		if mode == "fixme":
 			# TODO: handle FIXMEs in a prominent way
+			self.doc.insert(self.paragraph(["**%s**" % l for l in lines]))
 			return None
 			
 		if mode == "ulist":
@@ -339,6 +368,16 @@ class wikiprocessor:
 				self.doc.insert(self.pre(l))
 				# print l
 			# print
+			
+			return None
+
+		elif mode == "graph":
+			# print("Graph:")
+			# for l in lines[1:]:
+				# self.doc.insert(self.pre(l))
+				# print(l)
+			# print
+			self.insertgraph(lines[1:], 'center')
 			
 			return None
 
@@ -403,6 +442,11 @@ def generatedoc(templatefile, generatefile, dw, tocpage, aggregatefile=None, cha
 		elif lastline == "code":
 			linetype = "code"
 
+		if linetype == "endgraph":
+			linetype = "empty"
+		elif lastline == "graph":
+			linetype = "graph"
+		
 		
 		# print "linetype2:", linetype
 		

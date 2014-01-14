@@ -67,7 +67,7 @@ class DependencyPresenter(Presenter):
 		self.design = {
 			'labeljust': 'left',
 			'labelloc': 'top',
-			'fontsize': 10,
+			'fontsize': 8,
 			'APP_fillcolor': '#fff2cc',
 			'APP_color': '#efbc00',
 			'SE_fillcolor': '#deebf7',
