@@ -114,6 +114,7 @@ class wiki(object):
 
 		return new if len(new) else 'section' + re.sub('[^0-9]+', '' , target)
 
+		
 	rx_include = re.compile(r"{{page>([^}#]+)(#([^}]+))?}}")
 	
 	def parseinclude(self, include):
@@ -123,7 +124,79 @@ class wiki(object):
 		incpage = result.group(1)
 		incsection = result.group(3)
 		return incpage, incsection
+		
+		
+	rx_image = re.compile(r"{{( *)([^\?\|\} ]+)(\?([^\|\} ]+))?( *)(\|([^\}]*))?}}")
+	rx_imageresize = re.compile(r"^([0-9]+)(x([0-9]+))?$")
 
+	def parseimage(self, image):
+		result = self.rx_image.match(image)
+		if result is None:
+			return None, None, None
+
+		file  = result.group(2)
+		filll = len(result.group(1)) > 0
+		fillr = len(result.group(5)) > 0
+		caption = result.group(7)
+		params = {}
+		
+		# resizing
+		if result.group(4) is not None:
+			imgparams = result.group(4).split('&')
+		
+			for p in imgparams:
+				if p == 'nolink':
+					params['nolink'] = True
+					continue
+					
+				result = self.rx_imageresize.match(p)
+				if result is None:
+					continue
+					
+				# print result.groups()
+				params['width'] = int(result.group(1))
+				if result.group(3) is not None:
+					params['height'] = int(result.group(3))
+					
+		# alignment
+		if filll:
+			params['jc'] = 'right'
+		elif fillr:
+			params['jc'] = 'left'
+		if filll and fillr:
+			params['jc'] = 'center'
+
+		return file, caption, params
+	
+	
+	def image(self, file, caption, params):
+		image = '{{'
+		if 'jc' in params:
+			if params['jc'] != 'left':
+				image += '  '
+		image += file
+		if params is not None:
+			s = []
+			if 'width' in params:
+				imagesize = params['width']
+				if 'height' in params:
+					imagesize += 'x' + params['height']
+				s.append(imagesize)
+			if 'nolink' in params:
+				if params['nolink']:
+					s.append('nolink')
+			if len(s):
+				image += '?' + '&'.join(s)
+		if 'jc' in params:
+			if params['jc'] != 'right':
+				image += '  '
+		if caption is not None:
+			image += '|' + caption
+		image += '}}'
+		return image
+		
+
+	
 
 class DokuWiki(wiki):
 	def __init__(self, url):
@@ -203,9 +276,14 @@ class DokuWikiRemote(DokuWiki):
 	def getfile(self, file, ns = []):
 		fullname = self.resolve(file, ns)
 		# res1 = self.client.file_info(fullname)
-		res2 = self.client.get_file(fullname)
-		# print(res1, len(res2))
-		return res2
+		try:
+			res2 = self.client.get_file(fullname)
+			# print(res1, len(res2))
+			return res2
+		except dokuwikixmlrpc.DokuWikiXMLRPCError as dwerr:
+			print(dwerr)
+			print(file, fullname)
+		return None
 
 
 

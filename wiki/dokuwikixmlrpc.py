@@ -53,7 +53,7 @@ class DokuWikiXMLRPCError(DokuWikiError):
     def __init__(self, obj):
         """Initalize and call anchestor __init__()."""
         DokuWikiError.__init__(self)
-        if isinstance(obj, xmlrpclib.Fault):
+        if isinstance(obj, xmlrpc.client.Fault):
             self.page_id = obj.faultCode
             self.message = obj.faultString
         else:

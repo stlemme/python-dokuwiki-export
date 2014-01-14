@@ -12,7 +12,7 @@ import os
 rx_line = {
 	"heading": wiki.rx_heading, # re.compile(r"^(=+) ([^=]+) (=+)$"),
 	"image": re.compile(r"^[ ]*\{\{( *)([^\?\|\} ]+)(\?([^\|\} ]+))?( *)(\|([^\}]*))?\}\}$"),
-	# "olist": re.compile(r"^([ ]{2,})\- (.*)$"),
+	"olist": re.compile(r"^([ ]{2,})\- (.*)$"),
 	"ulist": re.compile(r"^([ ]{2,})\* (.*)$"),
 	"table": re.compile(r"^[\^\|]([^\^\|]*[\^\|])+$"),
 	"code": re.compile(r"^<code.*>$"),
@@ -78,7 +78,7 @@ class wikiprocessor:
 				break
 		
 		if not ignore:
-			print("Unresolved Wiki Target: %s" % target)
+			logging.info("Unresolved Wiki Target: %s" % target)
 		
 		ref = self.doc.lookupref(target, self.dw.pageurl(page, heading=section))
 		return "%s [%d]" % (caption, ref)
@@ -132,7 +132,18 @@ class wikiprocessor:
 
 		return lineparts
 
-
+	def olistitem(self, line):
+		# print line
+		
+		result = rx_line["olist"].match(line)
+		if result is not None:
+			indent = len(result.group(1))
+			level = indent / 2
+			lineparts = self.processwikitext(result.group(2))
+			# return docx.paragraph(lineparts, style='EUListOrdered1')
+			return docx.paragraph(lineparts, style='EUListBullet1')
+		else:
+			return None
 
 	def ulistitem(self, line):
 		# print line
@@ -198,7 +209,7 @@ class wikiprocessor:
 			picfilename = filename.split('/')[-1]
 
 			picfile = urllib2.urlopen(filename)
-			print(filename, '<------ web')
+			logging.info('%s <------ web' % filename)
 			data = picfile.read()
 			# filename = picfilename
 		
@@ -207,31 +218,31 @@ class wikiprocessor:
 			filename = self.dw.resolve(filename, self.ns)
 			picfilename = filename.split(':')[-1]
 
-			print(filename, '<------ wiki')
+			logging.info('%s <------ wiki' % filename)
 			data = self.dw.getfile(filename)
 			# filename = picfilename
 		
 		# unable to receive data
 		if data is None:
-			print("Invalid image file:", filename)
+			logging.warning("Invalid image file: %s" % filename)
 			return
 
 		# invalid file extension
 		if not filename[-3:] in ['png', 'jpg', 'gif']:
-			print("Invalid Media:", filename)
+			logging.warning("Invalid Media: %s" % filename)
 			self.doc.insert(self.paragraph("FIXME Referencing media: " + filename))
 			return
 
 		# store cached image
-		print(picfilename)
+		# print(picfilename)
 		with open(os.path.join(self.imagepath, picfilename),'wb') as output:
 			output.write(data)
 
 
 			
-		print("Image:", filename, (imgwidth, imgheight))
+		# print("Image:", filename, (imgwidth, imgheight))
 		if caption is None:
-			print("No caption available for image", filename)
+			logging.info("No caption available for image %s" % filename)
 			caption = "No caption available"
 		
 		
@@ -257,7 +268,7 @@ class wikiprocessor:
 			# print l
 			cols = rx_wiki_table.split(l)
 			cols = cols[1:-1]
-			for i in xrange(len(cols)):
+			for i in range(len(cols)):
 				cols[i] = self.paragraph([cols[i].strip()])
 			# print cols
 			rows.append(cols)
@@ -302,8 +313,12 @@ class wikiprocessor:
 				self.doc.insert(self.ulistitem(l))
 			return None
 			
-		# elif mode == "olist":
+		elif mode == "olist":
+			logging.warning("Ordered lists are not supported. Converted into unordered list ...")
 			# doc.insert(olist(lines, doc))
+			for l in lines:
+				self.doc.insert(self.olistitem(l))
+			return None
 		
 		if mode == "image":
 			for l in lines:
@@ -346,7 +361,7 @@ def generatedoc(templatefile, generatefile, dw, tocpage, aggregatefile=None, cha
 
 	doc, chapters = aggregate(dw, toc, tocns, showwikiurl = injectrefs)
 	
-	print()
+	# print()
 	
 	wp = wikiprocessor(document, dw, tocns, chapters, imagepath, ignorepagelinks)
 	
@@ -402,6 +417,7 @@ def generatedoc(templatefile, generatefile, dw, tocpage, aggregatefile=None, cha
 					
 				print()
 				print(e)
+				raise e
 				break
 			# print "Process lines:", lastline, " - ", len(collectedlines)
 		

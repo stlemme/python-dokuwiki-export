@@ -26,6 +26,20 @@ def resolve_link(dw, ns, match):
 		fullname = dw.resolve(page, ns)
 	return dw.link(fullname, section, text)
 	
+	
+def resolve_images(dw, ns, match):
+	# print(match.group())
+	file, caption, params = dw.parseimage(match.group())
+	# print(file, caption, params)
+	if file.startswith('http'):
+		fullname = file
+	else:
+		fullname = dw.resolve(file, ns)
+	# print(fullname)
+	image = dw.image(fullname, caption, params)
+	# print(image)
+	return image
+	
 
 rx_tocline = re.compile(r"^([ ]{2,})\- (\[\[[^\|\]]+(\|[^\]]+)?\]\])")
 
@@ -150,8 +164,9 @@ def aggregate(dw, toc, tocns, showwikiurl = False):
 			
 			# line is usual content
 			# resolve link namespaces
-			resline = wiki.rx_link.sub(lambda m: resolve_link(dw, pagens, m), line)
-			newdoc.append(resline)
+			re1line = wiki.rx_link.sub(lambda m: resolve_link(dw, pagens, m), line)
+			re2line = wiki.rx_image.sub(lambda m: resolve_images(dw, pagens, m), re1line)
+			newdoc.append(re2line)
 
 		newdoc.append("\n")
 		# newdoc.append("\n")
