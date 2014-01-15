@@ -29,7 +29,7 @@ class UnknownLocation(MetaError):
 ###############
 
 class Identifier(Grammar):
-	grammar = (WORD("[\w]", "[\w ,\-!\&\(\)\/]*", fullmatch=False, escapes=True, greedy=False))
+	grammar = (WORD("[\w,\-!\&\(\)\/]", "[\w ,\-!\&\(\)\/]*", fullmatch=False, escapes=True, greedy=False))
 
 class RedIdentifier(Grammar):
 	grammar = (WORD("[\w]", "[\w \-!\(\)\/]*", fullmatch=False, escapes=True, greedy=False))

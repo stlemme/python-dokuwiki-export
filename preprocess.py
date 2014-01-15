@@ -15,6 +15,9 @@ def preprocess(meta):
 			if line.lstrip().startswith('#'):
 				continue
 				
+			parts = line.split(' #', 1)
+			line = parts[0]
+			
 			if active:
 				output.append(line.strip())
 			continue
