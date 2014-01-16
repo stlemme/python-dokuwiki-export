@@ -32,11 +32,18 @@ rx_imageresize = re.compile(r"^([0-9]+)(x([0-9]+))?$")
 
 rx_wiki_link = wiki.rx_link # re.compile(r"\[\[([^\[\]\|]+)\|([^\[\]\|]+)\]\]")
 
+# rx_wiki_biu = [
+	# (re.compile(r"\*\*([^\*]+)\*\*"), 'b'),
+	# (re.compile(r"//([^/]+)//"), 'i'),
+	# (re.compile(r"__([^_]+)__"), 'u'),
+	# (re.compile(r"\s*([\\]{2})\s*"), 'n')
+# ]
+
 rx_wiki_biu = [
-	(re.compile(r"\*\*([^\*]+)\*\*"), 'b'),
-	(re.compile(r"//([^/]+)//"), 'i'),
-	(re.compile(r"__([^\*]+)__"), 'u'),
-	(re.compile(r"\s*([\\]{2})\s*"), 'n')
+	('**', 'b'),
+	('//', 'i'),
+	('__', 'u'),
+	('\\\\', 'n')
 ]
 
 rx_wiki_table = re.compile(r"[\^\|]")
@@ -97,42 +104,101 @@ class wikiprocessor:
 		return wiki.rx_link.sub(self.resolve_link, c)
 		
 
+	def togglestyle(self, pp, p):
+		if p in pp:
+			return pp.replace(p, '')
+		else:
+			return pp + p
+
 
 	def processwikitext(self, line):
 		line = self.replacelinks(line)
 		
 		if "[[" in line:
-			print("Missed links:", line)
+			logging.warning("Missed links!")
+
+		# debug
+		# line = re.sub('[^\w:\+\._\-\(\)\\\, \*\/]+', '#', line)
 
 		lineparts = [(line, '')]
 		# return lineparts
+		# print(lineparts)
 		
-		for rx, p in rx_wiki_biu:
-			i = 0
+		i = 0
+		while i < len(lineparts):
+			pt, pp = lineparts[i]
+
+			first = (len(pt), None, None)
 			
-			while i < len(lineparts):
+			for rx, p in rx_wiki_biu:
+				parts = pt.split(rx, 1)
+				if len(parts) == 1:
+					continue
+				pos = len(parts[0])
+				if pos < first[0]:
+					first = (pos, rx, p)
+			
+			rx = first[1]
+			p = first[2]
+			# print(first)
+
+			# no style modifier in line part
+			if rx is None:
+				i += 1
+				continue
+			
+			# split with first occurrence
+			parts = pt.split(rx, 1)
+			# print(parts)
+			
+			if p == 'n':
+				lineparts[i:i+1] = [
+					# leave the first part unchanged
+					(parts[0].rstrip(), pp),
+					# insert newline
+					('', 'n'),
+					# leave the second part unchanged
+					(parts[1].lstrip(), pp)
+				]
+				i += 2
+
+			else:
+				lineparts[i:i+1] = [
+					# leave the first part unchanged
+					(parts[0], pp),
+					# toggle style for second part
+					(parts[1], self.togglestyle(pp, p))
+				]
+				i += 1
+		
+		# for rx, p in rx_wiki_biu:
+			# i = 0
+			
+			# while i < len(lineparts):
 				# print lineparts
-				pt, pp = lineparts[i]
+				# pt, pp = lineparts[i]
 				
 				# print "pt:", pt
-				parts = rx.split(pt, 1)
-				if len(parts) > 1:
-					parts[0] = (parts[0], pp)
-					parts[1] = (parts[1], pp+p)
-					parts[2] = (parts[2], pp)
+				# parts = rx.split(pt, 1)
+				# if len(parts) > 1:
+					# parts[0] = (parts[0], pp)
+					# parts[1] = (parts[1], pp+p)
+					# parts[2] = (parts[2], pp)
 					# print parts
 					
-					lineparts[i:i+1] = parts
+					# lineparts[i:i+1] = parts
 					# print lineparts
 					# print
-					i += 1          
+					# i += 1          
 				
-				i += 1
+				# i += 1
 
 		# for i in xrange(len(lineparts)):
 			# pt, pp = lineparts[i]
 			# pt = self.replacelinks(pt)
 			# lineparts[i] = (pt, pp)
+
+		# print(lineparts)
 
 		return lineparts
 
