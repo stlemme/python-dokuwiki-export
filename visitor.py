@@ -13,6 +13,9 @@ class Visitor(object):
 			if e is not None:
 				self.internal_visit(e)
 
+				
+##############################################################################
+
 
 class ExperimentsVisitor(Visitor):
 	def __init__(self, site = None, scenario = None):
@@ -30,6 +33,9 @@ class ExperimentsVisitor(Visitor):
 		self.result.append(grammar)
 
 
+##############################################################################
+
+
 class ScenarioVisitor(Visitor):
 	def __init__(self, site = None):
 		self.result = []
@@ -43,6 +49,9 @@ class ScenarioVisitor(Visitor):
 		if not grammar.scenario in self.result:
 			self.result.append(grammar.scenario)
 		
+
+##############################################################################
+
 
 class MetaVisitor(Visitor):
 	def visit(self, entity):
@@ -61,6 +70,9 @@ class MetaVisitor(Visitor):
 
 	def generic_visit(self, entity):
 		pass
+
+
+##############################################################################
 
 
 class DependencyVisitor(MetaVisitor):
@@ -110,10 +122,11 @@ class DependencyVisitor(MetaVisitor):
 			self.nodes.append(entity)
 
 		
-		
-		
+##############################################################################
+
+
 class UsedByVisitor(Visitor):
-	def __init__(self, enabler, relation = 'USES', se = True, app = True, experiment = True, transitive = False):
+	def __init__(self, enabler, relation = 'USES', se = True, app = True, experiment = True, transitive = []):
 		self.result = []
 		self.enabler = enabler
 		self.relation = relation
@@ -133,14 +146,15 @@ class UsedByVisitor(Visitor):
 			self.result.append(grammar)
 			return
 		
-		if not self.transitive:
+		if not len(self.transitive):
 			return
 			
-		for e in grammar.usestates[self.relation]:
-			self.visit(e)
-			if e in self.result:
-				self.result.append(grammar)
-				return
+		for transitive in self.transitive:
+			for e in grammar.usestates[transitive]:
+				self.visit(e)
+				if e in self.result:
+					self.result.append(grammar)
+					return
 		
 		
 	def visit_APP(self, grammar):
@@ -154,22 +168,23 @@ class UsedByVisitor(Visitor):
 			self.result.append(grammar)
 			return
 			
-		if not self.transitive:
+		if not len(self.transitive):
 			return
 
-		for e in grammar.usestates[self.relation]:
-			self.visit(e)
-			if e in self.result:
-				self.result.append(grammar)
-				return
+		for transitive in self.transitive:
+			for e in grammar.usestates[transitive]:
+				self.visit(e)
+				if e in self.result:
+					self.result.append(grammar)
+					return
 		
 	def visit_EXPERIMENT(self, grammar):
 		if not self.experiment:
 			return
 			
-		if not self.transitive:
+		if not len(self.transitive):
 			return
-			
+		
 		if grammar in self.result:
 			return
 
@@ -177,3 +192,26 @@ class UsedByVisitor(Visitor):
 
 		if grammar.application in self.result:
 			self.result.append(grammar)
+
+			
+##############################################################################
+
+
+class GEVisitor(Visitor):
+	def __init__(self):
+		self.result = []
+		# self.site = site
+		# self.scenario = scenario
+		
+	def visit_GE(self, grammar):
+		if grammar in self.result:
+			logging.warning("GE %s specified multiple times")
+			return
+		# if self.site is not None:
+			# if grammar.site != self.site:
+				# return
+		# if self.scenario is not None:
+			# if grammar.scenario != self.scenario:
+				# return
+		self.result.append(grammar)
+		

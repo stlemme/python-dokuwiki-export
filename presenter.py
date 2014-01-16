@@ -7,6 +7,7 @@ class Presenter(object):
 	def dump(self, out):
 		pass
 
+##############################################################################
 
 from visitor import ExperimentsVisitor
 import datetime
@@ -36,6 +37,7 @@ class ExperimentTimelinePresenter(Presenter):
 			out.write('| %s    | %s    | %s       |' % exp)
 		# out.write('| ...   | ...   | ...      |')
 
+##############################################################################
 
 class ListPresenter(Presenter):
 	def __init__(self, visitor, nice = lambda item: item):
@@ -50,6 +52,7 @@ class ListPresenter(Presenter):
 		for item in self.list:
 			out.write('  * %s' % self.nice(item))
 
+##############################################################################
 
 import re
 from visitor import ExperimentsVisitor
@@ -188,5 +191,58 @@ class DependencyPresenter(Presenter):
 		self.dump_line('</graphviz>')
 		
 		self.out = None
+	
+##############################################################################
+
+from visitor import GEVisitor, UsedByVisitor
+
+class UptakePresenter(Presenter):
+	def __init__(self, hideunused = False):
+		self.v = GEVisitor()
+		self.hideunused = hideunused
+
+	def present(self, meta):
+		self.v.visit(meta)
+		self.uptake = []
+		
+		for ge in self.v.result:
+			uv1 = UsedByVisitor(ge, 'USES', se=True, app=True, experiment=False, transitive=['USES'])
+			uv1.visit(meta)
+			uv2 = UsedByVisitor(ge, 'WILL USE', se=True, app=True, experiment=False, transitive=['USES', 'WILL USE'])
+			uv2.visit(meta)
+			uv3 = UsedByVisitor(ge, 'MAY USE', se=True, app=True, experiment=False, transitive=['USES', 'WILL USE', 'MAY USE'])
+			uv3.visit(meta)
+
+			if self.hideunused and len(uv1.result)+len(uv2.result)+len(uv3.result) == 0:
+				continue
+			self.uptake.append((ge, uv1.result, list(set(uv2.result)-set(uv1.result)), list(set(uv3.result)-set(uv1.result))))
+
+		# self.experiments.sort(key = lambda tup: (parsedate(tup[0]), tup[2]))
+		
+	def dump(self, out):
+		out.write('^ GE  ^  Uptake  ^ SEs ^')
+		for ge, uses, will, may in self.uptake:
+			ses = ['%s SE' % e.identifier for e in uses if e.entity == 'SE']
+			apps = ['%s' % e.identifier for e in uses if e.entity == 'APP']
+
+			wses = ['//%s SE//' % e.identifier for e in will + may if e.entity == 'SE']
+			wapps = ['//%s//' % e.identifier for e in will + may if e.entity == 'APP']
+
+			uptake = ' \\\\ '.join(ses + apps + wses + wapps)
+			
+			if len(uses):
+				status = 'D'
+			elif len(will):
+				status = 'U'
+			elif len(may):
+				status = 'E'
+			else:
+				status = ' '
+			
+			print('GE %s - %s - %s' % (ge.identifier, status, uptake))
+			out.write('| %s    |  %s  | %s       |' % (ge.identifier, status, uptake))
+		# out.write('| ...   | ...   | ...      |')
+	
+	
 	
 	

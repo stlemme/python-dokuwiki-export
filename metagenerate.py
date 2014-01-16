@@ -90,11 +90,21 @@ def generate_page(dw, outpage, meta, data):
 	generated_content += [(
 			"Utilization of %s GE" % ge.identifier,
 			presenter.ListPresenter(UsedByVisitor(
-				ge, experiment = False, transitive = True
+				ge,
+				relation = 'USES',
+				experiment = False,
+				transitive = ['USES']
 			), id)
 		) for ge in ges
 	]
 	
+	
+	# Overall Uptake of Generic Enablers
+	#######################################
+
+	generated_content += [
+		("Overall Uptake of Generic Enablers", presenter.UptakePresenter(hideunused=True))
+	]
 	
 	
 	#######################################
