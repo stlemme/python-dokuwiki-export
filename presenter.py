@@ -239,7 +239,7 @@ class UptakePresenter(Presenter):
 			else:
 				status = ' '
 			
-			print('GE %s - %s - %s' % (ge.identifier, status, uptake))
+			# print('GE %s - %s - %s' % (ge.identifier, status, uptake))
 			out.write('| %s    |  %s  | %s       |' % (ge.identifier, status, uptake))
 		# out.write('| ...   | ...   | ...      |')
 	
