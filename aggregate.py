@@ -187,7 +187,7 @@ if __name__ == "__main__":
 	if len(sys.argv) > 2:
 		outpage = sys.argv[2]
 
-	embedwikilinks = True
+	embedwikilinks = False
 
 	logging.info("Connecting to remote DokuWiki at %s" % wikiconfig.url)
 	# dw = wiki.DokuWikiLocal(url, 'pages', 'media')

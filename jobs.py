@@ -53,7 +53,7 @@ class Aggregation(Job):
 		logging.info("Flushing generated content to page %s ..." % self.outpage)
 		dw.putpage(doc, self.outpage)
 		locks = dw.lockpage(self.outpage)
-		logging.info("Locks: %s" % locks)
+		# logging.info("Locks: %s" % locks)
 		return True
 		
 	def responsible(self, dw):
@@ -94,7 +94,8 @@ class MetaProcessing(Job):
 jobs = [
 	MetaProcessing(":FIcontent:private:meta:", ":FIcontent:private:meta:generated"),
 	Aggregation(":ficontent:private:deliverables:d65:toc", ":ficontent:private:deliverables:d65:"),
-	Aggregation(":ficontent:private:deliverables:d42:toc", ":ficontent:private:deliverables:d42:", "stefan", False)
+	Aggregation(":ficontent:private:deliverables:d42:toc", ":ficontent:private:deliverables:d42:", "stefan", False),
+	Aggregation(":ficontent:private:deliverables:d331:toc", ":ficontent:private:deliverables:d331:", "stefan_go")
 ]
 
 jobslog = ":ficontent:private:wikijobs.log"
@@ -126,6 +127,7 @@ if __name__ == "__main__":
 	dw = DokuWikiRemote(wikiconfig.url, wikiconfig.user, wikiconfig.passwd)
 	log = PageLog(dw, jobslog)
 	logging.out = log
+	logging.cliplines = False
 	
 	log << dw.heading(1, "Log of dokuwikibot's jobs")
 	log << ""
