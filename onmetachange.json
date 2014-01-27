@@ -1,0 +1,12 @@
+{
+	"log": ":ficontent:private:wikijobs.onmetachange",
+	"jobs": [
+		"meta": {
+			"job": "metaprocessing",
+			"params": {
+				"meta": ":ficontent:private:meta:",
+				"result":  ":ficontent:private:meta:generated"
+			}
+		}
+	]
+}
