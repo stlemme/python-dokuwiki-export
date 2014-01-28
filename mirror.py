@@ -8,13 +8,13 @@ from wiki import *
 
 
 def resolve_name(pagename, enabler):
-	newname = pagename.replace('.', ':').replace(':ficontent:', ':ficontent:private:')
+	newname = pagename.replace('.', ':') # .replace(':ficontent:', ':ficontent:private:')
 	
 	if e:
 		newname += ':'
 	
-	if newname == ':ficontent:private:fiware:ge:usage':
-		newname = ':ficontent:private:fiware:ge_usage'
+	if newname == ':ficontent:fiware:ge:usage':
+		newname = ':ficontent:fiware:ge_usage'
 	
 	return newname
 
@@ -46,10 +46,11 @@ def resolve_link(dw, ns, newns, page_map, match):
 	
 	
 def resolve_images(dw, ns, match):
-	print(match.group())
-	return match.group()
 	file, caption, params = dw.parseimage(match.group())
 	# print(file, caption, params)
+	print("Image %s" % file)
+	return match.group()
+	
 	if file.startswith('http'):
 		fullname = file
 	else:
@@ -68,10 +69,10 @@ if __name__ == "__main__":
 	pages = dw.allpages()
 	# print(pages)
 	
-	rx_pages = re.compile(r'^:ficontent\.(socialtv|smartcity|gaming|common|fiware)\.', re.IGNORECASE)
+	rx_pages = re.compile(r'^:ficontent\.(socialtv|smartcity|gaming|common|fiware|architecture)', re.IGNORECASE)
 	rx_enablers = re.compile(r'^:ficontent\.(socialtv|smartcity|gaming|common)\.enabler\.[\w]+$', re.IGNORECASE)
 	
-	mirror_pages = {}
+	page_map = {}
 	
 	for p in pages:
 		fullname = dw.resolve(p['id'])
@@ -85,7 +86,7 @@ if __name__ == "__main__":
 
 		newname = resolve_name(fullname, e)
 		fullnewname = dw.resolve(newname)
-		mirror_pages[fullname] = fullnewname
+		page_map[fullname] = fullnewname
 
 	print()
 	print()
@@ -96,8 +97,9 @@ if __name__ == "__main__":
 		":ficontent.common.enabler.socialnetwork"
 	]
 	
+	mirror_pages = page_map.items() # [t for t in page_map.items() if t[0] in debug_pages]
 	
-	for op, np in [t for t in mirror_pages.items() if t[0] in debug_pages]:
+	for op, np in mirror_pages:
 		print("Copy %s\n  -> %s" % (op, np))
 		
 		pagens = []
@@ -109,8 +111,8 @@ if __name__ == "__main__":
 		newdoc = []
 		
 		for line in doc:
-			re1line = wiki.rx_link.sub(lambda m: resolve_link(dw, pagens, newns, mirror_pages, m), line)
+			re1line = wiki.rx_link.sub(lambda m: resolve_link(dw, pagens, newns, page_map, m), line)
 			re2line = wiki.rx_image.sub(lambda m: resolve_images(dw, pagens, m), re1line)
-			newdoc.append(re1line)
+			newdoc.append(re2line)
 
 		dw.putpage(newdoc, np, summary='mirror page')

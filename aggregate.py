@@ -150,6 +150,7 @@ def aggregate(dw, toc, tocns, showwikiurl = False):
 
 				if secdoc is not None:
 					# TODO: here might be a link and image handle important as well
+					# TODO: and we should extend this to handle sublevel headings
 					newdoc.extend(secdoc)
 				
 				continue

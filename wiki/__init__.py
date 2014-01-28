@@ -262,7 +262,16 @@ class DokuWiki(wiki):
 				break
 			trail += 1
 		
-		path = ['..'] * len(ns[trail:]) + path[trail:]
+		rel_path = ['..'] * len(ns[trail:])
+		if len(rel_path) >= trail:
+			return page
+		
+		path = path[trail:]
+		
+		if len(rel_path) == 0 and len(path) > 1:
+			rel_path = ['.']
+		
+		path = rel_path + path
 		
 		return self.ns_delimiter.join(path)
 		
@@ -309,7 +318,11 @@ class DokuWikiRemote(DokuWiki):
 	def putpage(self, lines, page, ns = [], summary='regenerated'):
 		content = '\n'.join(lines)
 		fullname = self.resolve(page, ns)
-		self.client.put_page(fullname, content, summary=summary, minor=False)
+		try:
+			self.client.put_page(fullname, content, summary=summary, minor=False)
+		except dokuwikixmlrpc.DokuWikiXMLRPCError as dwerr:
+			print(dwerr)
+			print(page, fullname)
 
 	def pageinfo(self, page, ns = []):
 		fullname = self.resolve(page, ns)
