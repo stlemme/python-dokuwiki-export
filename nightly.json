@@ -1,5 +1,5 @@
 {
-	"log": ":ficontent:private:wikijobs.nightly",
+	"log": ":ficontent:private:wiki:jobs.nightly",
 	"jobs": {
 		"d331": {
 			"job": "aggregation",
@@ -26,6 +26,16 @@
 				"outpage": ":ficontent:private:deliverables:d65:",
 				"editor": "mariolr",
 				"embedwikilinks": true
+			}
+		},
+		
+		"living-d42": {
+			"job": "aggregation",
+			"params": {
+				"tocpage": ":ficontent:private:deliverables:d42:toc",
+				"outpage": ":ficontent:deliverables:d42",
+				"editor": "stefan",
+				"embedwikilinks": false
 			}
 		}
 	}

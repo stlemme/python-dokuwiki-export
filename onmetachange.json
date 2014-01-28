@@ -1,5 +1,5 @@
 {
-	"log": ":ficontent:private:wikijobs.onmetachange",
+	"log": ":ficontent:private:wiki:jobs.onmetachange",
 	"jobs": {
 		"meta": {
 			"job": "metaprocessing",
