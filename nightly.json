@@ -1,39 +1,32 @@
 {
 	"log": ":ficontent:private:wikijobs.nightly",
-	"jobs": [
-		"meta": {
-			"job": "metaprocessing",
-			"params": {
-				"meta": ":ficontent:private:meta:",
-				"result":  ":ficontent:private:meta:generated"
-			}
-		},
+	"jobs": {
 		"d331": {
 			"job": "aggregation",
 			"params": {
-				"toc": ":ficontent:private:deliverables:d331:toc",
-				"result": ":ficontent:private:deliverables:d331:",
+				"tocpage": ":ficontent:private:deliverables:d331:toc",
+				"outpage": ":ficontent:private:deliverables:d331:",
 				"editor": "stefan_go",
-				"embedwikilinks": True
+				"embedwikilinks": true
 			}
 		},
 		"d42": {
 			"job": "aggregation",
 			"params": {
-				"toc": ":ficontent:private:deliverables:d42:toc",
-				"result": ":ficontent:private:deliverables:d42:",
+				"tocpage": ":ficontent:private:deliverables:d42:toc",
+				"outpage": ":ficontent:private:deliverables:d42:",
 				"editor": "stefan",
-				"embedwikilinks": True
+				"embedwikilinks": true
 			}
 		},
 		"d65": {
 			"job": "aggregation",
 			"params": {
-				"toc": ":ficontent:private:deliverables:d65:toc",
-				"result": ":ficontent:private:deliverables:d65:",
+				"tocpage": ":ficontent:private:deliverables:d65:toc",
+				"outpage": ":ficontent:private:deliverables:d65:",
 				"editor": "mariolr",
-				"embedwikilinks": True
+				"embedwikilinks": true
 			}
 		}
-	]
-]
+	}
+}

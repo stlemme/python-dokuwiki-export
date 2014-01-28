@@ -91,14 +91,41 @@ class MetaProcessing(Job):
 		return info['author']
 
 
-jobs = [
-	MetaProcessing(":FIcontent:private:meta:", ":FIcontent:private:meta:generated"),
-	Aggregation(":ficontent:private:deliverables:d65:toc", ":ficontent:private:deliverables:d65:"),
-	Aggregation(":ficontent:private:deliverables:d42:toc", ":ficontent:private:deliverables:d42:", "stefan", False),
-	Aggregation(":ficontent:private:deliverables:d331:toc", ":ficontent:private:deliverables:d331:", "stefan_go")
-]
+class JobFactory(object):
+	jobs = {}
+	
+	def __init__(self):
+		pass
+		
+	def create_job(self, jtype, params):
+		jtype = jtype.lower()
+		
+		if jtype not in self.jobs:
+			return None
+		
+		jclass = self.jobs[jtype]
+		
+		try:
+			job = jclass(**params)
+		except Exception as e:
+			logging.error("Unable to create job instance - exception occurred!\n%s" % e)
+			job = None
+		
+		return job
 
-jobslog = ":ficontent:private:wikijobs.log"
+	@classmethod
+	def register_job(self, jclass):
+		self.jobs[jclass.__name__.lower()] = jclass
+
+# jobs = [
+	# MetaProcessing(":FIcontent:private:meta:", ":FIcontent:private:meta:generated"),
+	# Aggregation(":ficontent:private:deliverables:d65:toc", ":ficontent:private:deliverables:d65:"),
+	# Aggregation(":ficontent:private:deliverables:d42:toc", ":ficontent:private:deliverables:d42:", "stefan", False),
+	# Aggregation(":ficontent:private:deliverables:d331:toc", ":ficontent:private:deliverables:d331:", "stefan_go")
+# ]
+
+# jobslog = ":ficontent:private:wikijobs.log"
+
 
 class PageLog(PageBuffer):
 	def __init__(self, wiki, page):
@@ -124,6 +151,43 @@ class PageLog(PageBuffer):
 
 
 if __name__ == "__main__":
+
+	JobFactory.register_job(Aggregation)
+	JobFactory.register_job(MetaProcessing)
+	
+	jobdata = None
+	
+	if len(sys.argv) > 1:
+		jobfile = sys.argv[1]
+		logging.info("Loading job file %s ..." % jobfile)
+	
+		try:
+			import json
+			with open(jobfile, 'r') as cf:
+				jobdata = json.load(cf)
+		except Exception as e:
+			logging.error("Unable to load job file - exception occurred!\n%s" % e)
+			
+	# print(jobdata)
+
+	jobs = []
+	jobslog = None
+
+	if jobdata is not None:
+		jobslog = jobdata["log"]
+		
+		f = JobFactory()
+		for jname, jdata in jobdata["jobs"].items():
+			# print(jname)
+			# print(jdata)
+			j = f.create_job(jdata["job"], jdata["params"])
+			
+			if j is None:
+				logging.error("Unable to queue job '%s'." % jname)
+				continue
+			
+			jobs.append(j)
+	
 	dw = DokuWikiRemote(wikiconfig.url, wikiconfig.user, wikiconfig.passwd)
 	log = PageLog(dw, jobslog)
 	logging.out = log
