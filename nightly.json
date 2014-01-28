@@ -28,6 +28,15 @@
 				"embedwikilinks": true
 			}
 		},
+		"d712": {
+			"job": "aggregation",
+			"params": {
+				"tocpage": ":ficontent:private:deliverables:d712:toc",
+				"outpage": ":ficontent:private:deliverables:d712:",
+				"editor": "stefan_go",
+				"embedwikilinks": true
+			}
+		},
 		
 		"living-d42": {
 			"job": "aggregation",
