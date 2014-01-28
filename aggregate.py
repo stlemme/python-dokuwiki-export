@@ -146,19 +146,11 @@ def aggregate(dw, toc, tocns, showwikiurl = False):
 				# incsection = result.group(3)
 				incpage, incsection = dw.parseinclude(result.group())
 				# newdoc.append("INCLUDE %s - %s\n" % (incpage, incsection))
-				incdoc = dw.getpage(incpage, pagens)
-				
-				for l in incdoc:
-					result = wiki.rx_heading.match(l)
-					if result is not None:
-						incheading, inclevel = dw.parseheading(result.group())
-						skip = incheading != incsection
-						continue
-					
-					if skip:
-						continue
-					
-					newdoc.append(l)
+				secdoc = dw.getsection(incpage, incsection, pagens)
+
+				if secdoc is not None:
+					# TODO: here might be a link and image handle important as well
+					newdoc.extend(secdoc)
 				
 				continue
 			

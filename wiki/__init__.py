@@ -13,8 +13,11 @@ class wiki(object):
 
 	def getpage(self, page, ns = [], pagens = None):
 		return None
+		
+	def getsection(self, page, section, ns = [], pagens = None):
+		return None
 
-	def putpage(self, lines, page, ns = []):
+	def putpage(self, lines, page, ns = [], summary='regenerated'):
 		pass
 
 	def pageurl(self, page, ns = [], heading = None):
@@ -26,6 +29,8 @@ class wiki(object):
 	def getfile(self, file, ns = []):
 		return None
 
+	def allpages(self):
+		return None
 		
 	rx_heading = re.compile(r"^(=+) ([^=]+) (=+)$")
 
@@ -210,12 +215,12 @@ class DokuWiki(wiki):
 			url += '#' + self.target(heading)
 		return url
 
-	def resolve(self, page, rel_ns = []):
+	def resolve(self, page, rel_ns = [], pagens = None):
 		parts = page.split(self.ns_delimiter)
 
 		# a page in the same namespace
 		if len(parts) == 1:
-			return self.ns_delimiter + self.ns_delimiter.join(rel_ns + [page]);
+			return self.ns_delimiter + self.ns_delimiter.join(rel_ns + [page]).lower();
 		
 		# referring to a namespace rather than a page
 		if len(parts[-1]) == 0:
@@ -241,9 +246,50 @@ class DokuWiki(wiki):
 				break
 		
 		path = path + parts[trail:]
-		return self.ns_delimiter + self.ns_delimiter.join([self.cleanid(id) for id in path])
+		
+		if pagens is not None:
+			pagens[:] = path[:-1]
+			
+		return self.ns_delimiter + self.ns_delimiter.join([self.cleanid(id).lower() for id in path])
+		
+	def resolverel(self, page, ns):
+		parts = page.split(self.ns_delimiter)
+		path = parts[1:]
+		
+		trail = 0
+		for i, p in enumerate(ns):
+			if p != path[i]:
+				break
+			trail += 1
+		
+		path = ['..'] * len(ns[trail:]) + path[trail:]
+		
+		return self.ns_delimiter.join(path)
 		
 		
+	def getsection(self, page, section, ns = [], pagens = None):
+		fullname = self.resolve(page, ns)
+		if pagens is not None:
+			pagens[:] = fullname.split(self.ns_delimiter)[1:-1]
+		content = self.client.page(fullname[1:])
+		lines = content.split('\n')
+		
+		seclines = []
+		
+		for l in lines:
+			result = self.rx_heading.match(l)
+			if result is not None:
+				heading, level = self.parseheading(result.group())
+				skip = heading != section
+				continue
+			
+			if skip:
+				continue
+
+			seclines.append(l)
+
+		return seclines
+
 
 from . import dokuwikixmlrpc
 
@@ -260,10 +306,10 @@ class DokuWikiRemote(DokuWiki):
 		lines = content.split('\n')
 		return lines
 
-	def putpage(self, lines, page, ns = []):
+	def putpage(self, lines, page, ns = [], summary='regenerated'):
 		content = '\n'.join(lines)
 		fullname = self.resolve(page, ns)
-		self.client.put_page(fullname, content, summary='regenerated', minor=False)
+		self.client.put_page(fullname, content, summary=summary, minor=False)
 
 	def pageinfo(self, page, ns = []):
 		fullname = self.resolve(page, ns)
@@ -285,6 +331,8 @@ class DokuWikiRemote(DokuWiki):
 			print(file, fullname)
 		return None
 
+	def allpages(self):
+		return self.client.all_pages()
 
 
 class DokuWikiLocal(DokuWiki):
