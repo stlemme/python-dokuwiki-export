@@ -312,6 +312,9 @@ class DokuWikiRemote(DokuWiki):
 		if pagens is not None:
 			pagens[:] = fullname.split(self.ns_delimiter)[1:-1]
 		content = self.client.page(fullname[1:])
+		# check if page does not exist
+		if len(content) == 0:
+			return None
 		lines = content.split('\n')
 		return lines
 

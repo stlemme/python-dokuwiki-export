@@ -73,7 +73,6 @@ def aggregate(dw, toc, tocns, showwikiurl = False):
 		
 		pagens = []
 		content = dw.getpage(page, tocns, pagens)
-		# print(pagens)
 		
 		# resolve page to full page name
 		page = dw.resolve(page, pagens)
