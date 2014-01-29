@@ -6,7 +6,7 @@
 			"job": "aggregation",
 			"params": {
 				"tocpage": ":ficontent:private:deliverables:d331:toc",
-				"outpage": ":ficontent:private:deliverables:d331:",
+				"outpage": ":ficontent:private:deliverables:nightly:d331",
 				"editor": "stefan_go",
 				"embedwikilinks": true
 			}
@@ -16,7 +16,7 @@
 			"job": "aggregation",
 			"params": {
 				"tocpage": ":ficontent:private:deliverables:d42:toc",
-				"outpage": ":ficontent:private:deliverables:d42:",
+				"outpage": ":ficontent:private:deliverables:nightly:d42",
 				"editor": "stefan",
 				"embedwikilinks": true
 			}
@@ -26,7 +26,7 @@
 			"job": "aggregation",
 			"params": {
 				"tocpage": ":ficontent:private:deliverables:d65:toc",
-				"outpage": ":ficontent:private:deliverables:d65:",
+				"outpage": ":ficontent:private:deliverables:nightly:d65",
 				"editor": "mariolr",
 				"embedwikilinks": true
 			}
@@ -36,7 +36,7 @@
 			"job": "aggregation",
 			"params": {
 				"tocpage": ":ficontent:private:deliverables:d712:toc",
-				"outpage": ":ficontent:private:deliverables:d712:",
+				"outpage": ":ficontent:private:deliverables:nightly:d712",
 				"editor": "stefan_go",
 				"embedwikilinks": true
 			}
@@ -45,7 +45,7 @@
 			"job": "aggregation",
 			"params": {
 				"tocpage": ":ficontent:private:deliverables:d721:toc",
-				"outpage": ":ficontent:private:deliverables:d721:",
+				"outpage": ":ficontent:private:deliverables:nightly:d721",
 				"editor": "stefan_go",
 				"embedwikilinks": true
 			}
@@ -54,7 +54,7 @@
 			"job": "aggregation",
 			"params": {
 				"tocpage": ":ficontent:private:deliverables:d731:toc",
-				"outpage": ":ficontent:private:deliverables:d731:",
+				"outpage": ":ficontent:private:deliverables:nightly:d731",
 				"editor": "stefan_go",
 				"embedwikilinks": true
 			}
@@ -63,7 +63,7 @@
 			"job": "aggregation",
 			"params": {
 				"tocpage": ":ficontent:private:deliverables:d741:toc",
-				"outpage": ":ficontent:private:deliverables:d741:",
+				"outpage": ":ficontent:private:deliverables:nightly:d741",
 				"editor": "stefan_go",
 				"embedwikilinks": true
 			}
@@ -72,7 +72,7 @@
 			"job": "aggregation",
 			"params": {
 				"tocpage": ":ficontent:private:deliverables:d751:toc",
-				"outpage": ":ficontent:private:deliverables:d751:",
+				"outpage": ":ficontent:private:deliverables:nightly:d751",
 				"editor": "stefan_go",
 				"embedwikilinks": true
 			}
@@ -81,7 +81,7 @@
 			"job": "aggregation",
 			"params": {
 				"tocpage": ":ficontent:private:deliverables:d761:toc",
-				"outpage": ":ficontent:private:deliverables:d761:",
+				"outpage": ":ficontent:private:deliverables:nightly:d761",
 				"editor": "stefan_go",
 				"embedwikilinks": true
 			}
@@ -90,7 +90,7 @@
 			"job": "aggregation",
 			"params": {
 				"tocpage": ":ficontent:private:deliverables:d771:toc",
-				"outpage": ":ficontent:private:deliverables:d771:",
+				"outpage": ":ficontent:private:deliverables:nightly:d771",
 				"editor": "stefan_go",
 				"embedwikilinks": true
 			}
