@@ -147,12 +147,14 @@ class DependencyPresenter(Presenter):
 			if enabler in deployment.keys():
 				locs.append(deployment[enabler])
 		if len(locs) == 0:
+			self.fixmes.append('FIXME [Unknown] Provide deployment information for enabler "%s" in scenario "%s" on site %s' % (enabler.identifier, self.scenario, self.site))
 			return "no deployment info"
 		return ', '.join([l.identifier for l in set(locs)])
 		
 
 	def dump(self, out):
 		self.nodemap = {}
+		self.fixmes = []
 		self.out = out
 		
 		self.dump_line('<graphviz dot center>')
@@ -180,6 +182,10 @@ class DependencyPresenter(Presenter):
 		
 		self.dump_line('}')
 		self.dump_line('</graphviz>')
+		
+		for f in self.fixmes:
+			self.dump_line(f)
+			self.dump_line('')
 		
 		self.out = None
 	
