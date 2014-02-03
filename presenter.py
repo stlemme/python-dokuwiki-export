@@ -10,16 +10,7 @@ class Presenter(object):
 ##############################################################################
 
 from visitor import ExperimentsVisitor
-import datetime
-import dateutil.parser
-
-
-def parsedate(date):
-	try:
-		dt = dateutil.parser.parse(date)
-	except ValueError:
-		dt = datetime.datetime(2997, 9, 12)
-	return dt
+import date
 
 
 class ExperimentTimelinePresenter(Presenter):
@@ -29,7 +20,7 @@ class ExperimentTimelinePresenter(Presenter):
 	def present(self, meta):
 		self.v.visit(meta)
 		self.experiments = [(exp.date, exp.site, exp.scenario) for exp in self.v.result]
-		self.experiments.sort(key = lambda tup: (parsedate(tup[0]), tup[2]))
+		self.experiments.sort(key = lambda tup: (date.parse(tup[0]), tup[2]))
 		
 	def dump(self, out):
 		out.write('^ Date  ^ Site  ^ Scenario ^')

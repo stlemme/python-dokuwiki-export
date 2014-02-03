@@ -32,6 +32,9 @@ class wiki(object):
 	def allpages(self):
 		return None
 		
+	def search(self, query):
+		return None
+		
 	rx_heading = re.compile(r"^(=+) ([^=]+) (=+)$")
 
 	def parseheading(self, heading):
@@ -349,6 +352,9 @@ class DokuWikiRemote(DokuWiki):
 
 	def allpages(self):
 		return self.client.all_pages()
+		
+	def searchpages(self, query):
+		return self.client.search(query)
 
 
 class DokuWikiLocal(DokuWiki):

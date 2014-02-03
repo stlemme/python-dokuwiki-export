@@ -237,9 +237,15 @@ class DokuWikiClient(object):
         """List all pages of the remote Wiki."""
         try:
             return self._xmlrpc.wiki.getAllPages()
-        except xmlrpclib.Fault as fault:
+        except xmlrpc.client.Fault as fault:
             raise DokuWikiXMLRPCError(fault)
 
+    def search(self, query):
+        """Performs a fulltext search of the remote Wiki."""
+        try:
+            return self._xmlrpc.dokuwiki.search(query)
+        except xmlrpc.client.Fault as fault:
+            raise DokuWikiXMLRPCError(fault)
 
     def backlinks(self, page_id):
         """Return a list of pages that link back to a Wiki page."""

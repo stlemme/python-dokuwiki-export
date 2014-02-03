@@ -6,6 +6,7 @@ import logging
 import datetime
 from outbuffer import PageBuffer
 import metagenerate
+import actionitems
 
 
 class Job(object):
@@ -52,7 +53,7 @@ class Aggregation(Job):
 
 		logging.info("Flushing generated content to page %s ..." % self.outpage)
 		dw.putpage(doc, self.outpage)
-		locks = dw.lockpage(self.outpage)
+		# locks = dw.lockpage(self.outpage)
 		# logging.info("Locks: %s" % locks)
 		return True
 		
@@ -89,6 +90,26 @@ class MetaProcessing(Job):
 		# TODO: retrieve last author of metapage
 		info = dw.pageinfo(self.metapage)
 		return info['author']
+
+
+class UpdateActionItems(Job):
+	def __init__(self, outpage, namespace = ':ficontent:'):
+		Job.__init__(self)
+		self.outpage = outpage
+		self.namespace = namespace
+	
+	def summary(self):
+		return "Updating action items of namespace %s" % self.namespace
+	
+	def required(self):
+		return True
+
+	def perform(self, dw):
+		actionitems.updateactionitems(dw, self.outpage, self.namespace)
+		return True
+
+	def responsible(self, dw):
+		return 'stefan'
 
 
 class JobFactory(object):
@@ -154,6 +175,7 @@ if __name__ == "__main__":
 
 	JobFactory.register_job(Aggregation)
 	JobFactory.register_job(MetaProcessing)
+	JobFactory.register_job(UpdateActionItems)
 	
 	jobdata = None
 	

@@ -2,6 +2,14 @@
 	"log": ":ficontent:private:wiki:jobs.nightly",
 	"jobs": {
 	
+		"action-items": {
+			"job": "updateactionitems",
+			"params": {
+				"outpage": ":ficontent:private:action_items",
+				"namespace": ":ficontent:"
+			}
+		},
+
 		"d331": {
 			"job": "aggregation",
 			"params": {
