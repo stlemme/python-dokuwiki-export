@@ -93,10 +93,11 @@ class MetaProcessing(Job):
 
 
 class UpdateActionItems(Job):
-	def __init__(self, outpage, namespace = ':ficontent:'):
+	def __init__(self, outpage, namespace = ':ficontent:', exceptions = []):
 		Job.__init__(self)
 		self.outpage = outpage
 		self.namespace = namespace
+		self.exceptions = exceptions
 	
 	def summary(self):
 		return "Updating action items of namespace %s" % self.namespace
@@ -105,7 +106,7 @@ class UpdateActionItems(Job):
 		return True
 
 	def perform(self, dw):
-		actionitems.updateactionitems(dw, self.outpage, self.namespace)
+		actionitems.updateactionitems(dw, self.outpage, self.namespace, self.exceptions)
 		return True
 
 	def responsible(self, dw):
@@ -191,6 +192,10 @@ if __name__ == "__main__":
 			logging.error("Unable to load job file - exception occurred!\n%s" % e)
 			
 	# print(jobdata)
+	if len(sys.argv) > 2:
+		specificjobs = [job.lower() for job in sys.argv[2:]]
+	else:
+		specificjobs = None
 
 	jobs = []
 	jobslog = None
@@ -202,6 +207,10 @@ if __name__ == "__main__":
 		for jname, jdata in jobdata["jobs"].items():
 			# print(jname)
 			# print(jdata)
+			if specificjobs is not None:
+				if jname.lower() not in specificjobs:
+					continue
+			
 			j = f.create_job(jdata["job"], jdata["params"])
 			
 			if j is None:

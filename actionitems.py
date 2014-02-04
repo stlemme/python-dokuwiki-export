@@ -32,18 +32,31 @@ class FixMe(object):
 			return None
 		return FixMe(result.group(0), result.group(1), result.group(2), result.group(3))
 
+
+import date
 	
-def collectfixmes(dw, ns):
+def collectfixmes(dw, ns, exceptions = []):
 	pages = dw.searchpages("FIXME")
 	# print(pages)
 
 	rx_namespace = re.compile(ns, re.IGNORECASE)
+	rx_exceptions = [re.compile(ex, re.IGNORECASE) for ex in exceptions]
 	
 	pageids = [(dw.resolve(p['id']), p['score']) for p in pages]
 	fixmes = []
 	
 	for pid, hits in pageids:
 		if not rx_namespace.match(pid):
+			continue
+		
+		skip = False
+		
+		for ex in rx_exceptions:
+			if ex.match(pid) is not None:
+				skip = True
+				break
+		
+		if skip:
 			continue
 		
 		doc = dw.getpage(pid)
@@ -61,14 +74,14 @@ def collectfixmes(dw, ns):
 			deadline = f.group(3)
 			
 			# print("%s - %s\n%s" % (partner, deadline, todo))
+			# print("%s  --  %s" % (deadline, date.parse(deadline)))
 			
 			fixmes.append(FixMe(partner, todo, deadline, pid))
 			
 		if numfixmes != hits:
 			logging.warning("Invalid FIXME syntax on page %s" % pid)
 
-	import date
-	fixmes.sort(key = lambda f: (date.parse(f.deadline), f.page))
+	fixmes.sort(key = lambda f: (date.parse(f.deadline), f.partner, f.page))
 	return fixmes
 
 	
@@ -90,9 +103,9 @@ def parsefixmes(doc):
 	return preface, fixmes, postface
 
 	
-def updateactionitems(dw, page, namespace):
+def updateactionitems(dw, page, namespace, exceptions = []):
 	logging.info("Collecting FIXMEs in namespace %s" % namespace)
-	fixmes = collectfixmes(dw, namespace)
+	fixmes = collectfixmes(dw, namespace, exceptions)
 	
 	page = dw.resolve(page)
 	# actions = PageBuffer(dw, outpage)

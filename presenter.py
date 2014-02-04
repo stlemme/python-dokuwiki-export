@@ -1,12 +1,30 @@
 
 
 class Presenter(object):
+	def __init__(self):
+		self.fixmes = []
+		
 	def present(self, meta):
 		pass
 
 	def dump(self, out):
 		pass
 
+	def dump_fixmes(self, out):
+		for f in self.fixmes:
+			out.write(f)
+			out.write('')
+	
+	def fixme(self, addressee, todo, deadline = None):
+		if isinstance(addressee, list):
+			addressee = ', '.join(list(set(addressee)))
+		if deadline is not None:
+			deadline = '{' + deadline + '}'
+		else:
+			deadline = ''
+		fixme = "FIXME [{0}] {1} {2}".format(addressee, deadline, todo)
+		self.fixmes.append(fixme)
+		
 ##############################################################################
 
 from visitor import ExperimentsVisitor
@@ -15,6 +33,7 @@ import date
 
 class ExperimentTimelinePresenter(Presenter):
 	def __init__(self, site = None):
+		Presenter.__init__(self)
 		self.v = ExperimentsVisitor(site)
 		
 	def present(self, meta):
@@ -32,6 +51,7 @@ class ExperimentTimelinePresenter(Presenter):
 
 class ListPresenter(Presenter):
 	def __init__(self, visitor, nice = lambda item: item):
+		Presenter.__init__(self)
 		self.v = visitor
 		self.nice = nice
 		
@@ -51,6 +71,7 @@ from visitor import DependencyVisitor
 
 class DependencyPresenter(Presenter):
 	def __init__(self, scenario, site = None, relations = ['USES']):
+		Presenter.__init__(self)
 		self.scenario = scenario
 		self.site = site
 		self.relations = relations
@@ -86,14 +107,14 @@ class DependencyPresenter(Presenter):
 		for a in self.apps:
 			self.dv.visit(a)
 		self.deployments = [exp.deployment for exp in self.ev.result]
-		
-		
+	
+	
 	def dump_node(self, node, label = lambda node: node.identifier):
 		stripid = self.cleanid('%s_%s' % (node.entity, node.identifier))
 		# print("%s -> %s" % (node.identifier, stripid))
 		self.nodemap[node] = stripid
 		self.dump_line('%s [label = "%s"];' % (stripid, label(node)), indent=2)
-		
+	
 	def dump_edge(self, node1, node2, edge):
 		# App10913 -> GhiGE;
 		id1 = self.nodemap[node1]
@@ -147,14 +168,17 @@ class DependencyPresenter(Presenter):
 			if enabler in deployment.keys():
 				locs.append(deployment[enabler])
 		if len(locs) == 0:
-			self.fixmes.append('FIXME [Unknown] Provide deployment information for enabler "%s" in scenario "%s" on site %s' % (enabler.identifier, self.scenario, self.site))
+			self.fixme(
+				[exp.conductor[0].identifier for exp in self.ev.result],
+				'Provide deployment information for enabler "%s" in scenario "%s" on site %s' % (enabler.identifier, self.scenario, self.site),
+				deadline = 'ASAP'
+			)
 			return "no deployment info"
 		return ', '.join([l.identifier for l in set(locs)])
-		
+	
 
 	def dump(self, out):
 		self.nodemap = {}
-		self.fixmes = []
 		self.out = out
 		
 		self.dump_line('<graphviz dot center>')
@@ -183,9 +207,7 @@ class DependencyPresenter(Presenter):
 		self.dump_line('}')
 		self.dump_line('</graphviz>')
 		
-		for f in self.fixmes:
-			self.dump_line(f)
-			self.dump_line('')
+		self.dump_fixmes(out)
 		
 		self.out = None
 	
@@ -195,6 +217,7 @@ from visitor import GEVisitor, UsedByVisitor
 
 class UptakePresenter(Presenter):
 	def __init__(self, hideunused = False):
+		Presenter.__init__(self)
 		self.v = GEVisitor()
 		self.hideunused = hideunused
 
