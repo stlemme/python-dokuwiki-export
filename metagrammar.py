@@ -25,6 +25,10 @@ class UnknownLocation(MetaError):
 	def __init__(self, loc, text):
 		MetaError.__init__(self, 'Unknown deployment location: "%s"' % loc, text)
 
+class UnknownPartner(MetaError):
+	def __init__(self, partner, text):
+		MetaError.__init__(self, 'Unknown partner: "%s"' % partner, text)
+
 		
 ###############
 
@@ -100,10 +104,23 @@ def handleUseStmts(stmts, usestates, data, hint):
 				raise UnknownEnabler(ename, hint)
 			usestates[usestate].append(e)
 
+def handleContact(elem, data, hint):
+	if elem is None:
+		return None
+	
+	partnername = elem.elements[5].string
+	partner, contact = data.contact(partnername)
+	if partner is None:
+		raise UnknownPartner(partnername, hint)
+	return (partner, contact)
+	# print(self.provider)
+
+
 class SE(NamedEntity):
 	grammar = (
 		LITERAL("SE"), WHITESPACE, Identifier,
 		OPTIONAL(WHITESPACE, AsStatement),
+		OPTIONAL(WHITESPACE, LITERAL("PROVIDED"), WHITESPACE, LITERAL("BY"), WHITESPACE, RedIdentifier),
 		ZERO_OR_MORE(WHITESPACE, UseStmt)
 	)
 
@@ -122,8 +139,10 @@ class SE(NamedEntity):
 			"MAY USE": self.mayuse
 		}
 		
-		if self.elements[4] is not None:
-			handleUseStmts(self.elements[4], self.usestates, data, self.string)
+		self.provider = handleContact(self.elements[4], data, self.string)
+		
+		if self.elements[5] is not None:
+			handleUseStmts(self.elements[5], self.usestates, data, self.string)
 
 
 ###############
@@ -142,6 +161,7 @@ class APP(NamedEntity):
 	grammar = (
 		LITERAL("APP"), WHITESPACE, Identifier,
 		OPTIONAL(WHITESPACE, AsStatement),
+		OPTIONAL(WHITESPACE, LITERAL("DEVELOPED"), WHITESPACE, LITERAL("BY"), WHITESPACE, RedIdentifier),
 		ONE_OR_MORE(WHITESPACE, UseStmt)
 	)
 
@@ -160,8 +180,10 @@ class APP(NamedEntity):
 			"MAY USE": self.mayuse
 		}
 		
-		if self.elements[4] is not None:
-			handleUseStmts(self.elements[4], self.usestates, data, self.string)
+		self.developer = handleContact(self.elements[4], data, self.string)
+
+		if self.elements[5] is not None:
+			handleUseStmts(self.elements[5], self.usestates, data, self.string)
 
 
 ###############
@@ -184,26 +206,29 @@ class DeploymentStmt(Grammar):
 
 class EXPERIMENT(Grammar):
 	grammar = (
-		LITERAL("EXPERIMENT"), WHITESPACE, LITERAL("IN"), WHITESPACE, Place, WHITESPACE,
-		OPTIONAL(LITERAL("OF"), WHITESPACE, LITERAL("SITE"), WHITESPACE, ExperimentationSite, WHITESPACE),
-		LITERAL("AT"), WHITESPACE, Date, WHITESPACE,
-		LITERAL("DRIVES"), WHITESPACE, Scenario, WHITESPACE,
-		ONE_OR_MORE(DeploymentStmt, WHITESPACE),
-		LITERAL("BY"), WHITESPACE, LITERAL("RUNNING"), WHITESPACE, Identifier
+		LITERAL("EXPERIMENT"), WHITESPACE, LITERAL("IN"), WHITESPACE, Place,
+		OPTIONAL(WHITESPACE, LITERAL("OF"), WHITESPACE, LITERAL("SITE"), WHITESPACE, ExperimentationSite),
+		WHITESPACE, LITERAL("AT"), WHITESPACE, Date,
+		OPTIONAL(WHITESPACE, LITERAL("CONDUCTED"), WHITESPACE, LITERAL("BY"), WHITESPACE, RedIdentifier),
+		WHITESPACE, LITERAL("DRIVES"), WHITESPACE, Scenario,
+		ONE_OR_MORE(WHITESPACE, DeploymentStmt),
+		WHITESPACE, LITERAL("BY"), WHITESPACE, LITERAL("RUNNING"), WHITESPACE, Identifier
 	)
 
 	def grammar_elem_init(self, data):
 		self.place = self.elements[4].string
 		self.site = self.place
-		if self.elements[6] is not None:
-			self.site = self.elements[6].elements[4].string
+		if self.elements[5] is not None:
+			self.site = self.elements[5].elements[5].string
 			
 		self.date = self.elements[9].string
-		self.scenario = self.elements[13].string
+		self.scenario = self.elements[14].string
 		
-		self.application = data.application(self.elements[20].string)
+		self.conductor = handleContact(self.elements[10], data, self.string)
+		
+		self.application = data.application(self.elements[21].string)
 		if self.application is None:
-			raise UnknownApplication(self.elements[20].string, self.string)
+			raise UnknownApplication(self.elements[21].string, self.string)
 		
 		self.deployment = {}
 		for d in self.elements[15].find_all(DeploymentStmt):
@@ -226,8 +251,48 @@ class EXPERIMENT(Grammar):
 
 ###############
 
+class MailAddress(Grammar):
+	grammar = (WORD("\w", "[\w\.\-@\+]", fullmatch=False, escapes=True, greedy=False))
+
+class PARTNER(Grammar):
+	grammar = (
+		LITERAL("PARTNER"), WHITESPACE, RedIdentifier,
+		ONE_OR_MORE(
+			WHITESPACE, LITERAL("WITH"), WHITESPACE, Identifier,
+			WHITESPACE, LITERAL("-"), WHITESPACE,
+				MailAddress,
+				OPTIONAL(
+					WHITESPACE, LITERAL("AS"), WHITESPACE, LITERAL("DEFAULT"), WHITESPACE, LITERAL("CONTACT")
+					# whitespace_mode='required'
+				)
+		)
+	)
+	
+	def grammar_elem_init(self, data):
+		self.identifier = self.elements[2].string
+		self.contacts = {}
+		self.defaultcontact = None
+		for elem in self.elements[3].elements:
+			name = elem.elements[3].string
+			email = elem.elements[7].string
+			self.contacts[name] = email
+			if elem.elements[8] is not None:
+				self.defaultcontact = name
+				
+		if self.defaultcontact is None:
+			self.defaultcontact = self.elements[3].elements[0].elements[3].string
+
+		# print(self.identifier)
+		# print(self.contacts)
+		# print(self.defaultcontact)
+		
+		data.partner[self.identifier] = self
+
+
+###############
+
 class Meta(Grammar):
-	grammar = (BOL, OR(GE, SE, LOC, APP, EXPERIMENT, WHITESPACE, EMPTY), EOL)
+	grammar = (BOL, OR(GE, SE, LOC, APP, EXPERIMENT, PARTNER, WHITESPACE, EMPTY), EOL)
 
 class MyGrammar(Grammar):
 	grammar = (ONE_OR_MORE(Meta))

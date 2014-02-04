@@ -7,6 +7,7 @@ class MetaData(object):
 		self.se = {}
 		self.loc = {}
 		self.app = {}
+		self.partner = {}
 		
 		self.warning = warning
 		self.error = error
@@ -31,6 +32,26 @@ class MetaData(object):
 		if id in self.loc:
 			return self.loc[id]
 		return None
+		
+	def contact(self, id):
+		partner = id
+		contact = None
+		
+		if '-' in id:
+			parts = id.split('-', 1)
+			partner = parts[0]
+			contact = parts[1]
+			
+		if partner not in self.partner:
+			return None, None
+
+		p = self.partner[partner]
+
+		if contact and contact in p.contacts:
+			return p, contact
+
+		return p, p.defaultcontact
+
 		
 	def insert_default(self, map, grammar, name):
 		g = grammar()
