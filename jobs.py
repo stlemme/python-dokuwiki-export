@@ -299,8 +299,8 @@ if __name__ == "__main__":
 	
 	dw = DokuWikiRemote(wikiconfig.url, wikiconfig.user, wikiconfig.passwd)
 	log = PageLog(dw, jobslog)
-	# logging.out = log
-	# logging.cliplines = False
+	logging.out = log
+	logging.cliplines = False
 	
 	log << dw.heading(1, "Log of dokuwikibot's jobs")
 	log << ""
