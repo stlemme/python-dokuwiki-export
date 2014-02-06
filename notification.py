@@ -11,7 +11,7 @@ class Notifier(object):
 	
 class EmailNotifier(Notifier):
 	fromaddress = "dokuwikibot@wiki.mediafi.org"
-	ccaddress = ["stefan.lemme@dfki.de"]
+	ccaddress = ["stefan.lemme@dfki.de", "dirkk0@googlemail.com"]
 	
 	def __init__(self):
 		self.send = None
