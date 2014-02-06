@@ -6,7 +6,10 @@
 			"job": "updateactionitems",
 			"params": {
 				"outpage": ":ficontent:private:action_items",
-				"namespace": ":ficontent:"
+				"namespace": ":ficontent:",
+				"exceptions": [
+					":ficontent:private:list_of_specific_enablers"
+				]
 			}
 		},
 
