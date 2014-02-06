@@ -228,7 +228,7 @@ class DokuWikiClient(object):
             params = {}
             params['sum'] = summary
             params['minor'] = minor
-            self._xmlrpc.wiki.putPage(page_id, text, params)
+            return self._xmlrpc.wiki.putPage(page_id, text, params)
         except xmlrpc.client.Fault as fault:
             raise DokuWikiXMLRPCError(fault)
 

@@ -52,10 +52,11 @@ class Aggregation(Job):
 		doc, chapters = aggregate(dw, toc, tocns, self.embedwikilinks)
 
 		logging.info("Flushing generated content to page %s ..." % self.outpage)
-		dw.putpage(doc, self.outpage)
+		res = dw.putpage(doc, self.outpage)
+		# print(res)
 		# locks = dw.lockpage(self.outpage)
 		# logging.info("Locks: %s" % locks)
-		return True
+		return res
 		
 	def responsible(self, dw):
 		return self.editor
@@ -110,7 +111,7 @@ class UpdateActionItems(Job):
 		return True
 
 	def responsible(self, dw):
-		return 'stefan'
+		return 'DFKI-Stefan'
 
 
 class JobFactory(object):
@@ -172,24 +173,114 @@ class PageLog(PageBuffer):
 		PageBuffer.flush(self)
 
 
+def loadjobfile(jobfile):
+	logging.info("Loading job file %s ..." % jobfile)
+
+	try:
+		import json
+		with open(jobfile, 'r') as cf:
+			jobdata = json.load(cf)
+		return jobdata
+	except Exception as e:
+		logging.error("Unable to load job file - exception occurred!\n%s" % e)
+
+	return None
+
+
+def createjobs(jobdata):
+	if jobdata is None:
+		return []
+
+	jobs = []
+	f = JobFactory()
+	
+	for jname, jdata in jobdata["jobs"].items():
+		# print(jname)
+		# print(jdata)
+		if specificjobs is not None:
+			if jname.lower() not in specificjobs:
+				continue
+		
+		j = f.create_job(jdata["job"], jdata["params"])
+		
+		if j is None:
+			logging.error("Unable to queue job '%s'." % jname)
+			continue
+		
+		jobs.append(j)
+
+	return jobs
+
+
+def executejobs(jobs, jobsuccess = None):
+	overallsuccess = True
+	n = len(jobs)
+	
+	for i, j in enumerate(jobs):
+		p = i+1
+		logging.info("JOB %d of %d: %s" % (p, n, j.summary()))
+		
+		if not j.required():
+			logging.info("Skipped!")
+			continue
+			
+		try:
+			success = j.perform(dw)
+		except logging.FatalError:
+			success = False
+		
+		if jobsuccess is not None:
+			jobsuccess[j] = success
+			
+		overallsuccess &= success
+
+		if not success:
+			logging.error("JOB %d of %d: Aborted!" % (p, n))
+			person = j.responsible(dw)
+			if person is not None:
+				logging.info("Notify %s about failed JOB %d" % (person, p))
+
+
+def broadcastfailedjobs(failedjobs, dw):
+	import notification
+	
+	# notifier = notification.MetaNotifier(dw, ':ficontent:private:meta:')
+	notifier = notification.UserFileNotifier(wikiconfig.userfile)
+	
+	subject = 'Job failed: %s'
+	message = '\n'.join([
+		'Hello %s,'
+		'',
+		'your Job "%s" has failed during last execution.',
+		'Please refer to the log at %s for errors and fix them as soon as possible.' % jobslog,
+		'',
+		'If you got stuck, please contact Stefan (stefan.lemme@dfki.de) or Dirk (dirk.krause@pixelpark.de).',
+		'',
+		'Best,'
+		'\tdokuwikibot'
+	])
+
+	for fj in failedJobs:
+		person = fj.responsible(dw)
+		if person is None:
+			person = 'DFKI-Stefan'
+		summary = fj.summary()
+		notifier.notify(
+			person,
+			subject % summary,
+			message % (person, summary)
+		)
+
+
+
 if __name__ == "__main__":
 
 	JobFactory.register_job(Aggregation)
 	JobFactory.register_job(MetaProcessing)
 	JobFactory.register_job(UpdateActionItems)
 	
-	jobdata = None
-	
 	if len(sys.argv) > 1:
-		jobfile = sys.argv[1]
-		logging.info("Loading job file %s ..." % jobfile)
-	
-		try:
-			import json
-			with open(jobfile, 'r') as cf:
-				jobdata = json.load(cf)
-		except Exception as e:
-			logging.error("Unable to load job file - exception occurred!\n%s" % e)
+		jobdata = loadjobfile(sys.argv[1])
 			
 	# print(jobdata)
 	if len(sys.argv) > 2:
@@ -197,32 +288,19 @@ if __name__ == "__main__":
 	else:
 		specificjobs = None
 
-	jobs = []
-	jobslog = None
 
 	if jobdata is not None:
 		jobslog = jobdata["log"]
-		
-		f = JobFactory()
-		for jname, jdata in jobdata["jobs"].items():
-			# print(jname)
-			# print(jdata)
-			if specificjobs is not None:
-				if jname.lower() not in specificjobs:
-					continue
-			
-			j = f.create_job(jdata["job"], jdata["params"])
-			
-			if j is None:
-				logging.error("Unable to queue job '%s'." % jname)
-				continue
-			
-			jobs.append(j)
+	else:
+		jobslog = None
+
+	
+	jobs = createjobs(jobdata)
 	
 	dw = DokuWikiRemote(wikiconfig.url, wikiconfig.user, wikiconfig.passwd)
 	log = PageLog(dw, jobslog)
-	logging.out = log
-	logging.cliplines = False
+	# logging.out = log
+	# logging.cliplines = False
 	
 	log << dw.heading(1, "Log of dokuwikibot's jobs")
 	log << ""
@@ -231,34 +309,13 @@ if __name__ == "__main__":
 	log << "<code>"
 
 	logging.info("Connected to remote DokuWiki at %s" % wikiconfig.url)
-	
-	notify = []
+
+	jobsuccess = {}
 	
 	try:
-		n = len(jobs)
-		for i, j in enumerate(jobs):
-			p = i+1
-			logging.info("JOB %d of %d: %s" % (p, n, j.summary()))
-			
-			if not j.required():
-				logging.info("Skipped!")
-				continue
-				
-			try:
-				success = j.perform(dw)
-			except logging.FatalError:
-				success = False
-				
-			if not success:
-				logging.error("JOB %d of %d: Aborted!" % (p, n))
-				person = j.responsible(dw)
-				logging.info("Notify %s about failed JOB %d" % (person, p))
-				if person is not None:
-					notify.append(person)
-
+		overallsuccess = executejobs(jobs, jobsuccess)
 	except Exception as e:
 		logging.error("Exception occured!\n%s" % e)
-		notify.append("stefan")
 
 	logging.info("All done.")
 
@@ -268,10 +325,7 @@ if __name__ == "__main__":
 
 	log.flush()
 
-	# TODO: notify responsible persons
-	# import notification
-	
-	# for p in notify:
-		# notification.notify(p)
-		
-
+	if not overallsuccess:
+		failedJobs = [j for j in jobs if not ((j in jobsuccess) and (jobsuccess[j]))]
+		print(failedJobs)
+		broadcastfailedjobs(failedJobs, dw)

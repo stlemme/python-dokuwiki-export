@@ -41,7 +41,7 @@ def resolve_images(dw, ns, match):
 	return image
 	
 
-rx_tocline = re.compile(r"^([ ]{2,})\- (\[\[[^\|\]]+(\|[^\]]+)?\]\])")
+rx_tocline = re.compile(r"^([ ]{2,})\- (.+)$")
 
 def aggregate(dw, toc, tocns, showwikiurl = False):
 	newdoc = []
@@ -61,10 +61,17 @@ def aggregate(dw, toc, tocns, showwikiurl = False):
 		# print result.groups()
 		
 		indent = result.group(1)
-		link = result.group(2)
+		item = result.group(2)
 		
 		level = int(len(indent) / 2)
-		page, section, heading = dw.parselink(link)
+		page, section, heading = dw.parselink(item)
+
+		if page is None:
+			increment_numbering(numbering, level)
+			# logging.info("%s - %s" % (pretty_numbering(numbering), heading))
+			newdoc.append(dw.heading(level, item))
+			continue
+
 		if section is not None:
 			logging.warning("Ignoring section attribute of ToC. Including complete page %s instead." % page)
 		# print level, page, "(", heading, ")"
@@ -76,12 +83,12 @@ def aggregate(dw, toc, tocns, showwikiurl = False):
 		
 		# resolve page to full page name
 		page = dw.resolve(page, pagens)
-		
+
 		if content is None:
 			if heading is None:
 				heading = "Missing page " + page
 			content = []
-		
+			
 		if heading is not None:
 			increment_numbering(numbering, level)
 			target = page

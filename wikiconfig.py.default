@@ -2,3 +2,4 @@
 url = 'http://wiki.mediafi.org'
 user = 'dokuwikiuser'
 passwd = 'dokuwikipasswd'
+userfile = None

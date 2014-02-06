@@ -59,6 +59,8 @@ class wiki(object):
 	def parselink(self, link):
 		result = self.rx_link.match(link)
 		# print result.groups()
+		if result is None:
+			return None, None, None
 		target = result.group(1)
 		parts = target.split('#', 1)
 		page = parts[0]
@@ -325,10 +327,11 @@ class DokuWikiRemote(DokuWiki):
 		content = '\n'.join(lines)
 		fullname = self.resolve(page, ns)
 		try:
-			self.client.put_page(fullname, content, summary=summary, minor=False)
+			return self.client.put_page(fullname, content, summary=summary, minor=False)
 		except dokuwikixmlrpc.DokuWikiXMLRPCError as dwerr:
 			print(dwerr)
 			print(page, fullname)
+			return False
 
 	def pageinfo(self, page, ns = []):
 		fullname = self.resolve(page, ns)
