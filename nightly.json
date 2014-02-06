@@ -23,6 +23,24 @@
 			}
 		},
 		
+		"d22": {
+			"job": "aggregation",
+			"params": {
+				"tocpage": ":ficontent:private:deliverables:d22:toc",
+				"outpage": ":ficontent:private:deliverables:nightly:d22",
+				"editor": "irt_christoph",
+				"embedwikilinks": true
+			}
+		},
+		"d32": {
+			"job": "aggregation",
+			"params": {
+				"tocpage": ":ficontent:private:deliverables:d32:toc",
+				"outpage": ":ficontent:private:deliverables:nightly:d32",
+				"editor": "arnaud",
+				"embedwikilinks": true
+			}
+		},
 		"d42": {
 			"job": "aggregation",
 			"params": {
