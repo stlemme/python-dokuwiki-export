@@ -225,7 +225,12 @@ def executejobs(jobs, jobsuccess = None):
 			continue
 			
 		try:
-			success = j.perform(dw)
+		
+			try:
+				success = j.perform(dw)
+			except Exception as e:
+				logging.fatal("Exception occured!\n%s" % e)
+				
 		except logging.FatalError:
 			success = False
 		
