@@ -215,3 +215,26 @@ class GEVisitor(Visitor):
 				# return
 		self.result.append(grammar)
 		
+
+			
+##############################################################################
+
+
+class SEVisitor(Visitor):
+	def __init__(self):
+		self.result = []
+		# self.site = site
+		# self.scenario = scenario
+		
+	def visit_SE(self, grammar):
+		if grammar in self.result:
+			logging.warning("SE %s specified multiple times")
+			return
+		# if self.site is not None:
+			# if grammar.site != self.site:
+				# return
+		# if self.scenario is not None:
+			# if grammar.scenario != self.scenario:
+				# return
+		self.result.append(grammar)
+		

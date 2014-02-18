@@ -107,6 +107,13 @@ def generate_page(dw, outpage, meta, data):
 	]
 	
 	
+	# FI-PPP SEis Usage and General Information
+	#######################################
+
+	generated_content += [
+		("FI-PPP SEis Usage and General Information", presenter.CockpitPresenter())
+	]
+	
 	#######################################
 	# main generation loop
 	#######################################
