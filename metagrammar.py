@@ -29,6 +29,10 @@ class UnknownPartner(MetaError):
 	def __init__(self, partner, text):
 		MetaError.__init__(self, 'Unknown partner: "%s"' % partner, text)
 
+class InvalidTimeframe(MetaError):
+	def __init__(self, problem, text):
+		MetaError.__init__(self, 'Invalid timeframe: "%s"' % problem, text)
+
 		
 ###############
 
@@ -82,6 +86,18 @@ class GE(NamedEntity):
 	
 ###############
 
+# TODO: restrict to any type of date (M12, Release 06/14, February 2014)
+class PointInTime(Grammar):
+	grammar = (WORD("[\w]", "[\w \(\)\/]*", fullmatch=False, escapes=True, greedy=False))
+	
+class TimeframeStmt(Grammar):
+	grammar = (WHITESPACE, LITERAL("FROM"), WHITESPACE, PointInTime, WHITESPACE, LITERAL("ON"))
+	
+def validateTimeframe(pit):
+	# TODO: validate against various regexp, fuzzy date parsing, etc.
+	# TODO: store respective datetime object
+	return (pit, None)
+
 class UseStmt(Grammar):
 	grammar = (
 		OR(
@@ -89,20 +105,33 @@ class UseStmt(Grammar):
 			LITERAL("WILL USE"),
 			LITERAL("MAY USE")
 		),
+		OPTIONAL(TimeframeStmt),
 		WHITESPACE,
 		LIST_OF(RedIdentifier, sep=",", whitespace_mode='optional')
 	)
 	
-def handleUseStmts(stmts, usestates, data, hint):
+def handleUseStmts(stmts, usestates, timing, data, hint):
 	for u in stmts.find_all(UseStmt):
 		usestate = u.elements[0].string
-		enablers = [e.string for e in u.elements[2].find_all(RedIdentifier)]
+		# print(u.elements[0].elements)
+
+		timeframe = None
+		if u.elements[1] is not None:
+			if usestate == "USES":
+				raise InvalidTimeframe("Timeframe for USES relation neither allowed nor necessary!")
+			
+			timeframe = validateTimeframe(u.elements[1].elements[3].string)
+		# print(timeframe)
+			
+		enablers = [e.string for e in u.elements[3].find_all(RedIdentifier)]
+		# print(enablers)
 		# l = [e for e in [data.enabler(e) for e in enablers] if e is not None]
 		for ename in enablers:
 			e = data.enabler(ename)
 			if e is None:
 				raise UnknownEnabler(ename, hint)
 			usestates[usestate].append(e)
+			timing[e] = timeframe
 
 def handleContact(elem, data, hint):
 	if elem is None:
@@ -139,10 +168,12 @@ class SE(NamedEntity):
 			"MAY USE": self.mayuse
 		}
 		
+		self.timing = {}
+		
 		self.provider = handleContact(self.elements[4], data, self.string)
 		
 		if self.elements[5] is not None:
-			handleUseStmts(self.elements[5], self.usestates, data, self.string)
+			handleUseStmts(self.elements[5], self.usestates, self.timing, data, self.string)
 
 
 ###############
@@ -180,10 +211,12 @@ class APP(NamedEntity):
 			"MAY USE": self.mayuse
 		}
 		
+		self.timing = {}
+		
 		self.developer = handleContact(self.elements[4], data, self.string)
 
 		if self.elements[5] is not None:
-			handleUseStmts(self.elements[5], self.usestates, data, self.string)
+			handleUseStmts(self.elements[5], self.usestates, self.timing, data, self.string)
 
 
 ###############

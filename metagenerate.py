@@ -135,10 +135,9 @@ if __name__ == "__main__":
 	if len(sys.argv) > 1:
 		metapage = sys.argv[1]
 
-	outfile = "generated-meta.txt"
 	generatedpage = ":FIcontent:private:meta:generated"
 	if len(sys.argv) > 2:
-		outfile = sys.argv[2]
+		generatedpage = sys.argv[2]
 
 	try:
 

@@ -120,13 +120,16 @@ class DependencyPresenter(Presenter):
 		id1 = self.nodemap[node1]
 		id2 = self.nodemap[node2]
 		# TODO: select appearance depending on edge
-		edge = edge.replace(' ', '_')
-		self.dump_line('%s:%s -> %s [style = %s, color = "%s"];' % (
+		sedge = edge.replace(' ', '_')
+		self.dump_line('%s:%s -> %s [style = %s, color = "%s", fontsize = %s, fontcolor = "%s", label = "%s"];' % (
 				id1,
-				self.lookup_design('tailport', ['EDGE_%s' % edge, 'EDGE']),
+				self.lookup_design('tailport', ['EDGE_%s' % sedge, 'EDGE']),
 				id2,
-				self.lookup_design('style', ['EDGE_%s' % edge, 'EDGE']),
-				self.lookup_design('color', ['EDGE_%s' % edge, 'EDGE'])
+				self.lookup_design('style', ['EDGE_%s' % sedge, 'EDGE']),
+				self.lookup_design('color', ['EDGE_%s' % sedge, 'EDGE']),
+				self.lookup_design('fontsize', ['EDGE_%s' % sedge, 'EDGE']),
+				self.lookup_design('color', ['EDGE_%s' % sedge, 'EDGE']),
+				self.lookup_timing(node1, node2, edge)
 			), indent=1)
 		
 	def dump_line(self, line, indent = 0):
@@ -146,6 +149,32 @@ class DependencyPresenter(Presenter):
 			return self.design[var]
 		return None
 
+	def lookup_timing(self, node1, node2, edge):
+		if edge == 'USES':
+			return "    "
+		
+		if node2 not in node1.timing:
+			logging.fatal("Missing timing information!")
+
+		timing = node1.timing[node2]
+
+		if timing is None:
+			if node1.entity == 'SE':
+				responsible = node1.provider
+			elif node1.entity == 'APP':
+				responsible = node1.developer
+			else:
+				logging.fatal("Unknown entity (neither APP nor SE)")
+			
+			self.fixme(
+				responsible[0].identifier,
+				'Provide a timeframe for the integration of enabler "%s" in enabler/application "%s"' % (node2.identifier, node1.identifier),
+				deadline = 'ASAP'
+			)
+			return "No timeframe"
+			
+		return timing[0]
+	
 	def dump_cluster(self, label, type, nodelabel = lambda node: node.identifier):
 		self.dump_line('subgraph cluster_%s {' % type, indent=1)
 		self.dump_line('rank = same;', indent=2)
@@ -176,7 +205,6 @@ class DependencyPresenter(Presenter):
 			return "no deployment info"
 		return ', '.join([l.identifier for l in set(locs)])
 	
-
 	def dump(self, out):
 		self.nodemap = {}
 		self.out = out
