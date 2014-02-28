@@ -320,7 +320,7 @@ class CockpitPresenter(Presenter):
 			"Spatial Matchmaking"
 		],
 		"common": [
-			"Community Sharing",
+			"Content Sharing",
 			"Social Network",
 			"Content Enrichment"
 		]
@@ -336,7 +336,7 @@ class CockpitPresenter(Presenter):
 	url_exceptions = {
 		"Audio Fingerprinting": "use-audio-fingerprinting",
 		"Social Network": "social-network-enabler",
-		"Community Sharing": "content-sharing (name mismatch)",
+		"Content Sharing": "content-sharing",
 		"Content Enrichment": "content-enrichment",
 		"Open City Database": "open-city-database (missing)",
 		"Local Information": "local-information (missing)",
