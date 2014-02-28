@@ -320,7 +320,7 @@ class CockpitPresenter(Presenter):
 			"Spatial Matchmaking"
 		],
 		"common": [
-			"Content Sharing",
+			"Community Sharing",
 			"Social Network",
 			"Content Enrichment"
 		]
@@ -328,7 +328,7 @@ class CockpitPresenter(Presenter):
 	
 	products = {
 		"Recommendation Services": "REPERIO",
-		"Virtual/Mixed Reality": "KIWANO",
+		"Virtual/mixed Reality": "KIWANO",
 		"Content Similarity": "Search & Discovery",
 		"Content Atmosphere": "Search & Discovery"
 	}
@@ -336,7 +336,7 @@ class CockpitPresenter(Presenter):
 	url_exceptions = {
 		"Audio Fingerprinting": "use-audio-fingerprinting",
 		"Social Network": "social-network-enabler",
-		"Content Sharing": "content-sharing",
+		"Community Sharing": "content-sharing (name mismatch)",
 		"Content Enrichment": "content-enrichment",
 		"Open City Database": "open-city-database (missing)",
 		"Local Information": "local-information (missing)",
