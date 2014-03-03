@@ -58,6 +58,8 @@ class ListPresenter(Presenter):
 	def present(self, meta):
 		self.v.visit(meta)
 		self.list = self.v.result
+		# print(self.v.result)
+		# print(self.v.nodes)
 		
 	def dump(self, out):
 		for item in self.list:

@@ -80,6 +80,20 @@ def generate_page(dw, outpage, meta, data):
 		('Scenario "%s" on Site %s - ALL' % e, presenter.DependencyPresenter(e[0], e[1], relations)) for e in experiments
 	]
 	
+	# Enablers used in experiments
+	niceenabler = lambda e: e.identifier + ' ' + e.entity
+	
+	experiments = v.result # [e for e in v.result if (e.site == "Barcelona") and (e.application.identifier == "Smart City Guide (Android App)")]
+
+	generated_content += [(
+			'Enablers tested in Scenario "%s" on Site %s at %s' % (e.scenario, e.site, e.date),
+			presenter.ListPresenter(
+				EnablersTestedVisitor(e.application, ts = e.date),
+				niceenabler
+			)
+		) for e in experiments
+	]
+	
 
 	# GE Utilization
 	#######################################

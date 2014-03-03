@@ -93,10 +93,15 @@ class PointInTime(Grammar):
 class TimeframeStmt(Grammar):
 	grammar = (WHITESPACE, LITERAL("FROM"), WHITESPACE, PointInTime, WHITESPACE, LITERAL("ON"))
 	
+import date
+
 def validateTimeframe(pit):
 	# TODO: validate against various regexp, fuzzy date parsing, etc.
 	# TODO: store respective datetime object
-	return (pit, None)
+	tf = date.parseProjectDate(pit)
+	if tf < date.projectbegin or tf > date.projectend:
+		logging.warning("Timeframe outside of project course: %s (%s)" % (pit, tf))
+	return (pit, tf)
 
 class UseStmt(Grammar):
 	grammar = (
@@ -121,6 +126,7 @@ def handleUseStmts(stmts, usestates, timing, data, hint):
 				raise InvalidTimeframe("Timeframe for USES relation neither allowed nor necessary!")
 			
 			timeframe = validateTimeframe(u.elements[1].elements[3].string)
+			# TODO: check return value
 		# print(timeframe)
 			
 		enablers = [e.string for e in u.elements[3].find_all(RedIdentifier)]
@@ -132,6 +138,7 @@ def handleUseStmts(stmts, usestates, timing, data, hint):
 				raise UnknownEnabler(ename, hint)
 			usestates[usestate].append(e)
 			timing[e] = timeframe
+			# print('Enabler %s integrated by %s' % (e.identifier, timeframe))
 
 def handleContact(elem, data, hint):
 	if elem is None:

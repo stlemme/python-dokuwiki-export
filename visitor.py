@@ -124,6 +124,60 @@ class DependencyVisitor(MetaVisitor):
 		
 ##############################################################################
 
+import date
+
+class EnablersTestedVisitor(DependencyVisitor):
+	def __init__(self, application, se = True, ge = True, ts = None):
+		# self.entities = entities
+		
+		if ts is not None:
+			rel = ['WILL USE', 'MAY USE']
+			self.ts = date.parse(ts)
+		else:
+			rel = []
+			
+		print('Experiment timestamp: %s  -- %s' % (self.ts, ts))
+		
+		DependencyVisitor.__init__(self, rel, se, ge)
+		
+		self.application = application
+
+	def visit(self, meta):
+		print(self.application.identifier)
+		print(self.ts)
+		DependencyVisitor.visit(self, self.application)
+		self.result = [n for n in self.nodes if n.entity in ['SE', 'GE']]
+	
+	def retrieve_edges(self, entity):
+		print(entity.identifier)
+		if self.ts is None:
+			return DependencyVisitor.retrieve_edges(self, entity)
+		
+		follow = entity.usestates['USES']
+		self.edges.extend([(entity, e, 'USES') for e in entity.usestates['USES']])
+		
+		for rel in self.relations:
+			for e in entity.usestates[rel]:
+				print(rel + ' : ' + e.identifier)
+				
+				if e in entity.timing:
+					timeframe = entity.timing[e]
+				else:
+					continue
+				print(timeframe)
+				if timeframe is None:
+					continue
+					
+				if timeframe[1] > self.ts:
+					print("Not yet included")
+					continue
+				
+				self.edges.append((entity, e, rel))
+				follow.append(e)
+		return follow
+
+
+##############################################################################
 
 class UsedByVisitor(Visitor):
 	def __init__(self, enabler, relation = 'USES', se = True, app = True, experiment = True, transitive = []):
