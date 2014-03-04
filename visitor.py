@@ -136,40 +136,40 @@ class EnablersTestedVisitor(DependencyVisitor):
 		else:
 			rel = []
 			
-		print('Experiment timestamp: %s  -- %s' % (self.ts, ts))
+		# print('Experiment timestamp: %s  -- %s' % (self.ts, ts))
 		
 		DependencyVisitor.__init__(self, rel, se, ge)
 		
 		self.application = application
 
 	def visit(self, meta):
-		print(self.application.identifier)
-		print(self.ts)
+		# print(self.application.identifier)
+		# print(self.ts)
 		DependencyVisitor.visit(self, self.application)
 		self.result = [n for n in self.nodes if n.entity in ['SE', 'GE']]
 	
 	def retrieve_edges(self, entity):
-		print(entity.identifier)
+		# print(entity.identifier)
 		if self.ts is None:
 			return DependencyVisitor.retrieve_edges(self, entity)
 		
-		follow = entity.usestates['USES']
+		follow = entity.usestates['USES'][:]
 		self.edges.extend([(entity, e, 'USES') for e in entity.usestates['USES']])
 		
 		for rel in self.relations:
 			for e in entity.usestates[rel]:
-				print(rel + ' : ' + e.identifier)
+				# print(rel + ' : ' + e.identifier)
 				
 				if e in entity.timing:
 					timeframe = entity.timing[e]
 				else:
 					continue
-				print(timeframe)
+				# print(timeframe)
 				if timeframe is None:
 					continue
 					
 				if timeframe[1] > self.ts:
-					print("Not yet included")
+					# print("Not yet included")
 					continue
 				
 				self.edges.append((entity, e, rel))
@@ -180,64 +180,84 @@ class EnablersTestedVisitor(DependencyVisitor):
 ##############################################################################
 
 class UsedByVisitor(Visitor):
-	def __init__(self, enabler, relation = 'USES', se = True, app = True, experiment = True, transitive = []):
+	def __init__(self, enabler, relations = ['USES'], se = True, app = True, experiment = True):
 		self.result = []
 		self.enabler = enabler
-		self.relation = relation
+		self.relations = relations
 		self.se = se
 		self.app = app
 		self.experiment = experiment
-		self.transitive = transitive
+		# self.transitive = transitive
 		
+	def visit_Entity(self, grammar):
+		if grammar in self.result:
+			return
+
+		dep = set()
+		for rel in self.relations:
+			dep |= set(grammar.usestates[rel])
+
+		if self.enabler in dep:
+			self.result.append(grammar)
+			return
+		
+		for e in dep:
+			self.visit(e)
+		
+		if len(set(self.result) & dep) > 0:
+			self.result.append(grammar)
+
 	def visit_SE(self, grammar):
 		if not self.se:
 			return
 			
-		if grammar in self.result:
-			return
+		self.visit_Entity(grammar)
 
-		if self.enabler in grammar.usestates[self.relation]:
-			self.result.append(grammar)
-			return
-		
-		if not len(self.transitive):
-			return
 			
-		for transitive in self.transitive:
-			for e in grammar.usestates[transitive]:
-				self.visit(e)
-				if e in self.result:
-					self.result.append(grammar)
-					return
+			# if self.enabler in grammar.usestates[rel]:
+				# self.result.append(grammar)
+				# return
+			
+		# if not len(self.transitive):
+			# return
+			
+		# for transitive in self.transitive:
+			# for e in grammar.usestates[transitive]:
+				# self.visit(e)
+				# if e in self.result:
+					# self.result.append(grammar)
+					# return
 		
 		
 	def visit_APP(self, grammar):
 		if not self.app:
 			return
 			
-		if grammar in self.result:
-			return
+		self.visit_Entity(grammar)
 
-		if self.enabler in grammar.usestates[self.relation]:
-			self.result.append(grammar)
-			return
+		# if grammar in self.result:
+			# return
+
+		# if self.enabler in grammar.usestates[self.relation]:
+			# self.result.append(grammar)
+			# return
 			
-		if not len(self.transitive):
-			return
+		# if not len(self.transitive):
+			# return
 
-		for transitive in self.transitive:
-			for e in grammar.usestates[transitive]:
-				self.visit(e)
-				if e in self.result:
-					self.result.append(grammar)
-					return
+		# for transitive in self.transitive:
+			# for e in grammar.usestates[transitive]:
+				# self.visit(e)
+				# if e in self.result:
+					# self.result.append(grammar)
+					# return
 		
 	def visit_EXPERIMENT(self, grammar):
 		if not self.experiment:
 			return
 			
-		if not len(self.transitive):
-			return
+		# if not len(self.transitive):
+			# return
 		
 		if grammar in self.result:
 			return

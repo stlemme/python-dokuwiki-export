@@ -105,9 +105,8 @@ def generate_page(dw, outpage, meta, data):
 			"Utilization of %s GE" % ge.identifier,
 			presenter.ListPresenter(UsedByVisitor(
 				ge,
-				relation = 'USES',
-				experiment = False,
-				transitive = ['USES']
+				relations = ['USES'],
+				experiment = False
 			), id)
 		) for ge in ges
 	]
@@ -116,10 +115,17 @@ def generate_page(dw, outpage, meta, data):
 	# Overall Uptake of Generic Enablers
 	#######################################
 
+	# csse = data.se['Content Sharing']
+	# print('\nbla')
+	# print(csse.usestates)
+	
 	generated_content += [
 		("Overall Uptake of Generic Enablers", presenter.UptakePresenter(hideunused=True))
 	]
 	
+	# csse = data.se['Content Sharing']
+	# print('\nblub')
+	# print(csse.usestates)
 	
 	# FI-PPP SEis Usage and General Information
 	#######################################
@@ -139,7 +145,18 @@ def generate_page(dw, outpage, meta, data):
 		out << dw.heading(2, h)
 		p.dump(out)
 		out << ''
+		
+		# csse3 = data.se['Content Sharing']
+		# print('\nblub3:', h)
+		# print(csse3.usestates)
+		# if len(csse3.usestates['USES']) != len(csse.usestates['USES']):
+			# print('DAMAGED!')
+
 	
+	# csse = data.se['Content Sharing']
+	# print('\nblub2')
+	# print(csse.usestates)
+
 	logging.info("Flushing generated content ...")
 	out.flush()
 
