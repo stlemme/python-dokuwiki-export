@@ -225,7 +225,7 @@ class DokuWiki(wiki):
 
 		# a page in the same namespace
 		if len(parts) == 1:
-			return self.ns_delimiter + self.ns_delimiter.join(rel_ns + [page]).lower();
+			return self.ns_delimiter + self.ns_delimiter.join([self.cleanid(id).lower() for id in rel_ns + [page]]);
 		
 		# referring to a namespace rather than a page
 		if len(parts[-1]) == 0:
