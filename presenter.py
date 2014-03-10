@@ -58,6 +58,8 @@ class ListPresenter(Presenter):
 	def present(self, meta):
 		self.v.visit(meta)
 		self.list = self.v.result
+		# print(self.v.result)
+		# print(self.v.nodes)
 		
 	def dump(self, out):
 		for item in self.list:
@@ -120,13 +122,16 @@ class DependencyPresenter(Presenter):
 		id1 = self.nodemap[node1]
 		id2 = self.nodemap[node2]
 		# TODO: select appearance depending on edge
-		edge = edge.replace(' ', '_')
-		self.dump_line('%s:%s -> %s [style = %s, color = "%s"];' % (
+		sedge = edge.replace(' ', '_')
+		self.dump_line('%s:%s -> %s [style = %s, color = "%s", fontsize = %s, fontcolor = "%s", label = "%s"];' % (
 				id1,
-				self.lookup_design('tailport', ['EDGE_%s' % edge, 'EDGE']),
+				self.lookup_design('tailport', ['EDGE_%s' % sedge, 'EDGE']),
 				id2,
-				self.lookup_design('style', ['EDGE_%s' % edge, 'EDGE']),
-				self.lookup_design('color', ['EDGE_%s' % edge, 'EDGE'])
+				self.lookup_design('style', ['EDGE_%s' % sedge, 'EDGE']),
+				self.lookup_design('color', ['EDGE_%s' % sedge, 'EDGE']),
+				self.lookup_design('fontsize', ['EDGE_%s' % sedge, 'EDGE']),
+				self.lookup_design('color', ['EDGE_%s' % sedge, 'EDGE']),
+				self.lookup_timing(node1, node2, edge)
 			), indent=1)
 		
 	def dump_line(self, line, indent = 0):
@@ -146,6 +151,32 @@ class DependencyPresenter(Presenter):
 			return self.design[var]
 		return None
 
+	def lookup_timing(self, node1, node2, edge):
+		if edge == 'USES':
+			return "    "
+		
+		if node2 not in node1.timing:
+			logging.fatal("Missing timing information!")
+
+		timing = node1.timing[node2]
+
+		if timing is None:
+			if node1.entity == 'SE':
+				responsible = node1.provider
+			elif node1.entity == 'APP':
+				responsible = node1.developer
+			else:
+				logging.fatal("Unknown entity (neither APP nor SE)")
+			
+			self.fixme(
+				responsible[0].identifier,
+				'Provide a timeframe for the integration of enabler "%s" in enabler/application "%s"' % (node2.identifier, node1.identifier),
+				deadline = 'ASAP'
+			)
+			return "No timeframe"
+			
+		return timing[0]
+	
 	def dump_cluster(self, label, type, nodelabel = lambda node: node.identifier):
 		self.dump_line('subgraph cluster_%s {' % type, indent=1)
 		self.dump_line('rank = same;', indent=2)
@@ -176,7 +207,6 @@ class DependencyPresenter(Presenter):
 			return "no deployment info"
 		return ', '.join([l.identifier for l in set(locs)])
 	
-
 	def dump(self, out):
 		self.nodemap = {}
 		self.out = out
@@ -226,21 +256,58 @@ class UptakePresenter(Presenter):
 		self.uptake = []
 		
 		for ge in self.v.result:
-			uv1 = UsedByVisitor(ge, 'USES', se=True, app=True, experiment=False, transitive=['USES'])
+			uv1 = UsedByVisitor(ge, ['USES'], se=True, app=True, experiment=False)
 			uv1.visit(meta)
-			uv2 = UsedByVisitor(ge, 'WILL USE', se=True, app=True, experiment=False, transitive=['USES', 'WILL USE'])
+			uv2 = UsedByVisitor(ge, ['USES', 'WILL USE'], se=True, app=True, experiment=False)
 			uv2.visit(meta)
-			uv3 = UsedByVisitor(ge, 'MAY USE', se=True, app=True, experiment=False, transitive=['USES', 'WILL USE', 'MAY USE'])
+			# uv2b = UsedByVisitor(ge, 'USES', se=True, app=True, experiment=False, transitive=['USES', 'WILL USE'])
+			# uv2b.visit(meta)
+			uv3 = UsedByVisitor(ge, ['USES', 'WILL USE', 'MAY USE'], se=True, app=True, experiment=False)
 			uv3.visit(meta)
+			# uv3b = UsedByVisitor(ge, 'WILL USE', se=True, app=True, experiment=False, transitive=['USES', 'WILL USE', 'MAY USE'])
+			# uv3b.visit(meta)
+			# uv3c = UsedByVisitor(ge, 'USES', se=True, app=True, experiment=False, transitive=['USES', 'WILL USE', 'MAY USE'])
+			# uv3c.visit(meta)
 
 			if self.hideunused and len(uv1.result)+len(uv2.result)+len(uv3.result) == 0:
 				continue
-			self.uptake.append((ge, uv1.result, list(set(uv2.result)-set(uv1.result)), list(set(uv3.result)-set(uv1.result))))
+				
+			uv1e = set(uv1.result)
+			uv2e = set(uv2.result) - (uv1e       )
+			uv3e = set(uv3.result) - (uv1e | uv2e)
+			
+			# def printid(eset):
+				# return [e.identifier for e in list(eset)]
+
+			# def printe(eset):
+				# return [e.usestates for e in list(eset)]
+				
+			# if ge.identifier == "POI Data Provider":
+				# print(ge.identifier)
+				# print(uv1.result)
+				# print(printe(uv1.result))
+				# print(uv2.result)
+				# print(printid(uv2b.result))
+				# print(uv3.result)
+				# print(printid(uv3b.result))
+				# print(printid(uv3c.result))
+				# print()
+			# else:
+				# print(ge.identifier)
+				# print(printid(uv1.result))
+				# print(printid(uv2.result))
+				# print(printid(uv2b.result))
+				# print(printid(uv3.result))
+				# print(printid(uv3b.result))
+				# print(printid(uv3c.result))
+				# print()
+			
+			self.uptake.append((ge, list(uv1e), list(uv2e), list(uv3e)))
 
 		# self.experiments.sort(key = lambda tup: (parsedate(tup[0]), tup[2]))
 		
 	def dump(self, out):
-		out.write('^ GE  ^  Uptake  ^ SEs ^')
+		out.write('^ GE  ^  Uptake  ^ SEs / Applications  ^')
 		for ge, uses, will, may in self.uptake:
 			ses = ['%s SE' % e.identifier for e in uses if e.entity == 'SE']
 			apps = ['%s' % e.identifier for e in uses if e.entity == 'APP']
@@ -263,6 +330,147 @@ class UptakePresenter(Presenter):
 			out.write('| %s    |  %s  | %s       |' % (ge.identifier, status, uptake))
 		# out.write('| ...   | ...   | ...      |')
 	
+
+##############################################################################
+
+from visitor import SEVisitor
+
+class CockpitPresenter(Presenter):
+	release0913 = {
+		"socialtv": [
+			"Audio Mining",
+			"Audio Fingerprinting",
+			"Content Optimisation",
+			"Second Screen Framework",
+			"TV Application Layer"
+		],
+		"smartcity": [
+			"Local Information",
+			"Recommendation Services",
+			"Open City Database"
+		],
+		"gaming": [
+			"Reality Mixer - Reflection Mapping",
+			"Reality Mixer - Camera Artifact Rendering",
+			"Leaderboard",
+			"Augmented Reality - Fast Feature Tracking",
+			"Augmented Reality - Marker Tracking",
+			"Game Synchronization",
+			"Spatial Matchmaking"
+		],
+		"common": [
+			"Content Sharing",
+			"Social Network",
+			"Content Enrichment"
+		]
+	}
 	
+	products = {
+		"Recommendation Services": "REPERIO",
+		"Virtual/mixed Reality": "KIWANO",
+		"Content Similarity": "Search & Discovery",
+		"Content Atmosphere": "Search & Discovery"
+	}
+	
+	url_exceptions = {
+		"Audio Fingerprinting": "use-audio-fingerprinting",
+		"Social Network": "social-network-enabler",
+		"Content Sharing": "content-sharing",
+		"Content Enrichment": "content-enrichment",
+		"Open City Database": "open-city-database (missing)",
+		"Local Information": "local-information (missing)",
+		"Recommendation Services": "recommendation-services",
+		"Audio Mining": "audio-mining",
+		"Content Optimisation": "content-optimisation",
+		"Second Screen Framework": "second-screen-framework",
+		"TV Application Layer": "tv-application-layer",
+		"Reality Mixer - Camera Artifact Rendering": "reality-mixer-camera-artefact-rendering-se (AE/BE conflict)"
+	}
+	
+	def __init__(self, placeholder = "n/a"):
+		Presenter.__init__(self)
+		self.v = SEVisitor()
+		self.placeholder = placeholder
+
+	def lookup_product(self, id):
+		if id in self.products:
+			return self.products[id]
+		
+		return '-'
+		
+	def lookup_platform(self, id):
+		for p, ses in self.release0913.items():
+			if id in ses:
+				return p
+				
+		return None
+		
+		
+	def present(self, meta):
+		self.v.visit(meta)
+		
+		self.exploitation = []
+		for se in self.v.result:
+			id = se.identifier
+			product = self.lookup_product(id)
+			platform = self.lookup_platform(id)
+			owner = se.provider[0].identifier
+			
+			if platform is not None:
+				cleanid = re.sub(r'[^\w\-]', '', id).replace('-', '.').lower()
+				spec = 'http://wiki.mediafi.org/doku.php/ficontent.%s.enabler.%s' % (platform, cleanid)
+				urlid = re.sub(r'\W+', '-', id + ' SE').lower()
+				if id in self.url_exceptions:
+					urlid = self.url_exceptions[id]
+				catalog = 'http://mediafi.org/?portfolio=%s' % urlid
+			else:
+				spec = 'not yet released'
+				catalog = 'not yet released'
+			
+			self.exploitation.append((
+				se.identifier,
+				product,
+				owner,
+				self.placeholder, # Open Source?
+				self.placeholder, # FI-PPP mode
+				'', # FI-PPP date
+				'', # FI-PPP date
+				self.placeholder, # FI-LAB mode
+				'', # FI-LAB date
+				'', # FI-LAB date
+				self.placeholder, # others mode
+				'', # others date
+				spec,
+				catalog
+			))
+
+		self.exploitation.sort(key = lambda tup: (tup[12], tup[0]))
+		
+	def dump(self, out):
+		heading = [
+			"availability for the FI-PPP partners",
+			"availability within FI-LAB",
+			"availability beyond the FI-PPP",
+			"FI-PPP SEs",
+			"SE implementation product(s) name(s) / owner",
+			"",
+			"Open Source (Yes/No/Planned)",
+			"mode",
+			"date last update",
+			"date next / 1st update",
+			"mode",
+			"date last update",
+			"date next / 1st update",
+			"currently planned mode",
+			"when",
+			"Baseline assets",
+			"Entry in Catalogue"
+		]
+		
+		out.write('^ ^^^^ %s ^^^ %s ^^^ %s ^^ ^^' % tuple(heading[0:3]))
+		out.write('^ %s ^' % (' ^ '.join(heading[3:])))
+		
+		for exp in self.exploitation:
+			out.write('| %s | %s / %s | | %s | %s | %s | %s | %s | %s | %s | %s | %s | %s | %s |' % exp)
 	
 	

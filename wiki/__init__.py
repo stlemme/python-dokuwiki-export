@@ -1,6 +1,7 @@
 
 import re
 import string
+import logging
 
 
 class wiki(object):
@@ -45,7 +46,7 @@ class wiki(object):
 		indent1 = len(result.group(1))
 		indent2 = len(result.group(3))
 		if indent1 != indent2:
-			logging.warning("Warning! Invalid heading.")
+			logging.warning("Invalid heading.\n\"%s\"" % heading)
 				
 		level = 7 - indent1
 		return result.group(2), level
@@ -188,9 +189,9 @@ class wiki(object):
 		if params is not None:
 			s = []
 			if 'width' in params:
-				imagesize = params['width']
+				imagesize = str(params['width'])
 				if 'height' in params:
-					imagesize += 'x' + params['height']
+					imagesize += 'x' + str(params['height'])
 				s.append(imagesize)
 			if 'nolink' in params:
 				if params['nolink']:

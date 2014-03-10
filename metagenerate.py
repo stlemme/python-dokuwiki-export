@@ -80,6 +80,20 @@ def generate_page(dw, outpage, meta, data):
 		('Scenario "%s" on Site %s - ALL' % e, presenter.DependencyPresenter(e[0], e[1], relations)) for e in experiments
 	]
 	
+	# Enablers used in experiments
+	niceenabler = lambda e: e.identifier + ' ' + e.entity
+	
+	experiments = v.result # [e for e in v.result if (e.site == "Barcelona") and (e.application.identifier == "Smart City Guide (Android App)")]
+
+	generated_content += [(
+			'Enablers tested in Scenario "%s" on Site %s at %s' % (e.scenario, e.site, e.date),
+			presenter.ListPresenter(
+				EnablersTestedVisitor(e.application, ts = e.date),
+				niceenabler
+			)
+		) for e in experiments
+	]
+	
 
 	# GE Utilization
 	#######################################
@@ -91,9 +105,8 @@ def generate_page(dw, outpage, meta, data):
 			"Utilization of %s GE" % ge.identifier,
 			presenter.ListPresenter(UsedByVisitor(
 				ge,
-				relation = 'USES',
-				experiment = False,
-				transitive = ['USES']
+				relations = ['USES'],
+				experiment = False
 			), id)
 		) for ge in ges
 	]
@@ -102,10 +115,24 @@ def generate_page(dw, outpage, meta, data):
 	# Overall Uptake of Generic Enablers
 	#######################################
 
+	# csse = data.se['Content Sharing']
+	# print('\nbla')
+	# print(csse.usestates)
+	
 	generated_content += [
 		("Overall Uptake of Generic Enablers", presenter.UptakePresenter(hideunused=True))
 	]
 	
+	# csse = data.se['Content Sharing']
+	# print('\nblub')
+	# print(csse.usestates)
+	
+	# FI-PPP SEis Usage and General Information
+	#######################################
+
+	generated_content += [
+		("FI-PPP SEis Usage and General Information", presenter.CockpitPresenter())
+	]
 	
 	#######################################
 	# main generation loop
@@ -118,7 +145,18 @@ def generate_page(dw, outpage, meta, data):
 		out << dw.heading(2, h)
 		p.dump(out)
 		out << ''
+		
+		# csse3 = data.se['Content Sharing']
+		# print('\nblub3:', h)
+		# print(csse3.usestates)
+		# if len(csse3.usestates['USES']) != len(csse.usestates['USES']):
+			# print('DAMAGED!')
+
 	
+	# csse = data.se['Content Sharing']
+	# print('\nblub2')
+	# print(csse.usestates)
+
 	logging.info("Flushing generated content ...")
 	out.flush()
 
@@ -128,10 +166,9 @@ if __name__ == "__main__":
 	if len(sys.argv) > 1:
 		metapage = sys.argv[1]
 
-	outfile = "generated-meta.txt"
 	generatedpage = ":FIcontent:private:meta:generated"
 	if len(sys.argv) > 2:
-		outfile = sys.argv[2]
+		generatedpage = sys.argv[2]
 
 	try:
 
