@@ -104,8 +104,8 @@ def aggregate(dw, toc, tocns, showwikiurl = False):
 			if showwikiurl:
 				url = dw.pageurl(page)
 				# print(url)
-				newdoc.append("__ %s __\n" % url)
-				# newdoc.append("\n")
+				newdoc.append("__%s__" % url)
+				newdoc.append("")
 		else:
 			pageheading = True
 			
@@ -143,8 +143,9 @@ def aggregate(dw, toc, tocns, showwikiurl = False):
 				if showwikiurl:
 					url = dw.pageurl(page, heading=subheading)
 					# print(url)
+					# newdoc.append("")
+					newdoc.append("__%s__" % url)
 					newdoc.append("")
-					newdoc.append("__ %s __\n" % url)
 					# newdoc.append("\n")
 				
 				continue
@@ -156,7 +157,10 @@ def aggregate(dw, toc, tocns, showwikiurl = False):
 				# incsection = result.group(3)
 				incpage, incsection = dw.parseinclude(result.group())
 				# newdoc.append("INCLUDE %s - %s\n" % (incpage, incsection))
-				secdoc = dw.getsection(incpage, incsection, pagens)
+				if "nightly" in incpage:
+					secdoc = None
+				else:
+					secdoc = dw.getsection(incpage, incsection, pagens)
 				
 				# print(contentQueue)
 				# print(secdoc)

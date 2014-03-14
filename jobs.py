@@ -367,8 +367,8 @@ if __name__ == "__main__":
 	
 	dw = DokuWikiRemote(wikiconfig.url, wikiconfig.user, wikiconfig.passwd)
 	log = PageLog(dw, jobslog)
-	logging.out = log
-	logging.cliplines = False
+	# logging.out = log
+	# logging.cliplines = False
 	
 	log << dw.heading(1, "Log of dokuwikibot's jobs")
 	log << ""
@@ -391,7 +391,7 @@ if __name__ == "__main__":
 	log << "</code>"
 	log << ""
 
-	log.flush()
+	# log.flush()
 
 	if not overallsuccess:
 		failedJobs = [j for j in jobs if not ((j in jobsuccess) and (jobsuccess[j]))]
