@@ -116,12 +116,12 @@ class UpdateActionItems(Job):
 
 
 class WordGeneration(Job):
-	def __init__(self, tocpage, templatefile, generatedfile, editor = None, embedwikilinks = True):
+	def __init__(self, tocpage, templatefile, generatedfile, editor = None, injectrefs = True):
 		Job.__init__(self)
 		self.tocpage = tocpage
 		self.templatefile = templatefile
 		self.generatedfile = generatedfile
-		self.embedwikilinks = embedwikilinks
+		self.injectrefs = injectrefs
 		self.editor = editor
 	
 	def summary(self):
@@ -160,6 +160,7 @@ class WordGeneration(Job):
 			dw, self.tocpage,
 			aggregatefile = generatedfile + "-aggregated.txt",
 			chapterfile = generatedfile + "-chapters.txt",
+			injectrefs = self.injectrefs,
 			ignorepagelinks=[
 				# re.compile(deliverablepage, re.IGNORECASE),
 				# re.compile("^:FIcontent.Gaming.Enabler.", re.IGNORECASE),

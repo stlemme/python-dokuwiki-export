@@ -9,7 +9,7 @@
 				"templatefile": ":ficontent:private:deliverables:docx:d712-template.docx",
 				"generatedfile": ":ficontent:private:deliverables:nightly:d712-generated.docx",
 				"editor": "stefan_go",
-				"embedwikilinks": true
+				"injectrefs": true
 			}
 		}
 		
