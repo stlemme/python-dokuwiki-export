@@ -6,7 +6,13 @@ from docxgenerate import *
 
 if __name__ == '__main__':
 	import wikiconfig
+	import sys
+	
 	deliverable = 'd712'
+
+	if len(sys.argv) > 1:
+		deliverable = sys.argv[1]
+
 	templatefile = deliverable + '-template.docx'
 	aggregatefile = deliverable + '-aggregate.txt'
 	generatefile = deliverable + '-generated.docx'

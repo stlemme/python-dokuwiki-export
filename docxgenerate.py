@@ -251,7 +251,7 @@ class wikiprocessor:
 			# return None
 			
 	def insertimage(self, line):
-		return
+		# return
 		result = rx_line["image"].match(line)
 		if result is None:
 			return
