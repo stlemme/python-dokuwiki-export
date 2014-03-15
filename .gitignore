@@ -6,3 +6,4 @@ __pycache__
 /wikiconfig.py
 /_media
 /_generated
+*.sh
