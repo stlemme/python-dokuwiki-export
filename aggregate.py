@@ -2,6 +2,7 @@
 import re
 from wiki import *
 import logging
+from collections import deque
 
 
 def increment_numbering(numbers, level):
@@ -108,7 +109,12 @@ def aggregate(dw, toc, tocns, showwikiurl = False):
 		else:
 			pageheading = True
 			
-		for line in content:
+		contentQueue = deque(content)
+		
+		while len(contentQueue):
+		
+			line = contentQueue.popleft()
+			
 			# line is heading
 			result = wiki.rx_heading.match(line)
 			if result is not None:
@@ -154,10 +160,13 @@ def aggregate(dw, toc, tocns, showwikiurl = False):
 				# newdoc.append("INCLUDE %s - %s\n" % (incpage, incsection))
 				secdoc = dw.getsection(incpage, incsection, pagens)
 
-				if secdoc is not None:
-					# TODO: here might be a link and image handle important as well
-					# TODO: and we should extend this to handle sublevel headings
-					newdoc.extend(secdoc)
+				if secdoc is None:
+					newdoc.append('INCLUDE %s - "%s" MISSING' % (incpage, incsection))
+				else:
+					# print(contentQueue)
+					# print(secdoc)
+					secdoc.reverse()
+					contentQueue.extendleft(secdoc)
 				
 				continue
 			
@@ -167,7 +176,7 @@ def aggregate(dw, toc, tocns, showwikiurl = False):
 			re2line = wiki.rx_image.sub(lambda m: resolve_images(dw, pagens, m), re1line)
 			newdoc.append(re2line)
 
-		newdoc.append("\n")
+		newdoc.append("")
 		# newdoc.append("\n")
 		
 	return newdoc, chapters

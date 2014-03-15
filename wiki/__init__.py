@@ -42,17 +42,17 @@ class wiki(object):
 		result = self.rx_heading.match(heading)
 		if result is None:
 			return None, None
-			
+		
 		indent1 = len(result.group(1))
 		indent2 = len(result.group(3))
 		if indent1 != indent2:
 			logging.warning("Invalid heading.\n\"%s\"" % heading)
-				
+		
 		level = 7 - indent1
 		return result.group(2), level
 	
 	def heading(self, level, heading):
-		return ("=" * (7 - level)) + " " + heading + " " + ("=" * (7 - level)) + "\n"
+		return ("=" * (7 - level)) + " " + heading + " " + ("=" * (7 - level))
 
 	
 	rx_link = re.compile(r"\[\[([^\|\]]+)(\|([^\]]+))?\]\]")
@@ -302,8 +302,11 @@ class DokuWiki(wiki):
 				continue
 
 			seclines.append(l)
+			
+		if len(seclines):
+			return seclines
 
-		return seclines
+		return None
 
 
 from . import dokuwikixmlrpc
