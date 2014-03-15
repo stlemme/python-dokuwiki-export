@@ -36,7 +36,7 @@ class wiki(object):
 	def search(self, query):
 		return None
 		
-	rx_heading = re.compile(r"^(=+) ([^=]+) (=+)$")
+	rx_heading = re.compile(r"^(=+) ([^=]+) (=+)\s*$")
 
 	def parseheading(self, heading):
 		result = self.rx_heading.match(heading)
