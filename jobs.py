@@ -384,9 +384,9 @@ if __name__ == "__main__":
 	logging.cliplines = False
 	
 	log << dw.heading(1, "Log of dokuwikibot's jobs")
-	log << ""
+	log << "\n"
 	log << "Latest run at %s" % datetime.datetime.now()
-	log << ""
+	log << "\n"
 	log << "<code>"
 
 	logging.info("Connected to remote DokuWiki at %s" % wikiconfig.url)
@@ -400,9 +400,9 @@ if __name__ == "__main__":
 
 	logging.info("All done.")
 
-	log << ""
+	log << "\n"
 	log << "</code>"
-	log << ""
+	log << "\n"
 
 	log.flush()
 
