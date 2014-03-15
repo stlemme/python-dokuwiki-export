@@ -1,0 +1,17 @@
+{
+	"log": ":ficontent:private:wiki:jobs.nightly",
+	"jobs": {
+	
+		"d712-docx": {
+			"job": "wordgeneration",
+			"params": {
+				"tocpage": ":ficontent:private:deliverables:d712:toc",
+				"templatefile": ":ficontent:private:deliverables:templates:d712-template.docx",
+				"generatedfile": ":ficontent:private:deliverables:nightly:d712-generated.docx",
+				"editor": "stefan_go",
+				"injectrefs": false
+			}
+		}
+		
+	}
+}

@@ -455,9 +455,8 @@ class wikiprocessor:
 			print
 		
 
-def generatedoc(templatefile, generatefile, dw, tocpage, aggregatefile=None, chapterfile=None, injectrefs=False, ignorepagelinks=[]):
+def generatedoc(templatefile, generatefile, dw, tocpage, aggregatefile=None, chapterfile=None, injectrefs=False, ignorepagelinks=[], imagepath = "_media/"):
 
-	imagepath = "media/"
 	document = docxwrapper(templatefile, imagepath)
 
 	tocns = []
