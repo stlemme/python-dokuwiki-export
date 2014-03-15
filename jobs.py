@@ -301,10 +301,10 @@ def executejobs(jobs, jobsuccess = None):
 			
 		try:
 		
-			# try:
-			success = j.perform(dw)
-			# except Exception as e:
-				# logging.fatal("Exception occured!\n%s" % e)
+			try:
+				success = j.perform(dw)
+			except Exception as e:
+				logging.fatal("Exception occured!\n%s" % e)
 				
 		except logging.FatalError:
 			success = False
@@ -380,8 +380,8 @@ if __name__ == "__main__":
 	
 	dw = DokuWikiRemote(wikiconfig.url, wikiconfig.user, wikiconfig.passwd)
 	log = PageLog(dw, jobslog)
-	# logging.out = log
-	# logging.cliplines = False
+	logging.out = log
+	logging.cliplines = False
 	
 	log << dw.heading(1, "Log of dokuwikibot's jobs")
 	log << ""
@@ -393,10 +393,10 @@ if __name__ == "__main__":
 
 	jobsuccess = {}
 	
-	# try:
-	overallsuccess = executejobs(jobs, jobsuccess)
-	# except Exception as e:
-		# logging.error("Exception occured!\n%s" % e)
+	try:
+		overallsuccess = executejobs(jobs, jobsuccess)
+	except Exception as e:
+		logging.error("Exception occured!\n%s" % e)
 
 	logging.info("All done.")
 
@@ -404,7 +404,7 @@ if __name__ == "__main__":
 	log << "</code>"
 	log << ""
 
-	# log.flush()
+	log.flush()
 
 	if not overallsuccess:
 		failedJobs = [j for j in jobs if not ((j in jobsuccess) and (jobsuccess[j]))]

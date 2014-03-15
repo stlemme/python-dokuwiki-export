@@ -1,5 +1,5 @@
 {
-	"log": ":ficontent:private:wiki:jobs.nightly",
+	"log": ":ficontent:private:wiki:jobs.docxgeneration",
 	"jobs": {
 	
 		"d712-docx": {
@@ -11,7 +11,37 @@
 				"editor": "stefan_go",
 				"injectrefs": false
 			}
-		}
+		},
 		
+		"d721-docx": {
+			"job": "wordgeneration",
+			"params": {
+				"tocpage": ":ficontent:private:deliverables:d721:toc",
+				"templatefile": ":ficontent:private:deliverables:templates:d721-template.docx",
+				"generatedfile": ":ficontent:private:deliverables:nightly:d721-generated.docx",
+				"editor": "stefan_go",
+				"injectrefs": false
+			}
+		},
+		"d731-docx": {
+			"job": "wordgeneration",
+			"params": {
+				"tocpage": ":ficontent:private:deliverables:d731:toc",
+				"templatefile": ":ficontent:private:deliverables:templates:d731-template.docx",
+				"generatedfile": ":ficontent:private:deliverables:nightly:d731-generated.docx",
+				"editor": "stefan_go",
+				"injectrefs": false
+			}
+		},
+		"d741-docx": {
+			"job": "wordgeneration",
+			"params": {
+				"tocpage": ":ficontent:private:deliverables:d741:toc",
+				"templatefile": ":ficontent:private:deliverables:templates:d741-template.docx",
+				"generatedfile": ":ficontent:private:deliverables:nightly:d741-generated.docx",
+				"editor": "stefan_go",
+				"injectrefs": false
+			}
+		}
 	}
 }
