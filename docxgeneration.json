@@ -2,6 +2,17 @@
 	"log": ":ficontent:private:wiki:jobs.docxgeneration",
 	"jobs": {
 	
+		"d331-docx": {
+			"job": "wordgeneration",
+			"params": {
+				"tocpage": ":ficontent:private:deliverables:d331:toc",
+				"templatefile": ":ficontent:private:deliverables:templates:d331-template.docx",
+				"generatedfile": ":ficontent:private:deliverables:nightly:d331-generated.docx",
+				"editor": "stefan_go",
+				"injectrefs": false
+			}
+		},
+
 		"d712-docx": {
 			"job": "wordgeneration",
 			"params": {
@@ -39,6 +50,16 @@
 				"tocpage": ":ficontent:private:deliverables:d741:toc",
 				"templatefile": ":ficontent:private:deliverables:templates:d741-template.docx",
 				"generatedfile": ":ficontent:private:deliverables:nightly:d741-generated.docx",
+				"editor": "stefan_go",
+				"injectrefs": false
+			}
+		},
+		"d761-docx": {
+			"job": "wordgeneration",
+			"params": {
+				"tocpage": ":ficontent:private:deliverables:d761:toc",
+				"templatefile": ":ficontent:private:deliverables:templates:d761-template.docx",
+				"generatedfile": ":ficontent:private:deliverables:nightly:d761-generated.docx",
 				"editor": "stefan_go",
 				"injectrefs": false
 			}
