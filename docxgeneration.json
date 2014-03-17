@@ -2,6 +2,27 @@
 	"log": ":ficontent:private:wiki:jobs.docxgeneration",
 	"jobs": {
 	
+		"d32-docx": {
+			"job": "wordgeneration",
+			"params": {
+				"tocpage": ":ficontent:private:deliverables:d32:toc",
+				"templatefile": ":ficontent:private:deliverables:templates:d32-template.docx",
+				"generatedfile": ":ficontent:private:deliverables:nightly:d32-generated.docx",
+				"editor": "arnaud",
+				"injectrefs": false
+			}
+		},
+		"d42-docx": {
+			"job": "wordgeneration",
+			"params": {
+				"tocpage": ":ficontent:private:deliverables:d42:toc",
+				"templatefile": ":ficontent:private:deliverables:templates:d42-template.docx",
+				"generatedfile": ":ficontent:private:deliverables:nightly:d42-generated.docx",
+				"editor": "stefan",
+				"injectrefs": false
+			}
+		},
+
 		"d331-docx": {
 			"job": "wordgeneration",
 			"params": {
