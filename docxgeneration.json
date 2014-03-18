@@ -2,6 +2,16 @@
 	"log": ":ficontent:private:wiki:jobs.docxgeneration",
 	"jobs": {
 	
+		"d22-docx": {
+			"job": "wordgeneration",
+			"params": {
+				"tocpage": ":ficontent:private:deliverables:d22:toc",
+				"templatefile": ":ficontent:private:deliverables:templates:d22-template.docx",
+				"generatedfile": ":ficontent:private:deliverables:nightly:d22-generated.docx",
+				"editor": "irt_christoph",
+				"injectrefs": false
+			}
+		},
 		"d32-docx": {
 			"job": "wordgeneration",
 			"params": {
