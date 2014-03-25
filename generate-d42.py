@@ -13,7 +13,7 @@ if __name__ == '__main__':
 	chapterfile = 'd42-chapters.txt'
 	# imagepath = "media/"
 	tocpage = ":ficontent:private:deliverables:d42:toc"
-	deliverablepage = ":FIcontent.wiki.Deliverables.D42"
+	deliverablepage = ":ficontent:deliverables:d42"
 	embedwikilinks = True
 
 	logging.info("Connecting to remote DokuWiki at %s" % wikiconfig.url)
@@ -29,8 +29,8 @@ if __name__ == '__main__':
 		chapterfile=chapterfile,
 		ignorepagelinks=[
 			re.compile(deliverablepage, re.IGNORECASE),
-			re.compile("^:FIcontent.Gaming.Enabler.", re.IGNORECASE),
-			re.compile("^:FIcontent.FIware.GE.Usage#", re.IGNORECASE),
+			re.compile("^:ficontent:gaming:enabler:", re.IGNORECASE),
+			re.compile("^:ficontent:fiware:ge_usage#", re.IGNORECASE),
 		]
 	)
 
