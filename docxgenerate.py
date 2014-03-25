@@ -9,6 +9,7 @@ from wiki import *
 import os
 import urllib
 import hashlib
+from publisher import *
 
 
 rx_line = {
@@ -50,8 +51,8 @@ rx_wiki_table = re.compile(r"[\^\|]")
 # rx_wiki_linebreak = re.compile(r"\s*\\\\\s*")
 
 
-class wikiprocessor:
-	def __init__(self, document, dw, ns, chapters, imagepath = "media/", ignore = []):
+class wikiprocessor(object):
+	def __init__(self, document, dw, ns, chapters, publisher, imagepath = "media/", ignore = []):
 		self.doc = document
 		self.dw = dw
 		self.ns = ns
@@ -59,6 +60,7 @@ class wikiprocessor:
 		# self.wikiurl = wikiurl
 		self.ignore = ignore
 		self.imagepath = imagepath
+		self.publisher = publisher
 	
 	def resolve_link(self, match):
 		page, section, caption = self.dw.parselink(match.group())
@@ -66,6 +68,8 @@ class wikiprocessor:
 		# external link
 		if page.startswith('http'):
 			ref = self.doc.lookupref(page, page)
+			if caption is None:
+				caption = page
 			return "%s [%d]" % (caption, ref)
 
 		target = self.dw.resolve(page, self.ns)
@@ -91,7 +95,17 @@ class wikiprocessor:
 		if not ignore:
 			logging.info("Unresolved Wiki Target: %s" % target)
 		
-		ref = self.doc.lookupref(target, self.dw.pageurl(page, heading=section))
+		# convert url to public page
+		publicpage = self.publisher.public_page(page)
+		if publicpage is None:
+			logging.warning("Referencing private wiki target: %s" % target)
+			publicpage = page
+		
+		ref = self.doc.lookupref(target, self.dw.pageurl(publicpage, heading=section))
+		
+		if caption is None and section is not None:
+			caption = section
+		
 		return "%s [%d]" % (caption, ref)
 
 		# repl = caption + u" (refer to the FIcontent Wiki for more information)"
@@ -467,8 +481,10 @@ def generatedoc(templatefile, generatefile, dw, tocpage, aggregatefile=None, cha
 	doc, chapters = aggregate(dw, toc, tocns, showwikiurl = injectrefs)
 	
 	# print()
+	rx_pub_ns = re.compile('^:ficontent:((socialtv|smartcity|gaming|common):.*|deliverables:d[0-9]+|fiware:ge_usage)$')
+	pub = wikipublisher(dw, rx_pub_ns)
 	
-	wp = wikiprocessor(document, dw, tocns, chapters, imagepath, ignorepagelinks)
+	wp = wikiprocessor(document, dw, tocns, chapters, pub, imagepath, ignorepagelinks)
 	
 	if aggregatefile is not None:
 		with open(aggregatefile, "w") as fo:
