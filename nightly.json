@@ -13,6 +13,29 @@
 			}
 		},
 
+		"d61": {
+			"job": "aggregation",
+			"params": {
+				"tocpage": ":ficontent:private:deliverables:d61:toc",
+				"outpage": ":ficontent:private:deliverables:nightly:d61",
+				"editor": "stefan",
+				"embedwikilinks": true
+			}
+		},
+		
+		"d65": {
+			"job": "aggregation",
+			"params": {
+				"tocpage": ":ficontent:private:deliverables:d65:toc",
+				"outpage": ":ficontent:private:deliverables:nightly:d65",
+				"editor": "mariolr",
+				"embedwikilinks": true
+			}
+		},
+		
+		
+		"inactive": {
+		
 		"d331": {
 			"job": "aggregation",
 			"params": {
@@ -51,16 +74,6 @@
 			}
 		},
 		
-		"d65": {
-			"job": "aggregation",
-			"params": {
-				"tocpage": ":ficontent:private:deliverables:d65:toc",
-				"outpage": ":ficontent:private:deliverables:nightly:d65",
-				"editor": "mariolr",
-				"embedwikilinks": true
-			}
-		},
-		
 		"d712": {
 			"job": "aggregation",
 			"params": {
@@ -70,6 +83,7 @@
 				"embedwikilinks": true
 			}
 		},
+		
 		"d721": {
 			"job": "aggregation",
 			"params": {
@@ -143,5 +157,8 @@
 				"embedwikilinks": false
 			}
 		}
+		
+		}
+		
 	}
 }

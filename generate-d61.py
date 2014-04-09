@@ -1,31 +1,41 @@
 #!/usr/bin/env python
 
 
-from generate import *
+from docxgenerate import *
 
 
 if __name__ == '__main__':
+	import wikiconfig
 
 	templatefile = 'd61-template.docx'
 	aggregatefile = 'd61-aggregate.txt'
 	generatefile = 'd61-generated.docx'
-	imagepath = "media/"
-	wikiurl = "http://ficontent.dyndns.org/doku.php/"
-	tocpage = "FIcontent.Wiki.Deliverables.D61.TOC"
+	chapterfile = 'd61-chapters.txt'
+	# imagepath = "media/"
+	tocpage = ":ficontent:private:deliverables:d61:toc"
+	deliverablepage = ":ficontent:deliverables:d61"
+	embedwikilinks = True
+
+	logging.info("Connecting to remote DokuWiki at %s" % wikiconfig.url)
+	# dw = wiki.DokuWikiLocal(url, 'pages', 'media')
+	dw = DokuWikiRemote(wikiconfig.url, wikiconfig.user, wikiconfig.passwd)
+	
+	logging.info("Generating docx file %s ..." % generatefile)
 	
 	desiredlinks = [
-		re.compile(r"^FIcontent\.Gaming\.Roadmap#Pervasive_Games_Platform_\-_Upcoming_Releases", re.IGNORECASE),
-		re.compile(r"^FIcontent\.Wiki\.Deliverables\.D61", re.IGNORECASE),
-		re.compile(r"^FIcontent\.(SocialTV|SmartCity|Gaming|Common)\.Roadmap", re.IGNORECASE),
-		re.compile(r"^FIcontent\.(SocialTV|SmartCity|Gaming|Common)\.Enabler\..*\.TermsandConditions", re.IGNORECASE),
-		re.compile(r"^FIcontent\.(SocialTV|SmartCity|Gaming|Common)\.Enabler\..*\.DeveloperGuide", re.IGNORECASE)
+		re.compile(deliverablepage, re.IGNORECASE),
+		re.compile("^:ficontent:(socialtv|smartcity|gaming|common):roadmap:(start)?(#.+)?$", re.IGNORECASE),
+		re.compile("^:ficontent:(socialtv|smartcity|gaming|common):enabler:(.*):developerguide", re.IGNORECASE)
 	]
-	
+
 	generatedoc(
-		templatefile, generatefile, imagepath, tocpage,
-		aggregatefile = aggregatefile,
-		wikiurl=wikiurl,
+		templatefile,
+		generatefile,
+		dw, tocpage,
+		aggregatefile=aggregatefile,
+		chapterfile=chapterfile,
 		ignorepagelinks=desiredlinks
 	)
 
+	logging.info("Finished")
 	

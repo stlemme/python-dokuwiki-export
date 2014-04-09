@@ -104,7 +104,7 @@ def aggregate(dw, toc, tocns, showwikiurl = False):
 			if showwikiurl:
 				url = dw.pageurl(page)
 				# print(url)
-				newdoc.append("__%s__" % url)
+				newdoc.append("__ %s __" % url)
 				newdoc.append("")
 		else:
 			pageheading = True
@@ -145,7 +145,7 @@ def aggregate(dw, toc, tocns, showwikiurl = False):
 					url = dw.pageurl(page, heading=subheading)
 					# print(url)
 					# newdoc.append("")
-					newdoc.append("__%s__" % url)
+					newdoc.append("__ %s __" % url)
 					newdoc.append("")
 					# newdoc.append("\n")
 				

@@ -2,6 +2,20 @@
 	"log": ":ficontent:private:wiki:jobs.docxgeneration",
 	"jobs": {
 	
+		"d61-docx": {
+			"job": "wordgeneration",
+			"params": {
+				"tocpage": ":ficontent:private:deliverables:d61:toc",
+				"templatefile": ":ficontent:private:deliverables:templates:d61-template.docx",
+				"generatedfile": ":ficontent:private:deliverables:nightly:d61-generated.docx",
+				"editor": "stefan",
+				"injectrefs": false
+			}
+		},
+
+		
+		"inactive": {
+		
 		"d22-docx": {
 			"job": "wordgeneration",
 			"params": {
@@ -43,6 +57,7 @@
 				"injectrefs": false
 			}
 		},
+
 
 		"d712-docx": {
 			"job": "wordgeneration",
@@ -95,5 +110,8 @@
 				"injectrefs": false
 			}
 		}
+		
+		}
+		
 	}
 }

@@ -272,6 +272,9 @@ def createjobs(jobdata):
 	for jname, jdata in jobdata["jobs"].items():
 		# print(jname)
 		# print(jdata)
+		if jname == "inactive":
+			continue
+		
 		if specificjobs is not None:
 			if jname.lower() not in specificjobs:
 				continue
