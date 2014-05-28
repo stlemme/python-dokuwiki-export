@@ -43,8 +43,13 @@ class GESurveyPresenter(PresenterBase):
 				
 	def dump(self, out):
 		out.write('^ Partner  ^ Contacts  ^ GEs  ^')
-		for partner, val in self.validation.items():
+		partners = list(self.validation.keys())
+		partners.sort(key = lambda p: p.identifier)
+		for partner in partners:
+			val = self.validation[partner]
 			contacts = list(val["contacts"])
+			contacts.sort(key = lambda p: p)
 			ges = [ge.identifier for ge in val["GEs"]]
+			ges.sort(key = lambda p: p)
 			out.write('| %s    |  %s  | %s       |' % (partner.identifier, " \\\\ ".join(contacts), " \\\\ ".join(ges)))
 		# out.write('| ...   | ...   | ...      |')
