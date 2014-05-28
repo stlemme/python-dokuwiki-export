@@ -88,9 +88,9 @@ class CockpitPresenter(PresenterBase):
 			if platform is not None:
 				cleanid = re.sub(r'[^\w\-]', '', id).replace('-', '.').lower()
 				spec = 'http://wiki.mediafi.org/doku.php/ficontent.%s.enabler.%s' % (platform, cleanid)
-				urlid = re.sub(r'\W+', '-', id + ' SE').lower()
-				if id in self.url_exceptions:
-					urlid = self.url_exceptions[id]
+				urlid = re.sub(r'\W+', '-', id).lower()
+				#if id in self.url_exceptions:
+				#	urlid = self.url_exceptions[id]
 				catalog = 'http://mediafi.org/?portfolio=%s' % urlid
 			else:
 				spec = 'not yet released'
