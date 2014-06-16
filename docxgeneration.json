@@ -13,6 +13,48 @@
 			}
 		},
 
+		"d24-docx": {
+			"job": "wordgeneration",
+			"params": {
+				"tocpage": ":ficontent:private:deliverables:d24:toc",
+				"templatefile": ":ficontent:private:deliverables:templates:d24-template.docx",
+				"generatedfile": ":ficontent:private:deliverables:nightly:d24-generated.docx",
+				"editor": "robert.seeliger",
+				"injectrefs": false
+			}
+		},
+		"d34-docx": {
+			"job": "wordgeneration",
+			"params": {
+				"tocpage": ":ficontent:private:deliverables:d32:toc",
+				"templatefile": ":ficontent:private:deliverables:templates:d34-template.docx",
+				"generatedfile": ":ficontent:private:deliverables:nightly:d34-generated.docx",
+				"editor": "olivier.duvoid",
+				"injectrefs": false
+			}
+		},
+		"d44-docx": {
+			"job": "wordgeneration",
+			"params": {
+				"tocpage": ":ficontent:private:deliverables:d42:toc",
+				"templatefile": ":ficontent:private:deliverables:templates:d44-template.docx",
+				"generatedfile": ":ficontent:private:deliverables:nightly:d44-generated.docx",
+				"editor": "marcel-ethz",
+				"injectrefs": false
+			}
+		},
+
+		"d632-docx": {
+			"job": "wordgeneration",
+			"params": {
+				"tocpage": ":ficontent:private:deliverables:d632:toc",
+				"templatefile": ":ficontent:private:deliverables:templates:d632-template.docx",
+				"generatedfile": ":ficontent:private:deliverables:nightly:d632-generated.docx",
+				"editor": "kmitchell",
+				"injectrefs": false
+			}
+		},
+
 		
 		"inactive": {
 		

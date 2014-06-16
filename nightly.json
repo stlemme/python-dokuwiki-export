@@ -32,7 +32,45 @@
 				"embedwikilinks": true
 			}
 		},
+
+		"d632": {
+			"job": "aggregation",
+			"params": {
+				"tocpage": ":ficontent:private:deliverables:d632:toc",
+				"outpage": ":ficontent:private:deliverables:nightly:d632",
+				"editor": "kmitchell",
+				"embedwikilinks": true
+			}
+		},
 		
+		"d24": {
+			"job": "aggregation",
+			"params": {
+				"tocpage": ":ficontent:private:deliverables:d24:toc",
+				"outpage": ":ficontent:private:deliverables:nightly:d24",
+				"editor": "robert.seeliger",
+				"embedwikilinks": true
+			}
+		},
+		"d34": {
+			"job": "aggregation",
+			"params": {
+				"tocpage": ":ficontent:private:deliverables:d34:toc",
+				"outpage": ":ficontent:private:deliverables:nightly:d34",
+				"editor": "olivier.duvoid",
+				"embedwikilinks": true
+			}
+		},
+		"d44": {
+			"job": "aggregation",
+			"params": {
+				"tocpage": ":ficontent:private:deliverables:d44:toc",
+				"outpage": ":ficontent:private:deliverables:nightly:d44",
+				"editor": "marcel-ethz",
+				"embedwikilinks": true
+			}
+		},
+
 		
 		"inactive": {
 		
