@@ -2,7 +2,7 @@
 # from getpage import *
 from preprocess import *
 from metaprocessor import *
-import presenter
+from presenter import ExperimentTimelinePresenter, ListPresenter, DependencyPresenter, UptakePresenter, CockpitPresenter, GESurveyPresenter
 import wiki
 import wikiconfig
 import sys
@@ -40,7 +40,7 @@ def generate_page(dw, outpage, meta, data):
 	#######################################
 	
 	generated_content += [
-		("Timeline of Experiments", presenter.ExperimentTimelinePresenter()),
+		("Timeline of Experiments", ExperimentTimelinePresenter()),
 	]
 	
 	
@@ -49,7 +49,7 @@ def generate_page(dw, outpage, meta, data):
 	
 	sites = ["Zurich", "Brittany", "Lancaster", "Cologne", "Berlin", "Barcelona"]
 	generated_content += [
-		("Experiments in %s" % s, presenter.ExperimentTimelinePresenter(s)) for s in sites
+		("Experiments in %s" % s, ExperimentTimelinePresenter(s)) for s in sites
 	]
 
 	
@@ -57,7 +57,7 @@ def generate_page(dw, outpage, meta, data):
 	#######################################
 	
 	generated_content += [
-		("All Tested Scenarios", presenter.ListPresenter(ScenarioVisitor())),
+		("All Tested Scenarios", ListPresenter(ScenarioVisitor())),
 	]
 	
 	
@@ -71,13 +71,13 @@ def generate_page(dw, outpage, meta, data):
 	
 	# Dependencies per scenario (only actual usage)
 	generated_content += [
-		('Scenario "%s" on Site %s - USES' % e, presenter.DependencyPresenter(e[0], e[1], ['USES'])) for e in experiments
+		('Scenario "%s" on Site %s - USES' % e, DependencyPresenter(e[0], e[1], ['USES'])) for e in experiments
 	]
 
 	# Dependencies per scenario (actual and planned usage)
 	relations = ['USES', 'WILL USE', 'MAY USE']
 	generated_content += [
-		('Scenario "%s" on Site %s - ALL' % e, presenter.DependencyPresenter(e[0], e[1], relations)) for e in experiments
+		('Scenario "%s" on Site %s - ALL' % e, DependencyPresenter(e[0], e[1], relations)) for e in experiments
 	]
 	
 	# Enablers used in experiments
@@ -87,7 +87,7 @@ def generate_page(dw, outpage, meta, data):
 
 	generated_content += [(
 			'Enablers tested in Scenario "%s" on Site %s at %s' % (e.scenario, e.site, e.date),
-			presenter.ListPresenter(
+			ListPresenter(
 				EnablersTestedVisitor(e.application, ts = e.date),
 				niceenabler
 			)
@@ -103,7 +103,7 @@ def generate_page(dw, outpage, meta, data):
 	
 	generated_content += [(
 			"Utilization of %s GE" % ge.identifier,
-			presenter.ListPresenter(UsedByVisitor(
+			ListPresenter(UsedByVisitor(
 				ge,
 				relations = ['USES'],
 				experiment = False
@@ -120,7 +120,7 @@ def generate_page(dw, outpage, meta, data):
 	# print(csse.usestates)
 	
 	generated_content += [
-		("Overall Uptake of Generic Enablers", presenter.UptakePresenter(hideunused=True))
+		("Overall Uptake of Generic Enablers", UptakePresenter(hideunused=True))
 	]
 	
 	# csse = data.se['Content Sharing']
@@ -131,7 +131,14 @@ def generate_page(dw, outpage, meta, data):
 	#######################################
 
 	generated_content += [
-		("FI-PPP SEis Usage and General Information", presenter.CockpitPresenter())
+		("FI-PPP SEis Usage and General Information", CockpitPresenter())
+	]
+
+	# GE Validation Survey
+	#######################################
+
+	generated_content += [
+		("GE Validation Survey", GESurveyPresenter())
 	]
 	
 	#######################################

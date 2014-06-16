@@ -180,14 +180,14 @@ class EnablersTestedVisitor(DependencyVisitor):
 ##############################################################################
 
 class UsedByVisitor(Visitor):
-	def __init__(self, enabler, relations = ['USES'], se = True, app = True, experiment = True):
+	def __init__(self, enabler, relations = ['USES'], se = True, app = True, experiment = True, transitive = True):
 		self.result = []
 		self.enabler = enabler
 		self.relations = relations
 		self.se = se
 		self.app = app
 		self.experiment = experiment
-		# self.transitive = transitive
+		self.transitive = transitive
 		
 	def visit_Entity(self, grammar):
 		if grammar in self.result:
@@ -201,6 +201,9 @@ class UsedByVisitor(Visitor):
 			self.result.append(grammar)
 			return
 		
+		if not self.transitive:
+			return
+			
 		for e in dep:
 			self.visit(e)
 		

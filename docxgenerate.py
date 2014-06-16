@@ -67,9 +67,12 @@ class wikiprocessor(object):
 
 		# external link
 		if page.startswith('http'):
-			ref = self.doc.lookupref(page, page)
+			# TODO: implement in a nicer and more reliable way
+			parts = match.group().split('|')
+			extlink = parts[0][2:]
+			ref = self.doc.lookupref(extlink, extlink)
 			if caption is None:
-				caption = page
+				caption = extlink
 			return "%s [%d]" % (caption, ref)
 
 		target = self.dw.resolve(page, self.ns)
