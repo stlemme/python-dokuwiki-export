@@ -282,7 +282,7 @@ class DokuWiki(wiki):
 		return self.ns_delimiter.join(path)
 		
 		
-	def getsection(self, page, section, ns = [], pagens = None):
+	def getsection(self, page, section, ns = [], pagens = None, targetlevel = 1):
 		fullname = self.resolve(page, ns)
 		if pagens is not None:
 			pagens[:] = fullname.split(self.ns_delimiter)[1:-1]
@@ -291,15 +291,28 @@ class DokuWiki(wiki):
 		
 		seclines = []
 		
+		seclevel = None
+		heading = None
+		level = None
+		
 		for l in lines:
-			result = self.rx_heading.match(l)
-			if result is not None:
-				heading, level = self.parseheading(result.group())
-				skip = heading != section
-				continue
+			heading_found = self.rx_heading.match(l)
+			if heading_found is not None:
+				heading, level = self.parseheading(heading_found.group())
+				if heading == section:
+					# found section, store section level
+					seclevel = level
+					continue
+				elif seclevel == level:
+					# found same level heading after section
+					break
 			
-			if skip:
+			if seclevel is None:
 				continue
+
+			# readjust heading level
+			if heading_found is not None:
+				l = self.heading(targetlevel + level - seclevel, heading)
 
 			seclines.append(l)
 			

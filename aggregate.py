@@ -137,7 +137,7 @@ def aggregate(dw, toc, tocns, showwikiurl = False):
 					pageheading = False
 				
 				# logging.info("%s - %s" % (pretty_numbering(numbering), subheading))
-				# print pretty_numbering(numbering), " - ", subheading
+				print(pretty_numbering(numbering), " - ", subheading)
 				
 				newdoc.append(dw.heading(sublevel, subheading))
 
@@ -161,7 +161,8 @@ def aggregate(dw, toc, tocns, showwikiurl = False):
 				if "nightly" in incpage:
 					secdoc = None
 				else:
-					secdoc = dw.getsection(incpage, incsection, pagens)
+					print(incpage, incsection, pagens, sublevel)
+					secdoc = dw.getsection(incpage, incsection, pagens, targetlevel=sublevel)
 				
 				# print(contentQueue)
 				# print(secdoc)
