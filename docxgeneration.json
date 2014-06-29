@@ -13,12 +13,12 @@
 			}
 		},
 
-		"d24-docx": {
+		"d241-docx": {
 			"job": "wordgeneration",
 			"params": {
-				"tocpage": ":ficontent:private:deliverables:d24:toc",
-				"templatefile": ":ficontent:private:deliverables:templates:d24-template.docx",
-				"generatedfile": ":ficontent:private:deliverables:nightly:d24-generated.docx",
+				"tocpage": ":ficontent:private:deliverables:d241:toc",
+				"templatefile": ":ficontent:private:deliverables:templates:d241-template.docx",
+				"generatedfile": ":ficontent:private:deliverables:nightly:d241-generated.docx",
 				"editor": "robert.seeliger",
 				"injectrefs": false
 			}
