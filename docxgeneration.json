@@ -13,12 +13,12 @@
 			}
 		},
 
-		"d24-docx": {
+		"d241-docx": {
 			"job": "wordgeneration",
 			"params": {
-				"tocpage": ":ficontent:private:deliverables:d24:toc",
-				"templatefile": ":ficontent:private:deliverables:templates:d24-template.docx",
-				"generatedfile": ":ficontent:private:deliverables:nightly:d24-generated.docx",
+				"tocpage": ":ficontent:private:deliverables:d241:toc",
+				"templatefile": ":ficontent:private:deliverables:templates:d241-template.docx",
+				"generatedfile": ":ficontent:private:deliverables:nightly:d241-generated.docx",
 				"editor": "robert.seeliger",
 				"injectrefs": false
 			}
@@ -26,7 +26,7 @@
 		"d34-docx": {
 			"job": "wordgeneration",
 			"params": {
-				"tocpage": ":ficontent:private:deliverables:d32:toc",
+				"tocpage": ":ficontent:private:deliverables:d34:toc",
 				"templatefile": ":ficontent:private:deliverables:templates:d34-template.docx",
 				"generatedfile": ":ficontent:private:deliverables:nightly:d34-generated.docx",
 				"editor": "olivier.duvoid",
@@ -36,7 +36,7 @@
 		"d44-docx": {
 			"job": "wordgeneration",
 			"params": {
-				"tocpage": ":ficontent:private:deliverables:d42:toc",
+				"tocpage": ":ficontent:private:deliverables:d44:toc",
 				"templatefile": ":ficontent:private:deliverables:templates:d44-template.docx",
 				"generatedfile": ":ficontent:private:deliverables:nightly:d44-generated.docx",
 				"editor": "marcel-ethz",

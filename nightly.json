@@ -43,11 +43,11 @@
 			}
 		},
 		
-		"d24": {
+		"d241": {
 			"job": "aggregation",
 			"params": {
-				"tocpage": ":ficontent:private:deliverables:d24:toc",
-				"outpage": ":ficontent:private:deliverables:nightly:d24",
+				"tocpage": ":ficontent:private:deliverables:d241:toc",
+				"outpage": ":ficontent:private:deliverables:nightly:d241",
 				"editor": "robert.seeliger",
 				"embedwikilinks": true
 			}
