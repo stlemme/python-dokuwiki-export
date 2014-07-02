@@ -137,7 +137,7 @@ def aggregate(dw, toc, tocns, showwikiurl = False):
 					pageheading = False
 				
 				# logging.info("%s - %s" % (pretty_numbering(numbering), subheading))
-				print(pretty_numbering(numbering), " - ", subheading)
+				# print(pretty_numbering(numbering), " - ", subheading)
 				
 				newdoc.append(dw.heading(sublevel, subheading))
 
@@ -161,8 +161,9 @@ def aggregate(dw, toc, tocns, showwikiurl = False):
 				if "nightly" in incpage:
 					secdoc = None
 				else:
-					print(incpage, incsection, pagens, sublevel)
-					secdoc = dw.getsection(incpage, incsection, pagens, targetlevel=sublevel)
+					# print(incpage, incsection, pagens, sublevel)
+					incpagens = []
+					secdoc = dw.getsection(incpage, incsection, pagens, incpagens, targetlevel=1)
 				
 				# print(contentQueue)
 				# print(secdoc)
@@ -173,7 +174,12 @@ def aggregate(dw, toc, tocns, showwikiurl = False):
 					# print(contentQueue)
 					# print(secdoc)
 					secdoc.reverse()
-					contentQueue.extendleft(secdoc)
+					# contentQueue.extendleft(secdoc)
+					# incpage = dw.resolve(incpage, incpagens)
+					for line in secdoc:
+						re1line = wiki.rx_link.sub(lambda m: resolve_link(dw, incpagens, m), line)
+						re2line = wiki.rx_image.sub(lambda m: resolve_images(dw, incpagens, m), re1line)
+						contentQueue.appendleft(re2line)
 				
 				continue
 			

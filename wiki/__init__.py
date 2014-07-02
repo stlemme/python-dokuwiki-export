@@ -55,7 +55,7 @@ class wiki(object):
 		return ("=" * (7 - level)) + " " + heading + " " + ("=" * (7 - level))
 
 	
-	rx_link = re.compile(r"\[\[([^\|\]]+)(\|([^\]]+))?\]\]")
+	rx_link = re.compile(r"\[\[([^\|]+?)(\|(.+?))?\]\]")
 
 	def parselink(self, link):
 		result = self.rx_link.match(link)
@@ -301,9 +301,11 @@ class DokuWiki(wiki):
 				heading, level = self.parseheading(heading_found.group())
 				if heading == section:
 					# found section, store section level
+					# print("Found section - level:", level)
 					seclevel = level
 					continue
 				elif seclevel == level:
+					# print("Found next section - level:", level)
 					# found same level heading after section
 					break
 			
@@ -312,6 +314,7 @@ class DokuWiki(wiki):
 
 			# readjust heading level
 			if heading_found is not None:
+				# print("Found heading - ", level, seclevel, targetlevel, heading)
 				l = self.heading(targetlevel + level - seclevel, heading)
 
 			seclines.append(l)
