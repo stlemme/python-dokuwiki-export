@@ -1,0 +1,191 @@
+{
+	"log": ":ficontent:private:wiki:jobs.deploy",
+	"jobs": {
+	
+		"d61": {
+			"job": "aggregation",
+			"params": {
+				"tocpage": ":ficontent:private:deliverables:d61:toc",
+				"outpage": ":ficontent:deliverables:d61",
+				"editor": "stefan",
+				"embedwikilinks": false
+			}
+		},
+		
+		"d65": {
+			"job": "aggregation",
+			"params": {
+				"tocpage": ":ficontent:private:deliverables:d65:toc",
+				"outpage": ":ficontent:deliverables:d65",
+				"editor": "mariolr",
+				"embedwikilinks": false
+			}
+		},
+
+		"d632": {
+			"job": "aggregation",
+			"params": {
+				"tocpage": ":ficontent:private:deliverables:d632:toc",
+				"outpage": ":ficontent:deliverables:d632",
+				"editor": "kmitchell",
+				"embedwikilinks": false
+			}
+		},
+		
+		"d241": {
+			"job": "aggregation",
+			"params": {
+				"tocpage": ":ficontent:private:deliverables:d241:toc",
+				"outpage": ":ficontent:deliverables:d241",
+				"editor": "robert.seeliger",
+				"embedwikilinks": false
+			}
+		},
+		"d34": {
+			"job": "aggregation",
+			"params": {
+				"tocpage": ":ficontent:private:deliverables:d34:toc",
+				"outpage": ":ficontent:deliverables:d34",
+				"editor": "olivier.duvoid",
+				"embedwikilinks": false
+			}
+		},
+		"d44": {
+			"job": "aggregation",
+			"params": {
+				"tocpage": ":ficontent:private:deliverables:d44:toc",
+				"outpage": ":ficontent:deliverables:d44",
+				"editor": "marcel-ethz",
+				"embedwikilinks": false
+			}
+		},
+
+		
+		"inactive": {
+		
+		"d331": {
+			"job": "aggregation",
+			"params": {
+				"tocpage": ":ficontent:private:deliverables:d331:toc",
+				"outpage": ":ficontent:private:deliverables:nightly:d331",
+				"editor": "stefan_go",
+				"embedwikilinks": true
+			}
+		},
+		
+		"d22": {
+			"job": "aggregation",
+			"params": {
+				"tocpage": ":ficontent:private:deliverables:d22:toc",
+				"outpage": ":ficontent:private:deliverables:nightly:d22",
+				"editor": "irt_christoph",
+				"embedwikilinks": true
+			}
+		},
+		"d32": {
+			"job": "aggregation",
+			"params": {
+				"tocpage": ":ficontent:private:deliverables:d32:toc",
+				"outpage": ":ficontent:private:deliverables:nightly:d32",
+				"editor": "arnaud",
+				"embedwikilinks": true
+			}
+		},
+		"d42": {
+			"job": "aggregation",
+			"params": {
+				"tocpage": ":ficontent:private:deliverables:d42:toc",
+				"outpage": ":ficontent:private:deliverables:nightly:d42",
+				"editor": "stefan",
+				"embedwikilinks": true
+			}
+		},
+		
+		"d712": {
+			"job": "aggregation",
+			"params": {
+				"tocpage": ":ficontent:private:deliverables:d712:toc",
+				"outpage": ":ficontent:private:deliverables:nightly:d712",
+				"editor": "stefan_go",
+				"embedwikilinks": true
+			}
+		},
+		
+		"d721": {
+			"job": "aggregation",
+			"params": {
+				"tocpage": ":ficontent:private:deliverables:d721:toc",
+				"outpage": ":ficontent:private:deliverables:nightly:d721",
+				"editor": "stefan_go",
+				"embedwikilinks": true
+			}
+		},
+		"d731": {
+			"job": "aggregation",
+			"params": {
+				"tocpage": ":ficontent:private:deliverables:d731:toc",
+				"outpage": ":ficontent:private:deliverables:nightly:d731",
+				"editor": "stefan_go",
+				"embedwikilinks": true
+			}
+		},
+		"d741": {
+			"job": "aggregation",
+			"params": {
+				"tocpage": ":ficontent:private:deliverables:d741:toc",
+				"outpage": ":ficontent:private:deliverables:nightly:d741",
+				"editor": "stefan_go",
+				"embedwikilinks": true
+			}
+		},
+		"d751": {
+			"job": "aggregation",
+			"params": {
+				"tocpage": ":ficontent:private:deliverables:d751:toc",
+				"outpage": ":ficontent:private:deliverables:nightly:d751",
+				"editor": "stefan_go",
+				"embedwikilinks": true
+			}
+		},
+		"d761": {
+			"job": "aggregation",
+			"params": {
+				"tocpage": ":ficontent:private:deliverables:d761:toc",
+				"outpage": ":ficontent:private:deliverables:nightly:d761",
+				"editor": "stefan_go",
+				"embedwikilinks": true
+			}
+		},
+		"d771": {
+			"job": "aggregation",
+			"params": {
+				"tocpage": ":ficontent:private:deliverables:d771:toc",
+				"outpage": ":ficontent:private:deliverables:nightly:d771",
+				"editor": "stefan_go",
+				"embedwikilinks": true
+			}
+		},
+
+		"living-d42": {
+			"job": "aggregation",
+			"params": {
+				"tocpage": ":ficontent:private:deliverables:d42:toc",
+				"outpage": ":ficontent:deliverables:d42",
+				"editor": "stefan",
+				"embedwikilinks": false
+			}
+		},
+		"living-d61": {
+			"job": "aggregation",
+			"params": {
+				"tocpage": ":ficontent:private:deliverables:d61:toc",
+				"outpage": ":ficontent:deliverables:d61",
+				"editor": "stefan",
+				"embedwikilinks": false
+			}
+		}
+		
+		}
+		
+	}
+}
