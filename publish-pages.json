@@ -1,0 +1,21 @@
+{
+	"log": ":ficontent:private:wiki:jobs.publish",
+	"jobs": {
+	
+		"public": {
+			"job": "publish",
+			"params": {
+				"pages": [
+					"^:ficontent:(fiware:ge_usage|architecture)$",
+					"^:ficontent:(socialtv|smartcity|gaming):(architecture|deployment)$",
+					"^:ficontent:smartcity:(portal)$",
+					"^:ficontent:(socialtv|smartcity|gaming|common):roadmap:(start|release[0-9_]+|upcoming_releases)$",
+					"^:ficontent:(socialtv|smartcity|gaming|common):enabler:([\w]+:)?[\w]+:(start|developerguide)$"
+				],
+				"export_ns": ":ficontent:publish:",
+				"publisher": "stefan"
+			}
+		}
+		
+	}
+}

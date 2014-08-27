@@ -29,6 +29,9 @@ class wiki(object):
 		
 	def getfile(self, file, ns = []):
 		return None
+		
+	def putfile(self, file, data, ns = [], summary='updated'):
+		pass
 
 	def allpages(self):
 		return None
@@ -136,6 +139,12 @@ class wiki(object):
 		incsection = result.group(3)
 		return incpage, incsection
 		
+	def include(self, page, section):
+		include = '{{page>' + page
+		if section is not None:
+			include += '#' + section
+		include += '}}'
+		return include
 		
 	rx_image = re.compile(r"{{( *)([^\?\|\} ]+)(\?([^\|\} ]+))?( *)(\|([^\}]*))?}}")
 	rx_imageresize = re.compile(r"^([0-9]+)(x([0-9]+))?$")
@@ -372,6 +381,16 @@ class DokuWikiRemote(DokuWiki):
 			print(dwerr)
 			print(file, fullname)
 		return None
+
+	def putfile(self, file, data, ns = [], summary='updated'):
+		fullname = self.resolve(file, ns)
+		try:
+			# print("save file: %s!" % fullname)
+			return self.client.put_file(fullname, data, overwrite = True)
+		except dokuwikixmlrpc.DokuWikiXMLRPCError as dwerr:
+			print(dwerr)
+			print(file, fullname)
+			return False
 
 	def allpages(self):
 		return self.client.all_pages()

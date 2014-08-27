@@ -282,6 +282,7 @@ class DokuWikiClient(object):
         """Download a file from a remote Wiki."""
         try:
             bin = self._xmlrpc.wiki.getAttachment(file_id)
+            # print(bin)
             return bin.data
             # return base64.b64decode(self._xmlrpc.wiki.getAttachment(file_id))
         except xmlrpc.client.Fault as fault:
@@ -290,9 +291,11 @@ class DokuWikiClient(object):
     def put_file(self, file_id, data, overwrite = False):
         """Upload a file to a remote Wiki."""
         try:
-            return self._xmlrpc.wiki.putAttachment(file_id, 
-                   base64.b64encode(data), {'ow': overwrite})
-        except xmlrpclib.Fault as fault:
+            # print(data)
+            return self._xmlrpc.wiki.putAttachment(file_id, data, {'ow': overwrite})
+            # return self._xmlrpc.wiki.putAttachment(file_id, 
+                   # base64.b64encode(data), {'ow': overwrite})
+        except xmlrpc.client.Fault as fault:
             raise DokuWikiXMLRPCError(fault)
 
     def delete_file(self, file_id):
