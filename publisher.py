@@ -113,12 +113,22 @@ class wikipublisher(object):
 		# print("      %s" % mappedname)
 		
 		if mappedname is not None:
-			data = self.dw.getfile(fullname)
-			if not self.dw.putfile(mappedname, data):
-				logging.warning("Copy failed!")
+			srcinfo = self.dw.fileinfo(fullname)
+			destinfo = self.dw.fileinfo(mappedname)
+			
+			# print(srcinfo)
+			# print(destinfo)
+			
+			if (srcinfo['size'] != destinfo['size']) or (srcinfo['lastModified'] > destinfo['lastModified']):
+				logging.info("Copy image ...")
+				data = self.dw.getfile(fullname)
+				if not self.dw.putfile(mappedname, data):
+					logging.warning("Copy failed!")
+			
 			newname = self.dw.resolverel(mappedname, destns)
+			
 		else:
-			logging.warning("Unresolved include %s" % fullname)
+			logging.warning("Unresolved image %s" % fullname)
 			newname = fullname
 		
 		image = self.dw.image(newname, caption, params)

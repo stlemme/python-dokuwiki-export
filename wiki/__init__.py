@@ -33,6 +33,9 @@ class wiki(object):
 	def putfile(self, file, data, ns = [], summary='updated'):
 		pass
 
+	def fileinfo(self, file, ns = []):
+		return None
+
 	def allpages(self):
 		return None
 		
@@ -391,6 +394,10 @@ class DokuWikiRemote(DokuWiki):
 			print(dwerr)
 			print(file, fullname)
 			return False
+
+	def fileinfo(self, file, ns = []):
+		fullname = self.resolve(file, ns)
+		return self.client.file_info(fullname[1:])
 
 	def allpages(self):
 		return self.client.all_pages()

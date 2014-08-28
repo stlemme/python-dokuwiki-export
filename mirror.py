@@ -5,12 +5,18 @@ import wikiconfig
 import logging
 from wiki import *
 from publisher import *
+import re
 
 
 rx_public_pages = [
 	re.compile(r'^:ficontent:(fiware:ge_usage|architecture)$', re.IGNORECASE),
-	re.compile(r'^:ficontent:(socialtv|smartcity|gaming|common):(architecture|roadmap:(start|release[0-9_]+|upcoming_releases)|deployment|.+\.(png|jpg))$', re.IGNORECASE),
-	re.compile(r'^:ficontent:(socialtv|smartcity|gaming|common):enabler:([\w]+:)?[\w]+:(start|developerguide|.+\.(png|jpg))$', re.IGNORECASE)
+	re.compile(r'^:ficontent:(socialtv|smartcity|gaming|common):(architecture|roadmap:(start|release[0-9_]+|upcoming_releases)|deployment)$', re.IGNORECASE),
+	# TODO: smartcity:portal, smartcity:overview, *:prototypes
+	re.compile(r'^:ficontent:(socialtv|smartcity|gaming|common):enabler:([\w]+:)?[\w]+:([\w]+)$', re.IGNORECASE),
+	
+	# media files
+	re.compile(r'^:ficontent:(socialtv|smartcity|gaming|common):([\w:]+:)?([^:]+\.(png|jpg))$', re.IGNORECASE),
+	re.compile(r'^:ficontent:([^:]+\.(png|jpg))$', re.IGNORECASE)
 ]
 
 rx_exceptions = [
@@ -27,6 +33,7 @@ def publish_pages(dw, pages, export_ns = []):
 		newname = pub.public_page(fullname)
 		
 		if newname is None:
+			logging.info("Skip %s" % fullname)
 			continue
 
 		# if fullname not in debug_pages:

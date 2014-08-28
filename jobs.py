@@ -230,6 +230,8 @@ class Publish(Job):
 		dw.resolve(self.export_ns, [], export_ns)
 		logging.info("Export to namespace %s" % export_ns)
 		
+		pages.sort()
+		
 		mirror.publish_pages(dw, pages, export_ns)
 
 		logging.info("Finished!")
