@@ -1,0 +1,84 @@
+{
+	"name": "Reality Mixer - Reflection Mapping",
+	
+	"owners": ["ETHZ", "DFKI", "BLRK"],
+	
+	"platforms": ["gaming"],
+	
+	"documentation": {
+		"what-it-does": "All visually-oriented SEs of the Reality Mixer group measure camera properties and adapt the virtual objects to fit to the camera image background visually. The Reflection Mapping SE utilises a light probe to extract a sphere map from the camera image, which contains the environmental lighting conditions. This sphere map will be used to apply an appropriate lighting model to rendered virtual objects. Thus, the additional virtual objects are incorporated into the resulting image in a very seamless fashion leading to a more realistic experience of mixed reality applications.",
+		
+		"how-it-works": "It provides a new level of realistic augmented reality rendering with the following steps: it pinpoints the centre and radius of the material sphere source relative to the augmented reality marker. Then it assigns the camera image of the sphere to the source texturing of the target object(s) and performs spherical environment reflection mapping to the shading of the target object(s).",
+		
+		"why-you-need-it": "This enables a new level of realism in augmented reality applications. It may be used directly with a diffuse light probe to match the appearance of matt surfaces on virtual characters and vehicles. Furthermore, developers may experiment with mapping different materials to application objects, such as marble or crystal.",
+		
+		"pitch": "http://youtube.com/xyz",
+		
+		"additional": {
+			"homepage": "http://fmtvp.github.io/tal/index.html",
+			"API-reference": "http://fmtvp.github.io/tal/jsdoc/index.html"
+		}
+	},
+	
+	"examples": {
+	
+		"augmented-resistance": {
+			"title": "Augmented Resistance",
+			"description": "Augmented Resistance as part of the \"Tabletop Augmented Reality Games\" scenario",
+			"link": "http://wiki.mediafi.org/doku.php/ficontent.gaming.scenarios#tabletop_augmented_reality_games"
+		},
+		
+		"star-tours": {
+			"title": "Star Tours",
+			"description": "Star Tours as part of the \"Seamless Augmented Reality on the Web\" scenario",
+			"link": "http://wiki.mediafi.org/doku.php/ficontent.gaming.scenarios#seamless_augmented_reality_on_the_web"
+		}
+		
+	},
+	
+	"license": {
+		"template": "MIT"
+	},
+
+	"delivery": {
+		"repository": "https://github.com/stlemme/xml3d-xflmix",
+		"sources": "https://github.com/stlemme/xml3d-xflmix/archive/master.zip",
+		"binary": {
+			"win": "",
+			"mac": ""
+		},
+		"instance": {
+			"endpoint": "",
+			"access": {
+				"user": "",
+				"password": "",
+				"manually": ""
+			}
+		},
+		"languages": [
+			"JavaScript",
+			"UnityScript"
+		],
+		"manually": "Please mail <contact> to receive the download link of the {{/spec/name}} SE.",
+		
+		"description": "The implementation includes either an Xflow node as JavaScript library or a cross platform Unity script/package."
+	},
+	
+	"requirements": {
+		"webgl": {
+			"title": "WebGL",
+			"description": "The Xflow implementation runs in any XML3D capable browser with WebGL support.",
+			"link": null
+		},
+		"unity": {
+			"title": "Unity",
+			"description": "All current maintained versions of Unity are supported by this SE. The latest Unity release at time of writing is v4.3.4."
+		}
+	},
+	
+	"contacts": {
+		"BLRK-Kenny": "technical",
+		"DFKI-Stefan": "technical",
+		"ETHZ-Marcel": "legal"
+	}
+}

@@ -1,0 +1,187 @@
+[vc_tabs width="1/1" el_position="first last"]
+
+
+[vc_tab title="Overview"]
+[vc_column_text pb_margin_bottom="no" pb_border_bottom="no" width="1/1" el_position="first last"]
+
+<strong>Owner/developer</strong>
+
+{{/auto/nice-owners}}
+
+<strong>What it does</strong>
+
+{{/spec/documentation/what-it-does}}
+
+<strong>How it works</strong>
+
+{{/spec/documentation/how-it-works}}
+
+<strong>What you get</strong>
+
+<em>Delivery model</em>
+<ul>
+	<li>Hosted service: {{/auto/delivery/hosted-service}}</li>
+	<li>Source code: {{/auto/delivery/source-code}}</li>
+	<li>Download package: {{/auto/delivery/package}}</li>
+</ul>
+<em>Languages used</em>
+<ul>
+{{for /spec/delivery/languages}}
+	<li>%value%</li>
+{{endfor}}
+</ul>
+<em>Description</em>
+
+{{/spec/delivery/description}}
+
+<strong>Examples of use</strong>
+
+{{for /spec/examples}}
+%value/description%
+<a href="%value/link%" target="_blank"><span style="color: #ff0059;">%value/link%</span></a>
+
+{{endfor}}
+
+[/vc_column_text]
+[/vc_tab]
+
+
+[vc_tab title="Terms &amp; Conditions"]
+[vc_column_text pb_margin_bottom="no" pb_border_bottom="no" width="1/1" el_position="first last"]
+<p style="text-align: justify;"><strong>Licence type</strong></p>
+
+<ul>
+	<li>Open source: {{/auto/license/is-open-source}}</li>
+	<li>Proprietary: {{/auto/license/is-proprietary}}</li>
+	<li>Evaluation licence: {{/auto/license/has-evaluation}}</li>
+</ul>
+<strong>Licence features</strong>
+<ul>
+	<li>Commercial use: {{/spec/license/features/commercial-use}}</li>
+	<li>Modifications allowed: {{/spec/license/features/modifications-allowed}}</li>
+	<li>Distribution allowed: {{/spec/license/features/distribution-allowed}}</li>
+	<li>Include copyright: {{/spec/license/features/include-copyright}}</li>
+	<li>Include original: {{/spec/license/features/include-original}}</li>
+	<li>State changes: {{/spec/license/features/state-changes}}</li>
+	<li>Disclose source code: {{/spec/license/features/disclose}}</li>
+</ul>
+<strong>Licence fee</strong>
+
+{{/spec/license/fee}}
+
+<strong>Licence summary</strong>
+
+{{/spec/license/summary}}
+
+<strong>Copyright statement</strong>
+
+{{/spec/license/copyright}}
+
+<strong>Full licence</strong>
+
+{{/spec/license/full}}
+
+[/vc_column_text]
+[/vc_tab]
+
+
+[vc_tab title="Documentation"]
+[vc_column_text pb_margin_bottom="no" pb_border_bottom="no" width="1/1" el_position="first last"]
+
+<strong>Getting started</strong>
+<ul>
+	<li><a href="{{/auto/documentation/wiki-url}}" target="_blank"><span style="color: #ff0059;">Specification</span></a></li>
+{{if /auto/documentation/devguide-url != ""}}
+	<li><a href="{{/auto/documentation/devguide-url}}" target="_blank"><span style="color: #ff0059;">Developer Guide</span></a></li>
+{{endif}}
+{{if /spec/documentation/pitch != ""}}
+	<li><a href="{{/spec/documentation/pitch}}" target="_blank"><span style="color: #ff0059;">99&quot; pitch</span></a></li>
+{{endif}}
+</ul>
+
+{{if /spec/documentation/additional != ""}}
+<strong>Additional Resources</strong>
+<ul>
+{{for /spec/documentation/additional}}
+	<li><a href="%value%" target="_blank"><span style="color: #ff0059;">%value%</span></a></li>
+{{endfor}}
+</ul>
+{{endif}}
+
+<strong>Examples of use</strong>
+<ul>
+{{for /spec/examples}}
+	<li>%value/description%<br/><a href="%value/link%" target="_blank"><span style="color: #ff0059;">%value/link%</span></a></li>
+{{endfor}}
+</ul>
+
+[/vc_column_text]
+[/vc_tab]
+
+
+[vc_tab title="Access"]
+[vc_column_text pb_margin_bottom="no" pb_border_bottom="no" width="1/1" el_position="first last"]
+
+{{if /spec/requirements != ""}}
+<strong>Requirements</strong>
+<ul>
+{{for /spec/requirements}}
+	<li><strong>%value/title%:</strong> %value/description%</li>
+{{endfor}}
+</ul>
+{{endif}}
+
+{{if /auto/delivery/package == "Yes"}}
+<strong>Downloads</strong>
+<ul>
+{{endif}}
+{{for /spec/delivery/binary}}
+	<li><a href="%value%" target="_blank"><span style="color: #ff0059;">%value%</span></a></li>
+{{endfor}}
+{{if /spec/delivery/sources != ""}}
+	<li><a href="{{/spec/delivery/sources}}" target="_blank"><span style="color: #ff0059;">{{/spec/delivery/sources}}</span></a></li>
+{{endif}}
+{{if /auto/delivery/package == "Yes"}}
+</ul>
+{{endif}}
+
+{{if /spec/delivery/instance/endpoint != ""}}
+<strong>Global Instance</strong>
+<ul>
+	<li>Endpoint: {{/spec/delivery/instance/endpoint}}</li>
+</ul>
+{{endif}}
+
+{{if /spec/delivery/repository != ""}}
+<strong>Repository</strong>
+<ul>
+	<li><a href="{{/spec/delivery/repository}}" target="_blank"><span style="color: #ff0059;">{{/spec/delivery/repository}}</span></a></li>
+</ul>
+{{endif}}
+
+[/vc_column_text]
+[/vc_tab]
+
+
+[vc_tab title="Contact"]
+[vc_column_text pb_margin_bottom="no" pb_border_bottom="no" width="1/1" el_position="first last"]
+
+<strong>Contact person(s)</strong>
+
+For technical information:
+
+Kenny Mitchell
+<span style="color: #ff0059;">kenny.mitchell@disneyresearch.com</span>
+
+Stefan Lemme
+<span style="color: #ff0059;">stefan.lemme@dfki.de</span>
+
+For licensing information:
+
+Marcel Lancelle
+<span style="color: #ff0059;">marcel.lancelle@inf.ethz.ch</span>
+
+[/vc_column_text]
+[/vc_tab]
+
+[/vc_tabs]
