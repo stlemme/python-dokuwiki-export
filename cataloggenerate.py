@@ -9,12 +9,15 @@ from collections import deque
 from publisher import *
 import mirror
 from catalogauto import *
+import preprocess
 
 
 def json_get(json_data, path):
 	parts = deque(path[1:].split('/'))
 	obj = json_data
 	while len(parts) > 0:
+		if obj is None:
+			return None
 		prop = parts.popleft()
 		if prop not in obj:
 			return None
@@ -50,17 +53,32 @@ class CatalogGenerator(object):
 		self.pub = pub
 		self.template = template
 		self.values = None
-		self.license_templates = {}
-		with open('license-templates.json') as license_templates_file:
-			self.license_templates = json.load(license_templates_file)
+		self.license_templates = self.load_json_from_wiki(':ficontent:private:meta:license')
+		self.partner_contacts = self.load_json_from_wiki(':ficontent:private:meta:partner')
 	
-	
+	def load_json_from_file(self, filename, default = {}):
+		with open(filename) as json_file:
+			return json.load(json_file)
+		return default
+
+	def load_json_from_wiki(self, wikipage, default = {}):
+		page = dw.getpage(wikipage)
+		doc = preprocess.preprocess(page)
+		data = '\n'.join(doc)
+		try:
+			return json.loads(data)
+		except ValueError as e:
+			logging.warning("Unable to read json data from page %s. No valid JSON!" % wikipage)
+		return default
+		
 	def generate_entry(self, spec):
 		self.values = Values({
 			"spec": spec
 		})
 		self.fill_license()
+		self.fill_contacts()
 		self.fill_auto_values()
+		self.fill_nice_owners()
 		
 		entry = self.template
 		
@@ -86,17 +104,111 @@ class CatalogGenerator(object):
 			lic[k] = v
 		self.values.set('/spec/license', lic)
 
+	def fill_nice_owners(self):
+		self.values.set('/auto/nice-owners', self.nice_owners())
+		
+	def nice_owners(self):
+		owners = self.values.get('/spec/owners')
+		if owners is None:
+			logging.warning("No owner defined!")
+			return '[[NO-OWNER-DEFINED]]'
+		
+		niceowners = []
+		for o in owners:
+			p = self.get_company(o)
+			# if p is None:
+				# continue
+			# if 'shortname' not in p:
+				# continue
+			niceowners.append(o) # p['shortname'])
+		
+		if len(niceowners) == 1:
+			return niceowners[0]
+		
+		print(niceowners)
+		
+		nice = ', '.join(niceowners[:-1])
+		nice += ' and ' + niceowners[-1]
+		return nice
+
+	def fill_contacts(self):
+		r = {}
+		primary = self.handle_primary_contact()
+		if primary is None:
+			r['technical'] = self.handle_contacts('technical')
+			r['legal'] = self.handle_contacts('legal')
+		else:
+			r['primary'] = primary
+			
+		contacts = self.values.get('/spec/contacts');
+		for name in contacts:
+			r[name] = self.get_person(name)
+		
+		self.values.set('/auto/contacts', r)
+	
+	def handle_contacts(self, type):
+		contacts = self.values.get('/spec/contacts');
+		r = {}
+		for k, v in contacts.items():
+			if v != type:
+				continue
+				
+			person = self.get_person(k)
+			if person is None:
+				continue
+
+			r[k] = person
+		# print(r)
+		return r if len(r) > 0 else None
+		
+	def get_company(self, partnername):
+		if partnername not in self.partner_contacts:
+			logging.warning("Unknown partner %s" % partnername)
+			return None
+		return self.partner_contacts[partnername]
+
+	def get_person(self, name):
+		parts = name.split('-', 2)
+		partnername = parts[0]
+		personname = parts[1]
+
+		partner = self.get_company(partnername)
+		if partner is None:
+			return None
+
+		if personname not in partner['members']:
+			logging.warning("Unknown person %s of partner %s" % (personname, partnername))
+			return None
+		
+		person = partner['members'][personname]
+		person['company'] = partner['company']
+		return person
+
+	def handle_primary_contact(self):
+		contacts = self.values.get('/spec/contacts');
+		
+		if 'primary' in contacts:
+			return self.get_person(contacts['primary'])
+		return None
 
 	def fill_auto_values(self):
 		auto = AutoValues(self.dw, self.pub, self.values)
 		for k, v in auto.items():
-			print(k, v)
+			# print(k, v)
 			self.values.set(k, v)
 	
 	def process_text_snippet(self, text):
-		text = self.rx_for.sub(self.handle_for, text)
-		text = self.rx_if.sub(self.handle_condition, text)
-		text = self.rx_value.sub(self.handle_value, text)
+		try:
+			# print('a')
+			text = self.rx_for.sub(self.handle_for, text)
+			# print('b')
+			text = self.rx_if.sub(self.handle_condition, text)
+			# print('c')
+			text = self.rx_value.sub(self.handle_value, text)
+		except TypeError as e:
+			print(text);
+			print(e);
+			text = ""
 		return text
 
 	rx_value = re.compile(r'\{\{(/[a-z\-/]+)\}\}')
@@ -176,10 +288,22 @@ if __name__ == '__main__':
 	
 	entry = None
 	
-	with open('realitymixer.reflectionmapping.meta.json', 'r') as se_spec_file:
-		se_spec = json.load(se_spec_file)
-		logging.info("Generating catalog entry for %s ..." % se_spec['name'])
-		entry = cg.generate_entry(se_spec)
+	metapage = ':ficontent:gaming:enabler:realitymixer:reflectionmapping:meta'
+	meta = dw.getpage(metapage)
+	metadata = preprocess.preprocess(meta)
+	metajson = '\n'.join(metadata)
+	try:
+		se_spec = json.loads(metajson)
+	except ValueError as e:
+		logging.warning("Unable to read meta data from page %s. No valid JSON!" % metapage)
+
+	logging.info("Generating catalog entry for %s ..." % se_spec['name'])
+	entry = cg.generate_entry(se_spec)
+	
+	# with open('realitymixer.reflectionmapping.meta.json', 'r') as se_spec_file:
+		# se_spec = json.load(se_spec_file)
+		# logging.info("Generating catalog entry for %s ..." % se_spec['name'])
+		# entry = cg.generate_entry(se_spec)
 	
 	# print(entry)
 	

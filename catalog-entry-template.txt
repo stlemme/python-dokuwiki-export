@@ -94,8 +94,8 @@
 {{if /auto/documentation/devguide-url != ""}}
 	<li><a href="{{/auto/documentation/devguide-url}}" target="_blank"><span style="color: #ff0059;">Developer Guide</span></a></li>
 {{endif}}
-{{if /spec/documentation/pitch != ""}}
-	<li><a href="{{/spec/documentation/pitch}}" target="_blank"><span style="color: #ff0059;">99&quot; pitch</span></a></li>
+{{if /spec/media/videos/pitch != ""}}
+	<li><a href="{{/spec/media/videos/pitch}}" target="_blank"><span style="color: #ff0059;">99&quot; pitch</span></a></li>
 {{endif}}
 </ul>
 
@@ -108,7 +108,7 @@
 </ul>
 {{endif}}
 
-<strong>Examples of use</strong>
+<strong>Sample Code</strong>
 <ul>
 {{for /spec/examples}}
 	<li>%value/description%<br/><a href="%value/link%" target="_blank"><span style="color: #ff0059;">%value/link%</span></a></li>
@@ -145,17 +145,32 @@
 </ul>
 {{endif}}
 
-{{if /spec/delivery/instance/endpoint != ""}}
+{{if /spec/delivery/instances/public/endpoint != ""}}
 <strong>Global Instance</strong>
 <ul>
-	<li>Endpoint: {{/spec/delivery/instance/endpoint}}</li>
+	<li>Endpoint: {{/spec/delivery/instances/public/endpoint}}</li>
 </ul>
 {{endif}}
 
-{{if /spec/delivery/repository != ""}}
+{{if /spec/delivery/instances/fi-ppp/endpoint != ""}}
+<strong>Global Instance</strong>
+<ul>
+	<li>Endpoint: {{/spec/delivery/instances/fi-ppp/endpoint}}</li>
+</ul>
+{{endif}}
+
+{{if /auto/delivery/repository/url != ""}}
 <strong>Repository</strong>
 <ul>
-	<li><a href="{{/spec/delivery/repository}}" target="_blank"><span style="color: #ff0059;">{{/spec/delivery/repository}}</span></a></li>
+	<li><a href="{{/auto/delivery/repository/url}}" target="_blank"><span style="color: #ff0059;">{{/auto/delivery/repository/url}}</span></a></li>
+	<li><span style="color: #ff0059;">{{/auto/delivery/repository/checkout-cmd}}</span></li>
+</ul>
+{{endif}}
+
+{{if /spec/delivery/manually != ""}}
+<strong>Request Access</strong>
+<ul>
+	<li>{{/spec/delivery/manually}}</li>
 </ul>
 {{endif}}
 
@@ -168,18 +183,33 @@
 
 <strong>Contact person(s)</strong>
 
+{{if /auto/contacts/primary != ""}}
+{{/auto/contacts/primary/name}}
+{{/auto/contacts/primary/company/fullname}}
+<span style="color: #ff0059;">{{/auto/contacts/primary/email}}</span>
+{{endif}}
+
+{{if /auto/contacts/technical != ""}}
 For technical information:
 
-Kenny Mitchell
-<span style="color: #ff0059;">kenny.mitchell@disneyresearch.com</span>
+{{for /auto/contacts/technical}}
+%value/name%
+%value/company/fullname%
+<span style="color: #ff0059;">%value/email%</span>
 
-Stefan Lemme
-<span style="color: #ff0059;">stefan.lemme@dfki.de</span>
+{{endfor}}
+{{endif}}
 
+{{if /auto/contacts/legal != ""}}
 For licensing information:
 
-Marcel Lancelle
-<span style="color: #ff0059;">marcel.lancelle@inf.ethz.ch</span>
+{{for /auto/contacts/legal}}
+%value/name%
+%value/company/fullname%
+<span style="color: #ff0059;">%value/email%</span>
+
+{{endfor}}
+{{endif}}
 
 [/vc_column_text]
 [/vc_tab]

@@ -15,7 +15,6 @@ class AutoValues(object):
 	
 	def items(self):
 		auto_values = {
-			'nice-owners': self.nice_owners,
 			'documentation': {
 				'wiki-url': self.pub_se_wiki_url,
 				'devguide-url': self.pub_se_devguide_url
@@ -23,7 +22,8 @@ class AutoValues(object):
 			'delivery': {
 				'hosted-service': self.delivers_hosted_service,
 				'source-code': self.delivers_source_code,
-				'package': self.delivers_package
+				'package': self.delivers_package,
+				'repository': self.repository
 			},
 			'license': {
 				'is-open-source': self.is_open_source,
@@ -45,19 +45,6 @@ class AutoValues(object):
 				# print(v)
 				items[p] = v()
 		
-	def nice_owners(self):
-		owners = self.values.get('/spec/owners')
-		if owners is None:
-			logging.warning("No owner defined!")
-			return '[[NO-OWNER-DEFINED]]'
-		
-		if len(owners) == 1:
-			return owners[0]
-		
-		nice = ', '.join(owners[:-1])
-		nice += ' and ' + owners[-1]
-		return nice
-
 	def pub_se_wiki_url(self):
 		page = self.nc.wikipage()
 		pub_page = self.pub.public_page(page)
@@ -89,6 +76,24 @@ class AutoValues(object):
 		sources = self.values.get('/spec/delivery/source-code') is not None
 		binary = self.values.get('/spec/delivery/binary') is not None
 		return self.YesNo(sources or binary)
-	
+		
+	def repository(self):
+		cmds = {
+			'github': 'git clone {{/auto/delivery/repository/url}}.git',
+			'git': 'git clone {{/auto/delivery/repository/url}}',
+			'hg': 'hg clone {{/auto/delivery/repository/url}}',
+			'svn': 'svn checkout {{/auto/delivery/repository/url}}'
+		}
+		repo = self.values.get('/spec/delivery/repository')
+		if repo is not None:
+			for k in cmds:
+				if k not in repo:
+					continue
+				return {
+					'url': repo[k],
+					'checkout-cmd': cmds[k]
+				}
+		return {'url': None}
+		
 	def YesNo(self, cond):
 		return 'Yes' if cond else 'No'
