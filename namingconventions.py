@@ -9,7 +9,7 @@ class NamingConventions(object):
 		self.spec = se_spec
 		self.group = None
 	
-	def name(self):
+	def fullname(self):
 		return self.name
 	
 	def specpage(self):
@@ -33,6 +33,9 @@ class NamingConventions(object):
 
 	def wikipath(self):
 		return ['ficontent', self.roadmap(), 'enabler'] + self.nameparts()
+		
+	def wikinamespace(self):
+		return ':' + ':'.join(self.wikipath()) + ':'
 		
 	def wikipage(self):
 		page = ':' + ':'.join(self.wikipath()) + ':start'

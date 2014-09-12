@@ -10,6 +10,7 @@ from publisher import *
 import mirror
 from catalogauto import *
 import preprocess
+import releases
 
 
 def json_get(json_data, path):
@@ -115,17 +116,18 @@ class CatalogGenerator(object):
 		
 		niceowners = []
 		for o in owners:
-			p = self.get_company(o)
-			# if p is None:
-				# continue
-			# if 'shortname' not in p:
-				# continue
-			niceowners.append(o) # p['shortname'])
+			p = self.get_partner(o)
+			if p is None:
+				continue
+			c = p['company']
+			if 'shortname' not in c:
+				continue
+			niceowners.append(c['shortname'])
 		
 		if len(niceowners) == 1:
 			return niceowners[0]
 		
-		print(niceowners)
+		# print(niceowners)
 		
 		nice = ', '.join(niceowners[:-1])
 		nice += ' and ' + niceowners[-1]
@@ -137,12 +139,12 @@ class CatalogGenerator(object):
 		if primary is None:
 			r['technical'] = self.handle_contacts('technical')
 			r['legal'] = self.handle_contacts('legal')
+			contacts = self.values.get('/spec/contacts');
+			for name in contacts:
+				r[name] = self.get_person(name)
 		else:
 			r['primary'] = primary
 			
-		contacts = self.values.get('/spec/contacts');
-		for name in contacts:
-			r[name] = self.get_person(name)
 		
 		self.values.set('/auto/contacts', r)
 	
@@ -161,7 +163,7 @@ class CatalogGenerator(object):
 		# print(r)
 		return r if len(r) > 0 else None
 		
-	def get_company(self, partnername):
+	def get_partner(self, partnername):
 		if partnername not in self.partner_contacts:
 			logging.warning("Unknown partner %s" % partnername)
 			return None
@@ -172,7 +174,7 @@ class CatalogGenerator(object):
 		partnername = parts[0]
 		personname = parts[1]
 
-		partner = self.get_company(partnername)
+		partner = self.get_partner(partnername)
 		if partner is None:
 			return None
 
@@ -272,42 +274,74 @@ class CatalogGenerator(object):
 
 		return self.process_text_snippet(repl)
 
+def list_all_meta_pages(dw):
+	all_pages_info = dw.allpages()
+	meta_pages = []
+	
+	for info in all_pages_info:
+		fullname = dw.resolve(info['id'])
+		if fullname is None:
+			continue
+
+		if mirror.rx_meta_pages.match(fullname) is None:
+			continue
+		
+		meta_pages.append(fullname)
+		
+	return meta_pages
 
 if __name__ == '__main__':
 	import wikiconfig
-
+	import sys
+	
+	# if len(sys.argv) < 2:
+		# logging.info("Please provide the platform and enabler name as arguments")
+		# sys.exit()
+	
 	logging.info("Connecting to remote DokuWiki at %s" % wikiconfig.url)
 	dw = DokuWikiRemote(wikiconfig.url, wikiconfig.user, wikiconfig.passwd)
 	
-	pub = wikipublisher(dw, mirror.rx_public_pages, mirror.rx_exceptions, mirror.export_ns)
+	pub_pages = mirror.public_pages(dw)
+	pub = wikipublisher(dw, pub_pages, mirror.rx_exceptions, mirror.export_ns)
 	
 	with open('catalog-entry-template.txt', 'r') as template_file:
 		template = template_file.read()
 	
 	cg = CatalogGenerator(dw, pub, template)
 	
-	entry = None
+	meta_pages = list_all_meta_pages(dw)
 	
-	metapage = ':ficontent:gaming:enabler:realitymixer:reflectionmapping:meta'
-	meta = dw.getpage(metapage)
-	metadata = preprocess.preprocess(meta)
-	metajson = '\n'.join(metadata)
-	try:
-		se_spec = json.loads(metajson)
-	except ValueError as e:
-		logging.warning("Unable to read meta data from page %s. No valid JSON!" % metapage)
+	for metapage in meta_pages:
+		logging.info("Start processing of meta page %s" % metapage)
+		entry = None
+		
+		# metapage = ':ficontent:gaming:enabler:realitymixer:reflectionmapping:meta'
+		meta = dw.getpage(metapage)
+		metadata = preprocess.preprocess(meta)
+		metajson = '\n'.join(metadata)
+		
+		try:
+			se_spec = json.loads(metajson)
+		except ValueError as e:
+			logging.warning("Unable to read meta data from page %s. No valid JSON!\n%s" % (metapage, e))
+			with open('_catalog/failed.meta' + re.sub(':', '.', metapage) + '.txt', 'w') as meta_file:
+				meta_file.write(metajson)
+			continue
 
-	logging.info("Generating catalog entry for %s ..." % se_spec['name'])
-	entry = cg.generate_entry(se_spec)
+		nc = NamingConventions(dw, se_spec)
+		se_name = nc.fullname()
+		
+		if se_name not in releases.current[nc.roadmap()]:
+			logging.info("Skip meta page of %s SE, because it is not part of the current release." % se_name)
+			continue
+		
+		logging.info("Generating catalog entry for %s ..." % se_name)
+		entry = cg.generate_entry(se_spec)
+		
+		np = nc.nameparts()
+		
+		with open('_catalog/catalog.' + '.'.join(np) + '.txt', 'w') as entry_file:
+			entry_file.write(entry)
 	
-	# with open('realitymixer.reflectionmapping.meta.json', 'r') as se_spec_file:
-		# se_spec = json.load(se_spec_file)
-		# logging.info("Generating catalog entry for %s ..." % se_spec['name'])
-		# entry = cg.generate_entry(se_spec)
-	
-	# print(entry)
-	
-	with open('catalog.realitymixer.reflectionmapping.txt', 'w') as entry_file:
-		entry_file.write(entry)
 	
 	logging.info("Finished")

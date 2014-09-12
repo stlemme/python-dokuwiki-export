@@ -65,7 +65,8 @@ class AutoValues(object):
 		return self.YesNo(self.values.get('/spec/license/type') == 'eval')
 
 	def delivers_hosted_service(self):
-		return self.YesNo(self.values.get('/spec/delivery/instance') is not None)
+		instances = self.values.get('/spec/delivery/instances')
+		return self.YesNo((instances is not None) and (len(instances) > 0))
 		
 	def delivers_source_code(self):
 		sources = self.values.get('/spec/delivery/source-code') is not None
@@ -73,7 +74,7 @@ class AutoValues(object):
 		return self.YesNo(sources or repo)
 	
 	def delivers_package(self):
-		sources = self.values.get('/spec/delivery/source-code') is not None
+		sources = self.values.get('/spec/delivery/sources') is not None
 		binary = self.values.get('/spec/delivery/binary') is not None
 		return self.YesNo(sources or binary)
 		
