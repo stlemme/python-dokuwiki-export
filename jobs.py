@@ -204,25 +204,26 @@ class Publish(Job):
 		return True
 
 	def perform(self, dw):
-		all_pages_info = dw.allpages()
-		
-		if self.pages is not None:
-			rx_pages = [re.compile(p) for p in self.pages]
-		else:
-			rx_pages = mirror.rx_public_pages
-		
 		pages = []
 
-		for info in all_pages_info:
-			p = dw.resolve(info['id'])
-			if p is None:
-				continue
-		
-			for rx in rx_pages:
-				if rx.match(p) is not None:
-					pages.append(p)
-					break
+		if self.pages is not None:
+			all_pages_info = dw.allpages()
+
+			rx_pages = [re.compile(p) for p in self.pages]
+
+			for info in all_pages_info:
+				p = dw.resolve(info['id'])
+				if p is None:
+					continue
 			
+				for rx in rx_pages:
+					if rx.match(p) is not None:
+						pages.append(p)
+						break
+		else:
+			# rx_pages = mirror.public_pages()
+			pages = mirror.list_all_public_pages(dw)
+
 		# print(pages)
 		
 		export_ns = []
