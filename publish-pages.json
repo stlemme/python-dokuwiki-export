@@ -6,7 +6,7 @@
 			"job": "publish",
 			"params": {
 				"pages": null,
-				"export_ns": ":ficontent:publish:",
+				"export_ns": "",
 				"publisher": "stefan"
 			}
 		}

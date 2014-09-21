@@ -4,200 +4,30 @@
 import logging
 from wiki import *
 import re
-import json
-from collections import deque
-from publisher import *
-import mirror
-from catalogauto import *
-import preprocess
-import releases
+import jsonutils
+from fidoc import FIdoc
 
-
-def json_get(json_data, path):
-	parts = deque(path[1:].split('/'))
-	obj = json_data
-	while len(parts) > 0:
-		if obj is None:
-			return None
-		prop = parts.popleft()
-		if prop not in obj:
-			return None
-		obj = obj[prop]
-	return obj
-
-def json_set(json_data, path, data):
-	parts = deque(path[1:].split('/'))
-	obj = json_data
-	while len(parts) > 1:
-		prop = parts.popleft()
-		if prop not in obj:
-			obj[prop] = {}
-		obj = obj[prop]
-	obj[parts[-1]] = data
-
-
-class Values(object):
-	def __init__(self, values = None):
-		self.values = {} if values is None else values
-
-	def get(self, path):
-		return json_get(self.values, path)
-
-	def set(self, path, data):
-		json_set(self.values, path, data)
-	
 
 class CatalogGenerator(object):
 
-	def __init__(self, dw, pub, template):
-		self.dw = dw
-		self.pub = pub
+	def __init__(self, dw, pub, licenses, partners, template):
+		# self.dw = dw
+		# self.pub = pub
 		self.template = template
-		self.values = None
-		self.license_templates = self.load_json_from_wiki(':ficontent:private:meta:license')
-		self.partner_contacts = self.load_json_from_wiki(':ficontent:private:meta:partner')
+		self.se = None
+		# self.licenses = licenses
+		# self.partners = partners
 	
-	def load_json_from_file(self, filename, default = {}):
-		with open(filename) as json_file:
-			return json.load(json_file)
-		return default
-
-	def load_json_from_wiki(self, wikipage, default = {}):
-		page = dw.getpage(wikipage)
-		doc = preprocess.preprocess(page)
-		data = '\n'.join(doc)
-		try:
-			return json.loads(data)
-		except ValueError as e:
-			logging.warning("Unable to read json data from page %s. No valid JSON!" % wikipage)
-		return default
 		
-	def generate_entry(self, spec):
-		self.values = Values({
-			"spec": spec
-		})
-		self.fill_license()
-		self.fill_contacts()
-		self.fill_auto_values()
-		self.fill_nice_owners()
+	def generate_entry(self, se):
+		self.se = se
 		
 		entry = self.template
 		
 		entry = self.process_text_snippet(entry)
-		self.values = None
+		self.se = None
 		
 		return entry
-		
-	def fill_license(self):
-		lic = self.values.get('/spec/license')
-		if lic is None:
-			logging.warning("No license information available!")
-			return
-		if 'template' not in lic:
-			return
-		template = lic['template']
-		if template not in self.license_templates:
-			logging.warning("Invalid license template %s" % template)
-			return
-		ovrlic = lic
-		lic = self.license_templates[template]
-		for k, v in ovrlic.items():
-			lic[k] = v
-		self.values.set('/spec/license', lic)
-
-	def fill_nice_owners(self):
-		self.values.set('/auto/nice-owners', self.nice_owners())
-		
-	def nice_owners(self):
-		owners = self.values.get('/spec/owners')
-		if owners is None:
-			logging.warning("No owner defined!")
-			return '[[NO-OWNER-DEFINED]]'
-		
-		niceowners = []
-		for o in owners:
-			p = self.get_partner(o)
-			if p is None:
-				continue
-			c = p['company']
-			if 'shortname' not in c:
-				continue
-			niceowners.append(c['shortname'])
-		
-		if len(niceowners) == 1:
-			return niceowners[0]
-		
-		# print(niceowners)
-		
-		nice = ', '.join(niceowners[:-1])
-		nice += ' and ' + niceowners[-1]
-		return nice
-
-	def fill_contacts(self):
-		r = {}
-		primary = self.handle_primary_contact()
-		if primary is None:
-			r['technical'] = self.handle_contacts('technical')
-			r['legal'] = self.handle_contacts('legal')
-			contacts = self.values.get('/spec/contacts');
-			for name in contacts:
-				r[name] = self.get_person(name)
-		else:
-			r['primary'] = primary
-			
-		
-		self.values.set('/auto/contacts', r)
-	
-	def handle_contacts(self, type):
-		contacts = self.values.get('/spec/contacts');
-		r = {}
-		for k, v in contacts.items():
-			if v != type:
-				continue
-				
-			person = self.get_person(k)
-			if person is None:
-				continue
-
-			r[k] = person
-		# print(r)
-		return r if len(r) > 0 else None
-		
-	def get_partner(self, partnername):
-		if partnername not in self.partner_contacts:
-			logging.warning("Unknown partner %s" % partnername)
-			return None
-		return self.partner_contacts[partnername]
-
-	def get_person(self, name):
-		parts = name.split('-', 2)
-		partnername = parts[0]
-		personname = parts[1]
-
-		partner = self.get_partner(partnername)
-		if partner is None:
-			return None
-
-		if personname not in partner['members']:
-			logging.warning("Unknown person %s of partner %s" % (personname, partnername))
-			return None
-		
-		person = partner['members'][personname]
-		person['company'] = partner['company']
-		return person
-
-	def handle_primary_contact(self):
-		contacts = self.values.get('/spec/contacts');
-		
-		if 'primary' in contacts:
-			return self.get_person(contacts['primary'])
-		return None
-
-	def fill_auto_values(self):
-		auto = AutoValues(self.dw, self.pub, self.values)
-		for k, v in auto.items():
-			# print(k, v)
-			self.values.set(k, v)
 	
 	def process_text_snippet(self, text):
 		try:
@@ -218,7 +48,7 @@ class CatalogGenerator(object):
 	def handle_value(self, match):
 		path = match.group(1)
 		# print(path)
-		val = self.values.get(path)
+		val = self.se.get(path)
 		if val is None:
 			val = "[[UNDEFINED]]"
 		# print(val)
@@ -231,7 +61,7 @@ class CatalogGenerator(object):
 		path = match.group(1)
 		repl = match.group(3)
 		# print(path)
-		val = self.values.get(path)
+		val = self.se.get(path)
 		if val is None:
 			return ""
 		text = ""
@@ -247,7 +77,7 @@ class CatalogGenerator(object):
 			return str(item)
 		path = match.group(1)
 		# print(path)
-		val = json_get(item, path)
+		val = jsonutils.json_get(item, path)
 		if val is None:
 			val = "[[UNDEFINED]]"
 		# print(val)
@@ -262,7 +92,7 @@ class CatalogGenerator(object):
 		compare = match.group(3)
 		repl = match.group(5)
 
-		val = self.values.get(path)
+		val = self.se.get(path)
 		if val is None:
 			val = ""
 		
@@ -274,69 +104,59 @@ class CatalogGenerator(object):
 
 		return self.process_text_snippet(repl)
 
-def list_all_meta_pages(dw):
-	all_pages_info = dw.allpages()
-	meta_pages = []
-	
-	for info in all_pages_info:
-		fullname = dw.resolve(info['id'])
-		if fullname is None:
-			continue
+		
+def debug_invalid_se(metapage, se):
+	logging.warning("Skip meta page of %s, because it describes no valid SE." % metapage)
+	metajson = se.get('/metajson')
+	if metajson is None:
+		return
+	with open('_catalog/failed.meta' + re.sub(':', '.', metapage) + '.txt', 'w') as meta_file:
+		meta_file.write(metajson)
 
-		if mirror.rx_meta_pages.match(fullname) is None:
-			continue
-		
-		meta_pages.append(fullname)
-		
-	return meta_pages
+
 
 if __name__ == '__main__':
 	import wikiconfig
 	import sys
 	
-	# if len(sys.argv) < 2:
-		# logging.info("Please provide the platform and enabler name as arguments")
-		# sys.exit()
-	
 	logging.info("Connecting to remote DokuWiki at %s" % wikiconfig.url)
 	dw = DokuWikiRemote(wikiconfig.url, wikiconfig.user, wikiconfig.passwd)
 	
-	pub_pages = mirror.public_pages(dw)
-	pub = wikipublisher(dw, pub_pages, mirror.rx_exceptions, mirror.export_ns)
+	fidoc = FIdoc(dw)
+
+	# pub_pages = mirror.public_pages(dw)
+	# pub = wikipublisher(dw, pub_pages, mirror.rx_exceptions, mirror.export_ns)
+	pub = fidoc.get_publisher()
+	
+	licenses = fidoc.get_licenses()
+	partners = fidoc.get_partners()
 	
 	with open('catalog-entry-template.txt', 'r') as template_file:
 		template = template_file.read()
 	
-	cg = CatalogGenerator(dw, pub, template)
+	cgen = CatalogGenerator(dw, pub, licenses, partners, template)
 	
-	meta_pages = list_all_meta_pages(dw)
+	meta_pages = fidoc.list_all_se_meta_pages()
 	
 	for metapage in meta_pages:
 		logging.info("Start processing of meta page %s" % metapage)
 		entry = None
 		
-		# metapage = ':ficontent:gaming:enabler:realitymixer:reflectionmapping:meta'
-		meta = dw.getpage(metapage)
-		metadata = preprocess.preprocess(meta)
-		metajson = '\n'.join(metadata)
-		
-		try:
-			se_spec = json.loads(metajson)
-		except ValueError as e:
-			logging.warning("Unable to read meta data from page %s. No valid JSON!\n%s" % (metapage, e))
-			with open('_catalog/failed.meta' + re.sub(':', '.', metapage) + '.txt', 'w') as meta_file:
-				meta_file.write(metajson)
+		# se = SpecificEnabler.load(dw, metapage, licenses, partners, pub)
+		se = fidoc.get_specific_enabler(metapage)
+		if not se.is_valid():
+			debug_invalid_se(metapage, se)
 			continue
-
-		nc = NamingConventions(dw, se_spec)
+		
+		nc = se.get_naming_conventions()
 		se_name = nc.fullname()
 		
-		if se_name not in releases.current[nc.roadmap()]:
+		if se_name not in fidoc.get_current_release(nc.roadmap()):
 			logging.info("Skip meta page of %s SE, because it is not part of the current release." % se_name)
 			continue
 		
 		logging.info("Generating catalog entry for %s ..." % se_name)
-		entry = cg.generate_entry(se_spec)
+		entry = cgen.generate_entry(se)
 		
 		np = nc.nameparts()
 		

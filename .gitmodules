@@ -1,3 +1,6 @@
 [submodule "docx"]
 	path = docx
 	url = https://github.com/stlemme/python-docx.git
+[submodule "jsonschema"]
+	path = jsonschema
+	url = https://github.com/stlemme/jsonschema.git

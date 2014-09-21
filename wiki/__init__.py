@@ -228,12 +228,16 @@ class DokuWiki(wiki):
 
 	def pageurl(self, page, ns = [], heading = None):
 		fullname = self.resolve(page, ns)
+		if fullname is None:
+			return None
 		url = self.url + self.pagepath + fullname[1:]
 		if heading is not None:
 			url += '#' + self.target(heading)
 		return url
 
 	def resolve(self, page, rel_ns = [], pagens = None):
+		if page is None:
+			return None
 		parts = page.split(self.ns_delimiter)
 
 		# a page in the same namespace

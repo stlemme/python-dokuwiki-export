@@ -230,6 +230,8 @@ class Publish(Job):
 		
 		dw.resolve(self.export_ns, [], export_ns)
 		logging.info("Export to namespace %s" % export_ns)
+		# print(export_ns)
+		# sys.exit()
 		
 		pages.sort()
 		

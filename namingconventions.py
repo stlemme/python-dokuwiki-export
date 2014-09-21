@@ -38,19 +38,22 @@ class NamingConventions(object):
 		return ':' + ':'.join(self.wikipath()) + ':'
 		
 	def wikipage(self):
-		page = ':' + ':'.join(self.wikipath()) + ':start'
+		page = self.wikinamespace() + 'start'
 		# TODO: check existence of the page
 		return page
 	
 	def devguide(self):
-		page = ':' + ':'.join(self.wikipath()) + ':developerguide'
+		page = self.wikinamespace() + 'developerguide'
 		# TODO: check existence of the page
 		return page
 	
-	def catalogurl(self):
+	def catalogid(self):
 		name = self.name.lower()
 		name = re.sub(r'[\s\-]+', '-', name)
-		url = 'http://mediafi.org/?portfolio=' + name
+		return name
+		
+	def catalogurl(self):
+		url = 'http://mediafi.org/?portfolio=' + self.catalogid()
 		return url
 		
 	def tncurl(self):

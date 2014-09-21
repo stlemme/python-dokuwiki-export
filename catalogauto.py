@@ -7,11 +7,11 @@ from publisher import *
 
 
 class AutoValues(object):
-	def __init__(self, dw, pub, values):
+	def __init__(self, dw, pub, se):
 		self.dw = dw
 		self.pub = pub
-		self.values = values
-		self.nc = NamingConventions(self.dw, self.values.get('/spec'))
+		self.se = se
+		self.nc = se.get_naming_conventions()
 	
 	def items(self):
 		auto_values = {
@@ -53,29 +53,31 @@ class AutoValues(object):
 	def pub_se_devguide_url(self):
 		page = self.nc.devguide()
 		pub_page = self.pub.public_page(page)
-		return self.dw.pageurl(pub_page)
+		url = self.dw.pageurl(pub_page)
+		print(page, pub_page, url)
+		return url
 
 	def is_open_source(self):
-		return self.YesNo(self.values.get('/spec/license/type') == 'open')
+		return self.YesNo(self.se.get('/spec/license/type') == 'open')
 		
 	def is_proprietary(self):
-		return self.YesNo(self.values.get('/spec/license/type') == 'prop')
+		return self.YesNo(self.se.get('/spec/license/type') == 'prop')
 
 	def has_evaluation(self):
-		return self.YesNo(self.values.get('/spec/license/type') == 'eval')
+		return self.YesNo(self.se.get('/spec/license/type') == 'eval')
 
 	def delivers_hosted_service(self):
-		instances = self.values.get('/spec/delivery/instances')
+		instances = self.se.get('/spec/delivery/instances')
 		return self.YesNo((instances is not None) and (len(instances) > 0))
 		
 	def delivers_source_code(self):
-		sources = self.values.get('/spec/delivery/source-code') is not None
-		repo = self.values.get('/spec/delivery/repository') is not None
+		sources = self.se.get('/spec/delivery/source-code') is not None
+		repo = self.se.get('/spec/delivery/repository') is not None
 		return self.YesNo(sources or repo)
 	
 	def delivers_package(self):
-		sources = self.values.get('/spec/delivery/sources') is not None
-		binary = self.values.get('/spec/delivery/binary') is not None
+		sources = self.se.get('/spec/delivery/sources') is not None
+		binary = self.se.get('/spec/delivery/binary') is not None
 		return self.YesNo(sources or binary)
 		
 	def repository(self):
@@ -85,7 +87,7 @@ class AutoValues(object):
 			'hg': 'hg clone {{/auto/delivery/repository/url}}',
 			'svn': 'svn checkout {{/auto/delivery/repository/url}}'
 		}
-		repo = self.values.get('/spec/delivery/repository')
+		repo = self.se.get('/spec/delivery/repository')
 		if repo is not None:
 			for k in cmds:
 				if k not in repo:
