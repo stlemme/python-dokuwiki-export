@@ -10,15 +10,10 @@ from fidoc import FIdoc
 
 class CatalogGenerator(object):
 
-	def __init__(self, dw, pub, licenses, partners, template):
-		# self.dw = dw
-		# self.pub = pub
+	def __init__(self, template):
 		self.template = template
 		self.se = None
-		# self.licenses = licenses
-		# self.partners = partners
 	
-		
 	def generate_entry(self, se):
 		self.se = se
 		
@@ -124,25 +119,21 @@ if __name__ == '__main__':
 	
 	fidoc = FIdoc(dw)
 
-	# pub_pages = mirror.public_pages(dw)
-	# pub = wikipublisher(dw, pub_pages, mirror.rx_exceptions, mirror.export_ns)
-	pub = fidoc.get_publisher()
+	# with open('catalog-entry-template.txt', 'r') as template_file:
+		# template = template_file.read()
+		
+	templatefile = dw.getfile('ficontent:private:meta:catalog-entry-template.txt')
+	template = templatefile.decode("utf-8")
+	# print(template)
 	
-	licenses = fidoc.get_licenses()
-	partners = fidoc.get_partners()
-	
-	with open('catalog-entry-template.txt', 'r') as template_file:
-		template = template_file.read()
-	
-	cgen = CatalogGenerator(dw, pub, licenses, partners, template)
+	cgen = CatalogGenerator(template)
 	
 	meta_pages = fidoc.list_all_se_meta_pages()
 	
 	for metapage in meta_pages:
 		logging.info("Start processing of meta page %s" % metapage)
 		entry = None
-		
-		# se = SpecificEnabler.load(dw, metapage, licenses, partners, pub)
+
 		se = fidoc.get_specific_enabler(metapage)
 		if not se.is_valid():
 			debug_invalid_se(metapage, se)

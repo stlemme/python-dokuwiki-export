@@ -54,7 +54,7 @@ class AutoValues(object):
 		page = self.nc.devguide()
 		pub_page = self.pub.public_page(page)
 		url = self.dw.pageurl(pub_page)
-		print(page, pub_page, url)
+		# print(page, pub_page, url)
 		return url
 
 	def is_open_source(self):

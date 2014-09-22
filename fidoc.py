@@ -61,7 +61,7 @@ class FIdoc(object):
 			
 		return meta_pages
 		
-		
+
 		
 	def load_json_from_file(self, filename, default = {}):
 		with open(filename) as json_file:

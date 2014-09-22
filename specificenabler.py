@@ -4,7 +4,7 @@ import logging
 import preprocess
 import json
 from catalogauto import *
-
+from jsonschema.jsonschema import validate, ValidationError, SchemaError
 
 
 class SpecificEnabler(Values):
@@ -122,7 +122,23 @@ class SpecificEnabler(Values):
 			return se
 
 		# TODO: json schema validation
+		schema = None
+		with open('se-meta-schema.json', 'r') as schema_file:
+			schema = json.load(schema_file)
 		
+		if schema is None:
+			logging.warning("Could not validate json schema due to missing schema file")
+			return se
+		
+		try:
+			validate(se_spec, schema)
+		except ValidationError as e:
+			logging.warning("Invalid meta data for SE at %s.\n%s" % (se_meta_page, e))
+			return se
+		except SchemaError as e:
+			logging.warning("Could not validate json schema due to an invalid json schema.\n%s" % e)
+			return se
+				
 		se.set_metaspec(se_spec)
 		
 		se.setup_naming_conventions(dw)
