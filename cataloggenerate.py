@@ -109,20 +109,10 @@ def debug_invalid_se(metapage, se):
 		meta_file.write(metajson)
 
 
-
-if __name__ == '__main__':
-	import wikiconfig
-	import sys
-	
-	logging.info("Connecting to remote DokuWiki at %s" % wikiconfig.url)
-	dw = DokuWikiRemote(wikiconfig.url, wikiconfig.user, wikiconfig.passwd)
-	
+def generate_catalog(dw, template_filename):
 	fidoc = FIdoc(dw)
 
-	# with open('catalog-entry-template.txt', 'r') as template_file:
-		# template = template_file.read()
-		
-	templatefile = dw.getfile('ficontent:private:meta:catalog-entry-template.txt')
+	templatefile = dw.getfile(template_filename)
 	template = templatefile.decode("utf-8")
 	# print(template)
 	
@@ -153,6 +143,16 @@ if __name__ == '__main__':
 		
 		with open('_catalog/catalog.' + '.'.join(np) + '.txt', 'w') as entry_file:
 			entry_file.write(entry)
+		
+
+if __name__ == '__main__':
+	import wikiconfig
+	# import sys
 	
+	logging.info("Connecting to remote DokuWiki at %s" % wikiconfig.url)
+	dw = DokuWikiRemote(wikiconfig.url, wikiconfig.user, wikiconfig.passwd)
 	
+	template_filename = 'ficontent:private:meta:catalog-entry-template.txt'
+	
+	generate_catalog(dw, template_filename)
 	logging.info("Finished")

@@ -9,6 +9,7 @@ import metagenerate
 import actionitems
 from docxgenerate import *
 import mirror
+from cataloggenerate import generate_catalog
 
 
 class Job(object):
@@ -242,9 +243,29 @@ class Publish(Job):
 		
 	def responsible(self, dw):
 		return self.publisher
+
+
+class UpdateCatalog(Job):
+	def __init__(self, template_filename = None, responsible = None):
+		Job.__init__(self)
+		self.template_filename = template_filename
+		self.responsible = responsible
+	
+	def summary(self):
+		return "Updating catalog with template file %s" % self.template_filename
+	
+	def required(self):
+		return True
+
+	def perform(self, dw):
+		generate_catalog(dw, self.template_filename)
+		logging.info("Finished!")
+		return True
 		
+	def responsible(self, dw):
+		return self.responsible
 
-
+		
 class JobFactory(object):
 	jobs = {}
 	
@@ -419,6 +440,7 @@ if __name__ == "__main__":
 	JobFactory.register_job(UpdateActionItems)
 	JobFactory.register_job(WordGeneration)
 	JobFactory.register_job(Publish)
+	JobFactory.register_job(UpdateCatalog)
 	
 	if len(sys.argv) > 1:
 		jobdata = loadjobfile(sys.argv[1])

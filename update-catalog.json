@@ -1,0 +1,14 @@
+{
+	"log": ":ficontent:private:wiki:jobs.catalog",
+	"jobs": {
+	
+		"public": {
+			"job": "updatecatalog",
+			"params": {
+				"template_filename": "ficontent:private:meta:catalog-entry-template.txt",
+				"responsible": "stefan"
+			}
+		}
+		
+	}
+}
