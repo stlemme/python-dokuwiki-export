@@ -10,6 +10,7 @@ import os
 import urllib
 import hashlib
 from publisher import *
+from fidoc import FIdoc
 
 
 rx_line = {
@@ -474,6 +475,8 @@ class wikiprocessor(object):
 
 def generatedoc(templatefile, generatefile, dw, tocpage, aggregatefile=None, chapterfile=None, injectrefs=False, ignorepagelinks=[], imagepath = "_media/"):
 
+	fidoc = FIdoc(dw)
+	
 	document = docxwrapper(templatefile, imagepath)
 
 	tocns = []
@@ -484,8 +487,9 @@ def generatedoc(templatefile, generatefile, dw, tocpage, aggregatefile=None, cha
 	doc, chapters = aggregate(dw, toc, tocns, showwikiurl = injectrefs)
 	
 	# print()
-	rx_pub_ns = re.compile('^:ficontent:((socialtv|smartcity|gaming|common):.*|deliverables:d[0-9]+|fiware:ge_usage)$')
-	pub = wikipublisher(dw, rx_pub_ns)
+	# rx_pub_ns = re.compile('^:ficontent:((socialtv|smartcity|gaming|common):.*|deliverables:d[0-9]+|fiware:ge_usage)$')
+	# pub = wikipublisher(dw, mirror.public_pages())
+	pub = fidoc.get_publisher()
 	
 	wp = wikiprocessor(document, dw, tocns, chapters, pub, imagepath, ignorepagelinks)
 	
