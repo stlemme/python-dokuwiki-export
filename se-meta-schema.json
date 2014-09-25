@@ -1,17 +1,180 @@
 {
 	"$schema": "http://json-schema.org/draft-04/schema#",
+	"title": "SE meta specification",
 	"type": "object",
 	"properties": {
+	
 		"name": {
+			"title": "The official name of the SE",
 			"type": "string"
 		},
+		
 		"owners": {
+			"title": "The list of owners of the SE.",
 			"type": "array",
 			"items": {
 				"type": "string"
+			},
+			"minItems": 1,
+            "uniqueItems": true
+		},
+		
+		"platforms": {
+			"type": "array",
+			"items": {
+				"enum": ["socialtv", "smartcity", "gaming"]
+			},
+			"minItems": 1,
+            "uniqueItems": true
+		},
+		
+		"contacts": {
+			"title": "The support contacts for this SE",
+			"type": "object",
+			
+			"properties": {
+				"primary": {
+					"type": "string"
+				}
+			},
+			
+			"patternProperties": {
 			}
+		},
+		
+		"documentation": {
+			"type": "object",
+			
+			"properties": {
+				"what-it-does": {
+					"type": "string"
+				},
+				"how-it-works": {
+					"type": "string"
+				},
+				"why-you-need-it": {
+					"type": "string"
+				},
+				"additional": {
+					"type": "object",
+					"additionalProperties": true
+				}
+			},
+			
+			"additionalProperties": false,
+			"required": ["what-it-does", "how-it-works", "why-you-need-it"]
+		},
+		
+		"media": {
+			"type": "object",
+			
+			"properties": {
+				"videos": {
+					"type": "object",
+					"properties": {
+						"pitch": {
+							"anyOf": [
+								{ "type": "null" },
+								{ "$ref": "#/defs/uri" }
+							]
+						}
+					},
+					"patternProperties": {
+						"^(?!pitch).+$": { "$ref": "#/defs/uri" }
+					},
+					"required": ["pitch"]
+				},
+				
+				"images": {
+					"type": "object"
+				}
+			},
+			
+			"additionalProperties": false
+		},
+		
+		"examples": {
+			"type": "object",
+			"patternProperties": {
+				".+": {
+					"type": "object",
+					"properties": {
+						"title": { "type": "string" },
+						"description": { "type": "string" },
+						"link": { "$ref": "#/defs/uri" }
+					},
+					"required": ["title", "link"],
+					"additionalProperties": false
+				}
+			}
+		},
+		
+		"license": {
+			"type": "object",
+			"properties": {
+				"template": {
+					"type": "string"
+				},
+				"type": {
+					"enum": ["open", "prop", "eval"]
+				},
+				"features": {
+					"type": "object",
+					"properties": {
+						"commercial-use": { "$ref": "#/defs/YesNo" },
+						"modifications-allowed": { "$ref": "#/defs/YesNo" },
+						"distribution-allowed": { "$ref": "#/defs/YesNo" },
+						"include-copyright": { "$ref": "#/defs/Required" },
+						"include-original": { "$ref": "#/defs/Required" },
+						"state-changes": { "$ref": "#/defs/Required" },
+						"disclose": { "$ref": "#/defs/Required" }
+					},
+					"additionalProperties": false,
+					"required": ["commercial-use", "modifications-allowed", "distribution-allowed", "include-copyright", "include-original", "state-changes", "disclose"]
+				},
+				"fee": {
+					"type": "string"
+				},
+				"summary": {
+					"type": "string"
+				},
+				"copyright": {
+					"type": "string"
+				},
+				"full": {
+					"type": "string"
+				}
+			},
+			"additionalProperties": false,
+			"anyOf": [
+				{ "required": ["template"] },
+				{ "required": ["type", "features", "fee", "summary", "copyright", "full"] }
+			]
+		},
+		
+		"delivery": {
+		},
+		
+		"requirements": {
 		}
+		
 	},
-	"additionalProperties": true,
-	"required": ["name", "owners", "platforms"]
+	"additionalProperties": false,
+	"required": ["name", "owners", "platforms", "contacts", "license", "delivery"],
+	
+	"defs": {
+	
+		"YesNo": {
+			"enum": ["Yes", "No"]
+		},
+		
+		"Required": {
+			"enum": ["Required", "Not required"]
+		},
+		
+		"uri": {
+			"type": "string",
+			"format": "uri"
+		}
+	}
 }
