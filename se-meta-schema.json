@@ -69,6 +69,7 @@
 			"type": "object",
 			
 			"properties": {
+			
 				"videos": {
 					"type": "object",
 					"properties": {
@@ -86,8 +87,17 @@
 				},
 				
 				"images": {
-					"type": "object"
+					"type": "object",
+					"patternProperties": {
+						".+": {
+							"oneOf": [
+								{ "$ref": "#/defs/wikimedia" },
+								{ "$ref": "#/defs/uri" }
+							]
+						}
+					}
 				}
+				
 			},
 			
 			"additionalProperties": false
@@ -174,7 +184,13 @@
 		
 		"uri": {
 			"type": "string",
-			"format": "uri"
+			"format": "uri",
+			"pattern": "^https?://(.+)\\.([a-z]{2,})/(.+)?$"
+		},
+		
+		"wikimedia": {
+			"type": "string",
+			"pattern": "^(:[a-zA-Z0-9_]+)+\\.(png|jpg|gif)$"
 		}
 	}
 }
