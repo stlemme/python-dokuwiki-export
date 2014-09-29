@@ -200,7 +200,7 @@
 		
 		"wikimedia": {
 			"type": "string",
-			"pattern": "^(:[a-zA-Z0-9_\\-]+)+\\.(png|jpg|gif)$"
+			"pattern": "^(:[a-zA-Z0-9_\\-\\.]+)+\\.(png|jpg|gif)$"
 		}
 	}
 }
