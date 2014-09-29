@@ -27,7 +27,7 @@ rx_exceptions = [
 	rx_meta_pages
 ]
 
-export_ns = ['ficontent', 'publish']
+export_ns = []
 
 def public_pages(dw):
 	rx_public_pages = [
