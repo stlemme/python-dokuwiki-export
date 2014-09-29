@@ -53,7 +53,7 @@ class AutoValues(object):
 	def pub_se_devguide_url(self):
 		page = self.nc.devguide()
 		info = self.dw.pageinfo(page)
-		print(page, info)
+		# print(page, info)
 		if info is None:
 			return None
 		pub_page = self.pub.public_page(page)

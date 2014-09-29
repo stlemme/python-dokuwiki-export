@@ -31,15 +31,25 @@
 		"contacts": {
 			"title": "The support contacts for this SE",
 			"type": "object",
-			
-			"properties": {
-				"primary": {
-					"type": "string"
+			"anyOf": [
+				{
+					"properties": {
+						"primary": {
+							"type": "string",
+							"format": "^[A-Z]{3-5}\\-[A-Za-z]+$"
+						}
+					},
+					"required": ["primary"]
+				},
+				
+				{
+					"patternProperties": {
+						"^[A-Z]{3-5}\\-[A-Za-z]+$": {
+							"enum": ["legal", "technical"]
+						}
+					}
 				}
-			},
-			
-			"patternProperties": {
-			}
+			]
 		},
 		
 		"documentation": {
@@ -185,12 +195,12 @@
 		"uri": {
 			"type": "string",
 			"format": "uri",
-			"pattern": "^https?://(.+)\\.([a-z]{2,})/(.+)?$"
+			"pattern": "^https?://(.+)/(.+)?$"
 		},
 		
 		"wikimedia": {
 			"type": "string",
-			"pattern": "^(:[a-zA-Z0-9_]+)+\\.(png|jpg|gif)$"
+			"pattern": "^(:[a-zA-Z0-9_\\-]+)+\\.(png|jpg|gif)$"
 		}
 	}
 }
