@@ -104,7 +104,45 @@ class SpecificEnabler(Values):
 			# print(k, v)
 			self.set(k, v)
 	
+	def resolve(self, ref, dw, pub):
+		if ref.startswith('http'):
+			return ref
+			
+		info = dw.pageinfo(ref)
+		if info is not None:
+			pub_page = pub.public_page(ref)
+			if pub_page is None:
+				logging.warning("Referencing to private page %s" % ref)
+				return "[private] " + ref
+				
+			puburl = dw.pageurl(pub_page)
+			return puburl
+			
+		info = dw.fileinfo(ref)
+		if info is not None:
+			pub_file = pub.public_file(ref)
+			if pub_file is None:
+				logging.warning("Referencing to private file %s" % ref)
+				return "[private] " + ref
+				
+			puburl = dw.fileurl(pub_file)
+			return puburl
+		
+		return "[unresolved] " + ref
+
 	
+	def resolve_wiki_references(self, dw, pub):
+		examples = self.get('/spec/examples')
+		if examples is not None:
+			for k in examples:
+				examples[k]['link'] = self.resolve(examples[k]['link'], dw, pub)
+		
+		images = self.get('/spec/media/images')
+		if images is not None:
+			for k in images:
+				images[k] = self.resolve(images[k], dw, pub)
+
+				
 	@staticmethod
 	def load(dw, se_meta_page, licenses, partners, pub):
 		se = SpecificEnabler(se_meta_page)
@@ -147,6 +185,7 @@ class SpecificEnabler(Values):
 		se.fill_contacts(partners)
 		se.fill_auto_values(dw, pub)
 		se.fill_nice_owners(partners)
+		se.resolve_wiki_references(dw, pub)
 		
 		se.set_valid()
 		

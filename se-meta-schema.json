@@ -121,7 +121,12 @@
 					"properties": {
 						"title": { "type": "string" },
 						"description": { "type": "string" },
-						"link": { "$ref": "#/defs/uri" }
+						"link": {
+							"oneOf": [
+								{ "$ref": "#/defs/wikimedia" },
+								{ "$ref": "#/defs/uri" }
+							]
+						}
 					},
 					"required": ["title", "link"],
 					"additionalProperties": false
@@ -189,7 +194,7 @@
 		},
 		
 		"Required": {
-			"enum": ["Required", "Not required"]
+			"enum": ["Required", "Not required", "Not applicable"]
 		},
 		
 		"uri": {

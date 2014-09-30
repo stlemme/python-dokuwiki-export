@@ -109,7 +109,7 @@ def debug_invalid_se(metapage, se):
 		meta_file.write(metajson)
 
 
-def generate_catalog(dw, template_filename):
+def generate_catalog(dw, template_filename, meta_pages = None):
 	fidoc = FIdoc(dw)
 
 	templatefile = dw.getfile(template_filename)
@@ -118,7 +118,8 @@ def generate_catalog(dw, template_filename):
 	
 	cgen = CatalogGenerator(template)
 	
-	meta_pages = fidoc.list_all_se_meta_pages()
+	if meta_pages is None:
+		meta_pages = fidoc.list_all_se_meta_pages()
 	
 	for metapage in meta_pages:
 		logging.info("Start processing of meta page %s" % metapage)
@@ -147,12 +148,15 @@ def generate_catalog(dw, template_filename):
 
 if __name__ == '__main__':
 	import wikiconfig
-	# import sys
+	import sys
 	
 	logging.info("Connecting to remote DokuWiki at %s" % wikiconfig.url)
 	dw = DokuWikiRemote(wikiconfig.url, wikiconfig.user, wikiconfig.passwd)
 	
 	template_filename = 'ficontent:private:meta:catalog-entry-template.txt'
 	
-	generate_catalog(dw, template_filename)
+	if len(sys.argv) > 1:
+		meta_pages = sys.argv[1:]
+	
+	generate_catalog(dw, template_filename, meta_pages)
 	logging.info("Finished")

@@ -23,7 +23,7 @@ class wiki(object):
 
 	def pageurl(self, page, ns = [], heading = None):
 		return None
-		
+
 	def pageinfo(self, page, ns = []):
 		return None
 		
@@ -32,6 +32,9 @@ class wiki(object):
 		
 	def putfile(self, file, data, ns = [], summary='updated'):
 		pass
+
+	def fileurl(self, file, ns = []):
+		return None
 
 	def fileinfo(self, file, ns = []):
 		return None
@@ -225,6 +228,7 @@ class DokuWiki(wiki):
 	def __init__(self, url):
 		wiki.__init__(self, url)
 		self.pagepath = '/doku.php/'
+		self.filepath = '/lib/exe/fetch.php/'
 
 	def pageurl(self, page, ns = [], heading = None):
 		fullname = self.resolve(page, ns)
@@ -233,6 +237,13 @@ class DokuWiki(wiki):
 		url = self.url + self.pagepath + fullname[1:]
 		if heading is not None:
 			url += '#' + self.target(heading)
+		return url
+
+	def fileurl(self, file, ns = []):
+		fullname = self.resolve(file, ns)
+		if fullname is None:
+			return None
+		url = self.url + self.filepath + fullname[1:]
 		return url
 
 	def resolve(self, page, rel_ns = [], pagens = None):
