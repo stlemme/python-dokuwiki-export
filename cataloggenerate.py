@@ -6,6 +6,8 @@ from wiki import *
 import re
 import jsonutils
 from fidoc import FIdoc
+from thumbnail import ThumbnailGenerator
+import appearance
 
 
 class CatalogGenerator(object):
@@ -112,11 +114,15 @@ def debug_invalid_se(metapage, se):
 def generate_catalog(dw, template_filename, meta_pages = None):
 	fidoc = FIdoc(dw)
 
-	templatefile = dw.getfile(template_filename)
-	template = templatefile.decode("utf-8")
+	with open(template_filename, 'r') as tmplfile:
+		template = tmplfile.read()
+	# templatefile = dw.getfile(template_filename)
+	# template = templatefile.decode("utf-8")
 	# print(template)
 	
 	cgen = CatalogGenerator(template)
+	thgen = ThumbnailGenerator()
+
 	
 	if meta_pages is None:
 		meta_pages = fidoc.list_all_se_meta_pages()
@@ -134,7 +140,7 @@ def generate_catalog(dw, template_filename, meta_pages = None):
 		se_name = nc.fullname()
 		
 		if se_name not in fidoc.get_current_release(nc.roadmap()):
-			logging.info("Skip meta page of %s SE, because it is not part of the current release." % se_name)
+			logging.info("Skip meta page of %s SE, because it is not known as part of the current release." % se_name)
 			continue
 		
 		logging.info("Generating catalog entry for %s ..." % se_name)
@@ -142,8 +148,14 @@ def generate_catalog(dw, template_filename, meta_pages = None):
 		
 		np = nc.nameparts()
 		
-		with open('_catalog/catalog.' + '.'.join(np) + '.txt', 'w') as entry_file:
+		entry_filename = '_catalog/catalog.' + '.'.join(np)
+		
+		with open(entry_filename + '.txt', 'w') as entry_file:
 			entry_file.write(entry)
+		
+		bgcolor = appearance.select_bgcolor(se_name)
+		
+		thgen.generate_thumb(entry_filename + '.png', bgcolor, se_name)
 		
 
 if __name__ == '__main__':
@@ -153,8 +165,10 @@ if __name__ == '__main__':
 	logging.info("Connecting to remote DokuWiki at %s" % wikiconfig.url)
 	dw = DokuWikiRemote(wikiconfig.url, wikiconfig.user, wikiconfig.passwd)
 	
-	template_filename = 'ficontent:private:meta:catalog-entry-template.txt'
+	# template_filename = 'ficontent:private:meta:catalog-entry-template.txt'
+	template_filename = 'catalog-entry-template.txt'
 	
+	meta_pages = None
 	if len(sys.argv) > 1:
 		meta_pages = sys.argv[1:]
 	

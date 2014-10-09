@@ -4,6 +4,9 @@ import logging
 from wiki import *
 from namingconventions import *
 from publisher import *
+import re
+from datetime import datetime
+from urllib.parse import urlparse, parse_qs
 
 
 class AutoValues(object):
@@ -29,7 +32,11 @@ class AutoValues(object):
 				'is-open-source': self.is_open_source,
 				'is-proprietary': self.is_proprietary,
 				'has-evaluation': self.has_evaluation
-			}
+			},
+			'media': {
+				'youtube-pitch': self.pitch_id
+			},
+			'timestamp': self.timestamp
 		}
 		
 		items = {}
@@ -83,6 +90,27 @@ class AutoValues(object):
 		sources = self.se.get('/spec/delivery/sources') is not None
 		binary = self.se.get('/spec/delivery/binary') is not None
 		return self.YesNo(sources or binary)
+	
+	
+	# rx_yt_link = re.compile(r'(?:youtube(?:-nocookie)?\.com/(?:[^/]+/.+/|(?:v|e(?:mbed)?)/|.*[?&]v=)|youtu\.be/)([^"&?/ ]{11})', re.IGNORECASE)
+	
+	def pitch_id(self):
+		pitch = self.se.get('/spec/media/videos/pitch')
+		if pitch is None:
+			return None
+
+		parts = urlparse(pitch)
+		if parts.hostname == 'youtu.be':
+			return parts.path[1:]
+		if parts.hostname in ('www.youtube.com', 'youtube.com'):
+			if parts.path == '/watch':
+				p = parse_qs(parts.query)
+				return p['v'][0]
+			if parts.path[:7] == '/embed/':
+				return parts.path.split('/')[2]
+			if parts.path[:3] == '/v/':
+				return parts.path.split('/')[2]
+		return None
 		
 	def repository(self):
 		cmds = {
@@ -101,6 +129,9 @@ class AutoValues(object):
 					'checkout-cmd': cmds[k]
 				}
 		return {'url': None}
+		
+	def timestamp(self):
+		return str(datetime.now())
 		
 	def YesNo(self, cond):
 		return 'Yes' if cond else 'No'
