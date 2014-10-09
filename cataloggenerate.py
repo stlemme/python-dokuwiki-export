@@ -114,10 +114,10 @@ def debug_invalid_se(metapage, se):
 def generate_catalog(dw, template_filename, meta_pages = None):
 	fidoc = FIdoc(dw)
 
-	with open(template_filename, 'r') as tmplfile:
-		template = tmplfile.read()
-	# templatefile = dw.getfile(template_filename)
-	# template = templatefile.decode("utf-8")
+	# with open(template_filename, 'r') as tmplfile:
+		# template = tmplfile.read()
+	templatefile = dw.getfile(template_filename)
+	template = templatefile.decode("utf-8")
 	# print(template)
 	
 	cgen = CatalogGenerator(template)
@@ -165,8 +165,8 @@ if __name__ == '__main__':
 	logging.info("Connecting to remote DokuWiki at %s" % wikiconfig.url)
 	dw = DokuWikiRemote(wikiconfig.url, wikiconfig.user, wikiconfig.passwd)
 	
-	# template_filename = 'ficontent:private:meta:catalog-entry-template.txt'
-	template_filename = 'catalog-entry-template.txt'
+	template_filename = 'ficontent:private:meta:catalog-entry-template.txt'
+	# template_filename = 'catalog-entry-template.txt'
 	
 	meta_pages = None
 	if len(sys.argv) > 1:

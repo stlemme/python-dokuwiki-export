@@ -57,17 +57,25 @@
 			
 			"properties": {
 				"what-it-does": {
-					"type": "string"
+					"type": "string",
+					"maxLength": 600,
+					"minLength": 200
 				},
 				"how-it-works": {
-					"type": "string"
+					"type": "string",
+					"maxLength": 800,
+					"minLength": 200
 				},
 				"why-you-need-it": {
-					"type": "string"
+					"type": "string",
+					"maxLength": 600,
+					"minLength": 150
 				},
 				"additional": {
 					"type": "object",
-					"additionalProperties": true
+					"additionalProperties": {
+						"$ref": "#/defs/uri"
+					}
 				}
 			},
 			
@@ -92,19 +100,16 @@
 					},
 					"patternProperties": {
 						"^(?!pitch).+$": { "$ref": "#/defs/uri" }
-					},
-					"required": ["pitch"]
+					}
 				},
 				
 				"images": {
 					"type": "object",
-					"patternProperties": {
-						".+": {
-							"oneOf": [
-								{ "$ref": "#/defs/wikimedia" },
-								{ "$ref": "#/defs/uri" }
-							]
-						}
+					"additionalProperties": {
+						"oneOf": [
+							{ "$ref": "#/defs/wikimedia" },
+							{ "$ref": "#/defs/uri" }
+						]
 					}
 				}
 				
@@ -115,22 +120,27 @@
 		
 		"examples": {
 			"type": "object",
-			"patternProperties": {
-				".+": {
-					"type": "object",
-					"properties": {
-						"title": { "type": "string" },
-						"description": { "type": "string" },
-						"link": {
-							"oneOf": [
-								{ "$ref": "#/defs/wikimedia" },
-								{ "$ref": "#/defs/uri" }
-							]
-						}
+			"additionalProperties": {
+				"type": "object",
+				"properties": {
+					"title": {
+						"type": "string",
+						"maxLength": 45
 					},
-					"required": ["title", "link"],
-					"additionalProperties": false
-				}
+					"description": {
+						"type": "string",
+						"minLength": 60,
+						"maxLength": 250
+					},
+					"link": {
+						"oneOf": [
+							{ "$ref": "#/defs/wikimedia" },
+							{ "$ref": "#/defs/uri" }
+						]
+					}
+				},
+				"required": ["title", "description", "link"],
+				"additionalProperties": false
 			}
 		},
 		
@@ -138,7 +148,8 @@
 			"type": "object",
 			"properties": {
 				"template": {
-					"type": "string"
+					"type": "string",
+					"enum": ["MIT", "Apache2.0"]
 				},
 				"type": {
 					"enum": ["open", "prop", "eval"]
@@ -161,10 +172,13 @@
 					"type": "string"
 				},
 				"summary": {
-					"type": "string"
+					"type": "string",
+					"minLength": 50,
+					"maxLength": 600
 				},
 				"copyright": {
-					"type": "string"
+					"type": "string",
+					"maxLength": 300
 				},
 				"full": {
 					"type": "string"
@@ -178,6 +192,76 @@
 		},
 		
 		"delivery": {
+			"type": "object",
+			"properties": {
+			
+				"description": {
+					"type": "string",
+					"minLength": 50,
+					"maxLength": 300
+				},
+				
+				"languages": {
+					"type": "array",
+					"uniqueItems": true,
+					"minItems": 1,
+					"items": {
+						"type": "string",
+						"enum": ["JavaScript", "UnityScript", "C#", "PHP", "Python", "CSS", "C/C++", "Java"]
+					}
+				},
+			
+				"repository": {
+					"type": "object",
+					"properties": {
+						"github": { "$ref": "#/defs/uri" },
+						"git": { "$ref": "#/defs/uri" },
+						"svn": { "$ref": "#/defs/uri" },
+						"hg": { "$ref": "#/defs/uri" }
+					},
+					"additionalProperties": false,
+					"oneOf": [
+						{ "required": ["github"] },
+						{ "required": ["git"] },
+						{ "required": ["svn"] },
+						{ "required": ["hg"] }
+					]
+				},
+				
+				"sources": { "$ref": "#/defs/uri" },
+				
+				"binary": {
+					"type": "object",
+					"properties": {
+						"win": { "$ref": "#/defs/uri" },
+						"unix": { "$ref": "#/defs/uri" },
+						"osx": { "$ref": "#/defs/uri" }
+					},
+					"additionalProperties": { "$ref": "#/defs/uri" }
+				},
+				
+				"instances": {
+					"type": "object",
+					"properties": {
+						"public": { "$ref": "#/defs/instance" },
+						"fi-ppp": { "$ref": "#/defs/instance" }
+					},
+					"additionalProperties": false,
+					"anyOf": [
+						{ "required": ["public"] },
+						{ "required": ["fi-ppp"] }
+					]
+				}
+			
+			},
+			"additionalProperties": false,
+			"anyOf": [
+				{ "required": ["repository"] },
+				{ "required": ["sources"] },
+				{ "required": ["binary"] },
+				{ "required": ["instances"] },
+				{ "required": ["manually"] }
+			]
 		},
 		
 		"requirements": {
@@ -206,6 +290,36 @@
 		"wikimedia": {
 			"type": "string",
 			"pattern": "^(:[a-zA-Z0-9_\\-\\.]+)+\\.(png|jpg|gif)$"
+		},
+		
+		"instance": {
+			"type": "object",
+			"properties": {
+				"endpoint": { "$ref": "#/defs/uri" },
+				"access": {
+					"type": "object",
+					"properties": {
+						"user": {
+							"type": "string",
+							"maxLength": 30
+						},
+						"password": {
+							"type": "string",
+							"maxLength": 30
+						},
+						"manually": {
+							"type": "string",
+							"maxLength": 100
+						}
+					},
+					"additionalProperties": false,
+					"oneOf": [
+						{ "required": ["user", "password"] },
+						{ "required": ["manually"] }
+					]
+				}
+			},
+			"additionalProperties": false			
 		}
 	}
 }
