@@ -207,7 +207,7 @@
 					"minItems": 1,
 					"items": {
 						"type": "string",
-						"enum": ["JavaScript", "UnityScript", "C#", "PHP", "Python", "CSS", "C/C++", "Java"]
+						"enum": ["JavaScript", "UnityScript", "C#", "PHP", "Python", "CSS", "C/C++", "Java", "Scala", "Go", "JSON"]
 					}
 				},
 			
@@ -251,6 +251,11 @@
 						{ "required": ["public"] },
 						{ "required": ["fi-ppp"] }
 					]
+				},
+
+				"manually": {
+					"type": "string",
+					"minLength": 10
 				}
 			
 			},

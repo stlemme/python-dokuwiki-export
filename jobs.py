@@ -479,6 +479,7 @@ if __name__ == "__main__":
 		overallsuccess = executejobs(jobs, jobsuccess)
 	except Exception as e:
 		logging.error("Exception occured!\n%s" % e)
+		overallsuccess = False
 
 	logging.info("All done.")
 
