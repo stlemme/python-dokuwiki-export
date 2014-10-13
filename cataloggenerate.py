@@ -53,7 +53,7 @@ class CatalogGenerator(object):
 
 	def handle_value(self, match):
 		path = match.group(1)
-		print(path)
+		# print(path)
 		val = self.se.get(path)
 		if val is None:
 			val = "[[UNDEFINED]]"
