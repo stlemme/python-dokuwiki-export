@@ -19,14 +19,22 @@ class CatalogGenerator(object):
 	def generate_entry(self, se):
 		self.se = se
 		
-		entry = self.template
+		entry = self.template[:]
 		
+		# print(self.se.get('/auto'))
+		# print(self.se.get('/spec'))
+
 		entry = self.process_text_snippet(entry)
 		self.se = None
 		
 		return entry
 	
+	stack = 0
+	
 	def process_text_snippet(self, text):
+		# print('  ' * self.stack, text.encode('ascii', 'replace'))
+		self.stack += 1
+		
 		try:
 			# print('a')
 			text = self.rx_for.sub(self.handle_for, text)
@@ -38,20 +46,21 @@ class CatalogGenerator(object):
 			print(text);
 			print(e);
 			text = ""
+		self.stack -= 1
 		return text
 
-	rx_value = re.compile(r'\{\{(/[a-z\-/]+)\}\}')
+	rx_value = re.compile(r'\{\{(/[a-zA-Z\-/]+)\}\}')
 
 	def handle_value(self, match):
 		path = match.group(1)
-		# print(path)
+		print(path)
 		val = self.se.get(path)
 		if val is None:
 			val = "[[UNDEFINED]]"
 		# print(val)
 		return self.process_text_snippet(val)
 	
-	rx_for = re.compile(r'\{\{for (/[a-z\-/]+)\}\}([ \t\f\v]*\n)?(.+?)\{\{endfor\}\}([ \t\f\v]*\n)?', re.DOTALL)
+	rx_for = re.compile(r'\{\{for (/[a-zA-Z\-/]+)\}\}([ \t\f\v]*\n)?(.+?)\{\{endfor\}\}([ \t\f\v]*\n)?', re.DOTALL)
 
 	def handle_for(self, match):
 		# print(match.group())
@@ -65,7 +74,7 @@ class CatalogGenerator(object):
 		if type(val) is dict:
 			val = val.values()
 		for item in val:
-			current = re.sub(r'%value(/[a-z0-9\-/]+)?%', lambda m: self.handle_item_value(item, m), repl)
+			current = re.sub(r'%value(/[a-zA-Z0-9\-/]+)?%', lambda m: self.handle_item_value(item, m), repl)
 			text += self.process_text_snippet(current)
 		return text
 
@@ -80,7 +89,7 @@ class CatalogGenerator(object):
 		# print(val)
 		return val
 
-	rx_if = re.compile(r'\{\{if (/[a-z\-/]+) (!=|==) "([^\"]*)"\}\}([ \t\f\v]*\n)?(.+?)\{\{endif\}\}([ \t\f\v]*\n)?', re.DOTALL)
+	rx_if = re.compile(r'\{\{if (/[a-zA-Z\-/]+) (!=|==) "([^\"]*)"\}\}([ \t\f\v]*\n)?(.+?)\{\{endif\}\}([ \t\f\v]*\n)?', re.DOTALL)
 
 	def handle_condition(self, match):
 		# print(match.group())
