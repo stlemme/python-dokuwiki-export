@@ -261,11 +261,11 @@
 			},
 			"additionalProperties": false,
 			"anyOf": [
-				{ "required": ["repository"] },
-				{ "required": ["sources"] },
-				{ "required": ["binary"] },
-				{ "required": ["instances"] },
-				{ "required": ["manually"] }
+				{ "required": ["description", "repository"] },
+				{ "required": ["description", "sources"] },
+				{ "required": ["description", "binary"] },
+				{ "required": ["description", "instances"] },
+				{ "required": ["description", "manually"] }
 			]
 		},
 		
@@ -302,29 +302,41 @@
 			"properties": {
 				"endpoint": { "$ref": "#/defs/uri" },
 				"access": {
-					"type": "object",
-					"properties": {
-						"user": {
-							"type": "string",
-							"maxLength": 30
-						},
-						"password": {
-							"type": "string",
-							"maxLength": 30
-						},
-						"manually": {
-							"type": "string",
-							"maxLength": 100
-						}
-					},
-					"additionalProperties": false,
 					"oneOf": [
-						{ "required": ["user", "password"] },
-						{ "required": ["manually"] }
+						{ "$ref": "#/defs/credentials" },
+						{ "$ref": "#/defs/instructions" }
 					]
 				}
 			},
 			"additionalProperties": false			
+		},
+		
+		"credentials": {
+			"type": "object",
+			"properties": {
+				"user": {
+					"type": "string",
+					"maxLength": 30
+				},
+				"password": {
+					"type": "string",
+					"maxLength": 30
+				}
+			},
+			"required": ["user", "password"],
+			"additionalProperties": false
+		},
+		"instructions": {
+			"type": "object",
+			"properties": {
+				"manually": {
+					"type": "string",
+					"maxLength": 100
+				}
+			},
+			"required": ["manually"],
+			"additionalProperties": false
 		}
+						
 	}
 }
