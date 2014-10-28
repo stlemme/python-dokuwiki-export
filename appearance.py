@@ -11,8 +11,9 @@ se_colors = {
 	'Open City Database':							'#61DDFF',
 	'POIProxy':										'#C8F763',
 	'App Generator':								'#1EC499',
-	'ODS':											'#366092',
+	'OpenDataSoft':									'#366092',
 	'Recommendation as a Service':					'#FFC600',
+	'Context Aware Recommendation':					'#037DA0',
 	
 	'Leaderboard':									'#FF8181',
 	'Reality Mixer - Camera Artifact Rendering':	'#008A5F',

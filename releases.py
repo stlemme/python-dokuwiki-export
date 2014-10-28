@@ -1,5 +1,5 @@
 
-release0914 = {
+release1014 = {
 	"socialtv": [
 		"Audio Mining",
 		"Content Optimisation",
@@ -10,7 +10,10 @@ release0914 = {
 	"smartcity": [
 		"App Generator",
 		"Recommendation as a Service",
-		"Open City Database"
+		"Open City Database",
+		"OpenDataSoft",
+		"POIProxy",
+		"Context Aware Recommendation"
 	],
 	"gaming": [
 		"Networked Virtual Character",
@@ -96,4 +99,4 @@ release0913 = {
 	]
 }
 
-current = release0914
+current = release1014

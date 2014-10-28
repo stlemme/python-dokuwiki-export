@@ -114,8 +114,8 @@ class AutoValues(object):
 		
 	def repository(self):
 		cmds = {
-			'github': 'git clone {{/auto/delivery/repository/url}}.git',
-			'git': 'git clone {{/auto/delivery/repository/url}}',
+			'github': 'git clone --recursive {{/auto/delivery/repository/url}}.git',
+			'git': 'git clone --recursive {{/auto/delivery/repository/url}}',
 			'hg': 'hg clone {{/auto/delivery/repository/url}}',
 			'svn': 'svn checkout {{/auto/delivery/repository/url}}'
 		}
