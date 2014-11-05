@@ -1,7 +1,4 @@
 
-# from getpage import *
-from preprocess import *
-from metaprocessor import *
 from presenter import ExperimentTimelinePresenter, ListPresenter, DependencyPresenter, UptakePresenter, CockpitPresenter, GESurveyPresenter
 import wiki
 import wikiconfig
@@ -9,23 +6,9 @@ import sys
 from outbuffer import *
 from visitor import *
 import logging
+from fidoc import FIdoc
+from metaprocessor import MetaData
 
-
-def process_meta(meta):
-	logging.info("Preprocessing page of meta structure ...")
-	doc = preprocess(meta)
-	
-	data = MetaData(logging.warning, logging.error)
-	
-	mp = metaprocessor(data)
-	logging.info("Processing meta structure ...")
-	meta = mp.process(doc)
-
-	if meta is None:
-		logging.error("Meta structure corrupted.")
-	
-	return meta, data
-	
 
 def generate_page(dw, outpage, meta, data):	
 	# out = FileBuffer(outfile)
@@ -137,9 +120,9 @@ def generate_page(dw, outpage, meta, data):
 	# GE Validation Survey
 	#######################################
 
-	generated_content += [
-		("GE Validation Survey", GESurveyPresenter())
-	]
+	# generated_content += [
+		# ("GE Validation Survey", GESurveyPresenter())
+	# ]
 	
 	#######################################
 	# main generation loop
@@ -167,6 +150,26 @@ def generate_page(dw, outpage, meta, data):
 	logging.info("Flushing generated content ...")
 	out.flush()
 
+
+
+def generate_meta_information(dw, generatedpage):
+	fidoc = FIdoc(dw)
+	
+	meta_data = MetaData(logging.warning, logging.error)
+
+	logging.info("Loading page of meta structure ...")
+	meta = fidoc.get_meta_structure(meta_data)
+	
+	if meta is None:
+		logging.fatal("Invalid meta structure.")
+	
+	meta_structure = meta.get_structure()
+	
+	generate_page(dw, generatedpage, meta_structure, meta_data)
+
+	
+	
+	
 if __name__ == "__main__":
 	
 	metapage = ":FIcontent:private:meta:"
@@ -183,16 +186,7 @@ if __name__ == "__main__":
 		# dw = wiki.DokuWikiLocal(url, 'pages', 'media')
 		dw = wiki.DokuWikiRemote(wikiconfig.url, wikiconfig.user, wikiconfig.passwd)
 		
-		logging.info("Loading page of meta structure %s ..." % metapage)
-		metadoc = dw.getpage(metapage)
-		if metadoc is None:
-			logging.fatal("Meta structure %s not found." % metapage)
-
-		meta, data = process_meta(metadoc)
-		if meta is None:
-			logging.fatal("Invalid meta structure %s." % metapage)
-		
-		generate_page(dw, generatedpage, meta, data)
+		generate_meta_information(dw, generatedpage)
 		
 		logging.info("Finished")
 	

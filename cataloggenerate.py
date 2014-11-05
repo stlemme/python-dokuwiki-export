@@ -148,7 +148,7 @@ def generate_catalog(dw, template_filename, meta_pages = None):
 		nc = se.get_naming_conventions()
 		se_name = nc.fullname()
 		
-		if se_name not in fidoc.get_current_release(nc.roadmap()):
+		if se_name not in fidoc.get_ses_of_current_release(nc.roadmap()):
 			logging.info("Skip meta page of %s SE, because it is not known as part of the current release." % se_name)
 			continue
 		

@@ -61,12 +61,12 @@ class MetaData(object):
 		map[name] = g
 
 
-class metaprocessor:
+class MetaProcessor:
 	def __init__(self, data = MetaData()):
 		self.data = data
 	
-	def process(self, doc):
-		meta = '\n'.join(doc)
+	def process(self, meta):
+		# meta = '\n'.join(doc)
 		
 		p = MyGrammar.parser(self.data)
 		try:

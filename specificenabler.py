@@ -1,7 +1,7 @@
 
 from jsonutils import Values
 import logging
-import preprocess
+import wikiutils
 import json
 from catalogauto import *
 from jsonschema.jsonschema import validate, ValidationError, SchemaError
@@ -148,7 +148,7 @@ class SpecificEnabler(Values):
 		se = SpecificEnabler(se_meta_page)
 
 		meta = dw.getpage(se_meta_page)
-		metadata = preprocess.preprocess(meta)
+		metadata = wikiutils.strip_code_sections(meta)
 		metajson = '\n'.join(metadata)
 		
 		se.set_metajson(metajson)
@@ -159,7 +159,6 @@ class SpecificEnabler(Values):
 			logging.warning("Unable to read meta data from page %s. No valid JSON!\n%s" % (se_meta_page, e))
 			return se
 
-		# TODO: json schema validation
 		schema = None
 		with open('se-meta-schema.json', 'r') as schema_file:
 			schema = json.load(schema_file)

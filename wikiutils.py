@@ -3,11 +3,11 @@ import re
 
 rx_code = re.compile(r"^((.*)(<code>)(.*)|(.*)(</code>).*)+")
 
-def preprocess(meta):
+def strip_code_sections(doc):
 	active = False
 	output = []
 	
-	for line in meta:
+	for line in doc:
 		result = rx_code.findall(line)
 		
 		if not len(result):
@@ -28,7 +28,7 @@ def preprocess(meta):
 			# active |= len(g[2])
 			if len(g[2]):
 				if active:
-					print('Warning! <code> appears within meta structure description - ignored.')
+					print('Warning! <code> appears twice - ignored.')
 					# output.append('# invalid line:')
 					# output.append('# ' + line)
 					output.append(g[1])
@@ -40,7 +40,7 @@ def preprocess(meta):
 			# active &= not len(g[5])
 			if len(g[5]):
 				if not active:
-					print('Warning! </code> appears without meta structure description or twice - ignored.')
+					print('Warning! </code> appears at an invalid place - ignored.')
 					# output.append('# invalid line:')
 					# output.append('# ' + line)
 				active = False

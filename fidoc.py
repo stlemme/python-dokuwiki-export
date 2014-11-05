@@ -1,7 +1,7 @@
 
 
 import json
-import preprocess
+import wikiutils
 import logging
 import mirror
 import releases
@@ -9,19 +9,21 @@ from publisher import *
 from licenses import Licenses
 from partners import Partners
 from specificenabler import SpecificEnabler
+from metastructure import MetaStructure
 
 
 meta_page = {
 	'partners': ':ficontent:private:meta:partner',
-	'licenses': ':ficontent:private:meta:license'
+	'licenses': ':ficontent:private:meta:license',
+	'structure': ':ficontent:private:meta:start'
 }
 
 
 class FIdoc(object):
 	def __init__(self, dw):
 		self.dw = dw
-		self.partners = Partners(self.load_json_from_wiki(meta_page['partners']))
-		self.licenses = Licenses(self.load_json_from_wiki(meta_page['licenses']))
+		self.partners = Partners(self.load_json_from_wiki(self.get_meta_page('partners')))
+		self.licenses = Licenses(self.load_json_from_wiki(self.get_meta_page('licenses')))
 		pub_pages = mirror.public_pages(self.dw)
 		self.pub = wikipublisher(self.dw, pub_pages, mirror.rx_exceptions, mirror.export_ns)
 	
@@ -33,8 +35,8 @@ class FIdoc(object):
 
 	def get_licenses(self):
 		return self.licenses
-		
-	def get_current_release(self, roadmap):
+	
+	def get_ses_of_current_release(self, roadmap):
 		if roadmap not in releases.current:
 			return None
 		return releases.current[roadmap]
@@ -45,6 +47,9 @@ class FIdoc(object):
 	def get_specific_enabler(self, metapage):
 		return SpecificEnabler.load(self.dw, metapage, self.licenses, self.partners, self.pub)
 
+	def get_meta_structure(self, metadata):
+		return MetaStructure.load(self.dw, self.get_meta_page('structure'), metadata, self.partners)
+		
 	def list_all_se_meta_pages(self):
 		all_pages_info = self.dw.allpages()
 		meta_pages = []
@@ -70,10 +75,25 @@ class FIdoc(object):
 
 	def load_json_from_wiki(self, wikipage, default = {}):
 		page = self.dw.getpage(wikipage)
-		doc = preprocess.preprocess(page)
+		doc = wikiutils.strip_code_sections(page)
 		data = '\n'.join(doc)
 		try:
 			return json.loads(data)
 		except ValueError as e:
 			logging.warning("Unable to read json data from page %s. No valid JSON!" % wikipage)
 		return default
+
+	def load_code_from_wiki(self, wikipage):
+		page = self.dw.getpage(wikipage)
+		if page is None:
+			return None
+		doc = wikiutils.strip_code_sections(page)
+		return '\n'.join(doc)
+
+	def get_meta_page(self, page_name):
+		if page_name not in meta_page:
+			return None
+		return meta_page[page_name]
+		
+		
+	
