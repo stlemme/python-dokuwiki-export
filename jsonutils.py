@@ -2,8 +2,11 @@
 from collections import deque
 
 
+def split_path(path):
+	return deque(path.strip('/').split('/'))
+
 def json_get(json_data, path):
-	parts = deque(path[1:].split('/'))
+	parts = split_path(path)
 	obj = json_data
 	while len(parts) > 0:
 		if obj is None:
@@ -15,7 +18,7 @@ def json_get(json_data, path):
 	return obj
 
 def json_set(json_data, path, data):
-	parts = deque(path[1:].split('/'))
+	parts = split_path(path)
 	obj = json_data
 	while len(parts) > 1:
 		prop = parts.popleft()
@@ -30,7 +33,12 @@ class Values(object):
 		self.values = {} if values is None else values
 
 	def get(self, path):
-		return json_get(self.values, path)
+		obj = json_get(self.values, path)
+		if isinstance(obj, dict):
+			obj = Values(obj)
+		return obj
 
 	def set(self, path, data):
+		if isinstance(data, Values):
+			data = data.values
 		json_set(self.values, path, data)

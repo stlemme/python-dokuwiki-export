@@ -10,13 +10,18 @@ from fidoc import FIdoc
 from metaprocessor import MetaData
 
 
-def generate_page(dw, outpage, meta, data):	
+def generate_page(dw, outpage, meta):	
 	# out = FileBuffer(outfile)
 	out = PageBuffer(dw, outpage)
 
 	out << dw.heading(1, "Generated output from FIcontent's Meta-Structure")
 	
 	generated_content = []
+	
+	
+	meta_structure = meta.get_structure()
+	meta_data = meta.get_data()
+
 	
 	
 	# Overall timeline of experiments
@@ -48,7 +53,7 @@ def generate_page(dw, outpage, meta, data):
 	#######################################
 	
 	v = ExperimentsVisitor()
-	v.visit(meta)
+	v.visit(meta_structure)
 	
 	experiments = list(set([(e.scenario, e.site) for e in v.result]))
 	
@@ -82,7 +87,7 @@ def generate_page(dw, outpage, meta, data):
 	#######################################
 	
 	id = lambda e: e.identifier
-	ges = list(set(data.ge.values()))
+	ges = list(set(meta_data.ge.values()))
 	
 	generated_content += [(
 			"Utilization of %s GE" % ge.identifier,
@@ -130,7 +135,7 @@ def generate_page(dw, outpage, meta, data):
 	
 	for h, p in generated_content:
 		logging.info('Generating -> %s ...' % h)
-		p.present(meta)
+		p.present(meta_structure)
 
 		out << dw.heading(2, h)
 		p.dump(out)
@@ -155,17 +160,15 @@ def generate_page(dw, outpage, meta, data):
 def generate_meta_information(dw, generatedpage):
 	fidoc = FIdoc(dw)
 	
-	meta_data = MetaData(logging.warning, logging.error)
+	# meta_data = MetaData(logging.warning, logging.error)
 
 	logging.info("Loading page of meta structure ...")
-	meta = fidoc.get_meta_structure(meta_data)
+	meta = fidoc.get_meta_structure()
 	
 	if meta is None:
 		logging.fatal("Invalid meta structure.")
 	
-	meta_structure = meta.get_structure()
-	
-	generate_page(dw, generatedpage, meta_structure, meta_data)
+	generate_page(dw, generatedpage, meta)
 
 	
 	

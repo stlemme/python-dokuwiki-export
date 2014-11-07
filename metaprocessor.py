@@ -1,13 +1,43 @@
 
 from metagrammar import *
 
+
+class Entity(object):
+	pass
+
+class NamedEntity(Entity):
+	def __init__(self, name):
+		self.name = name
+		
+	def get_name(self):
+		return self.name
+	
+		
+class GenericEnabler(NamedEntity):
+	def __init__(self, name):
+		Entity.__init__(self, name)
+	
+	
+class Application(NamedEntity):
+	def __init__(self, name, provider):
+		Entity.__init__(self, name)
+		self.provider = provider
+	
+	
+class Scenario(NamedEntity):
+	def __init__(self, name):
+		Entity.__init__(self, name)
+	
+
+
+
 class MetaData(object):
-	def __init__(self, warning = print, error = print):
+	def __init__(self, partners, warning = print, error = print):
 		self.ge = {}
 		self.se = {}
 		self.loc = {}
 		self.app = {}
-		self.partner = {}
+		self.partners = partners
 		
 		self.warning = warning
 		self.error = error
@@ -34,23 +64,25 @@ class MetaData(object):
 		return None
 		
 	def contact(self, id):
-		partner = id
-		contact = None
+		return self.partners.get_person(id)
 		
-		if '-' in id:
-			parts = id.split('-', 1)
-			partner = parts[0]
-			contact = parts[1]
+		# partner = id
+		# contact = None
+		
+		# if '-' in id:
+			# parts = id.split('-', 1)
+			# partner = parts[0]
+			# contact = parts[1]
 			
-		if partner not in self.partner:
-			return None, None
+		# if partner not in self.partner:
+			# return None, None
 
-		p = self.partner[partner]
+		# p = self.partner[partner]
 
-		if contact and contact in p.contacts:
-			return p, contact
+		# if contact and contact in p.contacts:
+			# return p, contact
 
-		return p, p.defaultcontact
+		# return p, p.defaultcontact
 
 		
 	def insert_default(self, map, grammar, name):
@@ -60,17 +92,18 @@ class MetaData(object):
 		g.entity = grammar.__name__
 		map[name] = g
 
+		
 
 class MetaProcessor:
-	def __init__(self, data = MetaData()):
+	def __init__(self, data):
 		self.data = data
 	
-	def process(self, meta):
+	def process(self, metadoc):
 		# meta = '\n'.join(doc)
 		
 		p = MyGrammar.parser(self.data)
 		try:
-			result = p.parse_text(meta, reset=True, bol=True, eof=True)
+			result = p.parse_text(metadoc, reset=True, bol=True, eof=True)
 				
 			if len(p.remainder()):
 				self.data.error("Unable to parse: %s ..." % p.remainder()[:60])

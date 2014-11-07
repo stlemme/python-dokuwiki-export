@@ -33,7 +33,7 @@ class InvalidTimeframe(MetaError):
 	def __init__(self, problem, text):
 		MetaError.__init__(self, 'Invalid timeframe: "%s"' % problem, text)
 
-		
+
 ###############
 
 class Identifier(Grammar):
@@ -140,15 +140,19 @@ def handleUseStmts(stmts, usestates, timing, data, hint):
 			timing[e] = timeframe
 			# print('Enabler %s integrated by %s' % (e.identifier, timeframe))
 
+			
+class OriginatorStmt(Grammar):
+	grammar = WHITESPACE, LITERAL("DEVELOPED") | LITERAL("PROVIDED") | LITERAL("CONDUCTED"), WHITESPACE, LITERAL("BY"), WHITESPACE, RedIdentifier
+
 def handleContact(elem, data, hint):
 	if elem is None:
 		return None
-	
 	partnername = elem.elements[5].string
-	partner, contact = data.contact(partnername)
-	if partner is None:
-		raise UnknownPartner(partnername, hint)
-	return (partner, contact)
+	return data.contact(partnername)
+	# partner, contact = data.contact(partnername)
+	# if partner is None:
+		# raise UnknownPartner(partnername, hint)
+	# return (partner, contact)
 	# print(self.provider)
 
 
@@ -156,7 +160,7 @@ class SE(NamedEntity):
 	grammar = (
 		LITERAL("SE"), WHITESPACE, Identifier,
 		OPTIONAL(WHITESPACE, AsStatement),
-		OPTIONAL(WHITESPACE, LITERAL("PROVIDED"), WHITESPACE, LITERAL("BY"), WHITESPACE, RedIdentifier),
+		OPTIONAL(OriginatorStmt),
 		ZERO_OR_MORE(WHITESPACE, UseStmt)
 	)
 
@@ -177,7 +181,7 @@ class SE(NamedEntity):
 		
 		self.timing = {}
 		
-		self.provider = handleContact(self.elements[4], data, self.string)
+		# self.provider = handleContact(self.elements[4], data, self.string)
 		
 		if self.elements[5] is not None:
 			handleUseStmts(self.elements[5], self.usestates, self.timing, data, self.string)
@@ -195,11 +199,12 @@ class LOC(NamedEntity):
 
 ###############
 
+
 class APP(NamedEntity):
 	grammar = (
 		LITERAL("APP"), WHITESPACE, Identifier,
 		OPTIONAL(WHITESPACE, AsStatement),
-		OPTIONAL(WHITESPACE, LITERAL("DEVELOPED"), WHITESPACE, LITERAL("BY"), WHITESPACE, RedIdentifier),
+		OPTIONAL(OriginatorStmt),
 		ONE_OR_MORE(WHITESPACE, UseStmt)
 	)
 
@@ -249,7 +254,7 @@ class EXPERIMENT(Grammar):
 		LITERAL("EXPERIMENT"), WHITESPACE, LITERAL("IN"), WHITESPACE, Place,
 		OPTIONAL(WHITESPACE, LITERAL("OF"), WHITESPACE, LITERAL("SITE"), WHITESPACE, ExperimentationSite),
 		WHITESPACE, LITERAL("AT"), WHITESPACE, Date,
-		OPTIONAL(WHITESPACE, LITERAL("CONDUCTED"), WHITESPACE, LITERAL("BY"), WHITESPACE, RedIdentifier),
+		OPTIONAL(OriginatorStmt),
 		WHITESPACE, LITERAL("DRIVES"), WHITESPACE, Scenario,
 		ONE_OR_MORE(WHITESPACE, DeploymentStmt),
 		WHITESPACE, LITERAL("BY"), WHITESPACE, LITERAL("RUNNING"), WHITESPACE, Identifier
@@ -291,48 +296,9 @@ class EXPERIMENT(Grammar):
 
 ###############
 
-class MailAddress(Grammar):
-	grammar = (WORD("\w", "[\w\.\-@\+]", fullmatch=False, escapes=True, greedy=False))
 
-class PARTNER(Grammar):
-	grammar = (
-		LITERAL("PARTNER"), WHITESPACE, RedIdentifier,
-		ONE_OR_MORE(
-			WHITESPACE, LITERAL("WITH"), WHITESPACE, Identifier,
-			WHITESPACE, LITERAL("-"), WHITESPACE,
-				MailAddress,
-				OPTIONAL(
-					WHITESPACE, LITERAL("AS"), WHITESPACE, LITERAL("DEFAULT"), WHITESPACE, LITERAL("CONTACT")
-					# whitespace_mode='required'
-				)
-		)
-	)
-	
-	def grammar_elem_init(self, data):
-		self.identifier = self.elements[2].string
-		self.contacts = {}
-		self.defaultcontact = None
-		for elem in self.elements[3].elements:
-			name = elem.elements[3].string
-			email = elem.elements[7].string
-			self.contacts[name] = email
-			if elem.elements[8] is not None:
-				self.defaultcontact = name
-				
-		if self.defaultcontact is None:
-			self.defaultcontact = self.elements[3].elements[0].elements[3].string
-
-		# print(self.identifier)
-		# print(self.contacts)
-		# print(self.defaultcontact)
-		
-		data.partner[self.identifier] = self
-
-
-###############
-
-class Meta(Grammar):
-	grammar = (BOL, OR(GE, SE, LOC, APP, EXPERIMENT, PARTNER, WHITESPACE, EMPTY), EOL)
+class MetaStmt(Grammar):
+	grammar = (BOL, OR(GE, SE, LOC, APP, EXPERIMENT, WHITESPACE, EMPTY), EOL)
 
 class MyGrammar(Grammar):
-	grammar = (ONE_OR_MORE(Meta))
+	grammar = (ONE_OR_MORE(MetaStmt))

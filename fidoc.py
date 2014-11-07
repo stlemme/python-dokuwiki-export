@@ -26,6 +26,7 @@ class FIdoc(object):
 		self.licenses = Licenses(self.load_json_from_wiki(self.get_meta_page('licenses')))
 		pub_pages = mirror.public_pages(self.dw)
 		self.pub = wikipublisher(self.dw, pub_pages, mirror.rx_exceptions, mirror.export_ns)
+		self.ses = {}
 	
 	def get_wiki(self):
 		return self.dw
@@ -45,10 +46,12 @@ class FIdoc(object):
 		return self.pub
 		
 	def get_specific_enabler(self, metapage):
-		return SpecificEnabler.load(self.dw, metapage, self.licenses, self.partners, self.pub)
+		if metapage not in self.ses:
+			self.ses[metapage] = SpecificEnabler.load(self.dw, metapage, self.licenses, self.partners, self.pub)
+		return self.ses[metapage]
 
-	def get_meta_structure(self, metadata):
-		return MetaStructure.load(self.dw, self.get_meta_page('structure'), metadata, self.partners)
+	def get_meta_structure(self):
+		return MetaStructure.load(self.dw, self.get_meta_page('structure'), self.partners)
 		
 	def list_all_se_meta_pages(self):
 		all_pages_info = self.dw.allpages()
