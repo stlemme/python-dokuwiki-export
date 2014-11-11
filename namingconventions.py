@@ -5,7 +5,7 @@ import re
 class NamingConventions(object):
 	def __init__(self, dw, se_spec):
 		self.dw = dw
-		self.name = se_spec['name']
+		self.name = se_spec.get('name')
 		self.spec = se_spec
 		self.group = None
 	
@@ -23,7 +23,7 @@ class NamingConventions(object):
 		return [re.sub(r'[^a-z0-9]+', '', name) for name in nameparts]
 		
 	def roadmap(self):
-		platforms = self.spec['platforms']
+		platforms = self.spec.get('platforms')
 		if len(platforms) == 1:
 			return platforms[0]
 		elif len(platforms) > 1:
@@ -66,4 +66,4 @@ class NamingConventions(object):
 		return None
 	
 	def platforms(self):
-		return self.spec['platforms']
+		return self.spec.get('platforms')

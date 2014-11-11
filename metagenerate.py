@@ -19,9 +19,14 @@ def generate_page(dw, outpage, meta):
 	generated_content = []
 	
 	
-	meta_structure = meta.get_structure()
+	meta_structure = meta.get_ast()
 	meta_data = meta.get_data()
 
+	print(meta.ges)
+	print(meta.locations)
+	print(meta.scenarios)
+	print(meta.ses)
+	print(meta.apps)
 	
 	
 	# Overall timeline of experiments

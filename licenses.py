@@ -16,13 +16,15 @@ class Licenses(Values):
 		if 'template' not in license:
 			return license
 		
-		template = self.get('/' + license['template'])
+		template = self.get('/' + license.get('template'))
 		if template is None:
 			logging.warning("Invalid license template %s" % template)
 			return license
 		
 		ovrlic = license
+		# TODO: clone instance
 		license = dict(template)
+		# TODO: iterate over Values
 		for k, v in ovrlic.items():
 			license[k] = v
 		

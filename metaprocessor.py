@@ -11,6 +11,7 @@ class MetaData(object):
 		# self.app = {}
 		self.partners = partners
 		self.ids = set()
+		self.entities = {}
 		
 		self.warning = warning
 		self.error = error
@@ -24,6 +25,14 @@ class MetaData(object):
 			return True
 		self.ids.add(id)
 		return False
+	
+	def map(self, stmt, entity):
+		self.entities[stmt.get_identifier()] = entity
+		for id in stmt.get_aliases():
+			self.entities[id] = entity
+		
+	def find(self, id):
+		return self.entities[id] if id in self.entities else None
 	
 	# def enabler(self, id):
 		# if id in self.ge:
@@ -82,7 +91,11 @@ class MetaProcessor:
 		pass
 
 	
-	def get_stmts(self, meta_ast, stmt):
-		return meta_ast.find_all(stmt)
+	# def get_stmts(self, meta_ast, stmt):
+		# return meta_ast.find_all(stmt)
+		
+	# def get_referenced_stmt(self, meta_ast, stmt):
+		# TODO: use find and 
+		# return None
 		
 	

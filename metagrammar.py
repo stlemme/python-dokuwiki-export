@@ -63,6 +63,8 @@ class ReferenceStmt(Grammar):
 class NamedEntityStmt(Grammar):
 	# grammar = (LITERAL(    ), WHITESPACE, Identifier, OPTIONAL(WHITESPACE, AsStatement))
 	# grammar_whitespace_mode = 'required'
+	def get_keyword(self):
+		return self.elements[0].string
 
 	def get_identifier(self):
 		return self.get(Identifier).string
@@ -109,7 +111,7 @@ class OriginatorStmt(Grammar):
 	grammar = WHITESPACE, LITERAL("DEVELOPED") | LITERAL("PROVIDED") | LITERAL("CONDUCTED"), WHITESPACE, LITERAL("BY"), WHITESPACE, PartnerRef
 
 	def get_partnername(self):
-		return elem.get(PartnerRef).string
+		return self.get(PartnerRef).string
 
 
 class EnablerRef(ReferenceStmt):
@@ -211,14 +213,31 @@ class DependentEntityStmt(OriginatedEntityStmt):
 				# print('Enabler %s integrated by %s' % (e.identifier, timeframe))
 		return result
 
+class WikiPageStmt(Grammar):
+	grammar = (WORD(":", "\w:", escapes=True))
+
+class DescriptionPageStmt(Grammar):
+	grammar = (LITERAL("DESCRIBED"), WHITESPACE, LITERAL("AT"), WHITESPACE, WikiPageStmt)
+	
+	def get_wiki_page(self):
+		return self.get(WikiPageStmt).string
+
 
 class SpecificEnablerStmt(DependentEntityStmt):
 	grammar = (
 		LITERAL("SE"), WHITESPACE, Identifier,
 		OPTIONAL(WHITESPACE, AliasStmt),
 		OriginatorStmt,
+		OPTIONAL(WHITESPACE, DescriptionPageStmt),
 		ZERO_OR_MORE(WHITESPACE, UseStmt)
 	)
+
+	def get_meta_page(self):
+		desc = self.find(DescriptionPageStmt)
+		print(desc)
+		if desc is None:
+			return None
+		return desc.get_wiki_page()
 
 
 class ApplicationStmt(DependentEntityStmt):

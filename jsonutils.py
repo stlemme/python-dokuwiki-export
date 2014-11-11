@@ -42,3 +42,8 @@ class Values(object):
 		if isinstance(data, Values):
 			data = data.values
 		json_set(self.values, path, data)
+
+	def __iter__(self):
+		for item in self.values:
+			yield item
+	

@@ -148,6 +148,7 @@ class SpecificEnabler(Values):
 		se = SpecificEnabler(se_meta_page)
 
 		meta = dw.getpage(se_meta_page)
+		# TODO: handle meta is None
 		metadata = wikiutils.strip_code_sections(meta)
 		metajson = '\n'.join(metadata)
 		

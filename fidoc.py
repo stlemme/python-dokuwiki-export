@@ -51,7 +51,13 @@ class FIdoc(object):
 		return self.ses[metapage]
 
 	def get_meta_structure(self):
-		return MetaStructure.load(self.dw, self.get_meta_page('structure'), self.partners)
+		return MetaStructure.load(
+			self.dw,
+			self.get_meta_page('structure'),
+			self.partners,
+			self.licenses,
+			self.pub
+		)
 		
 	def list_all_se_meta_pages(self):
 		all_pages_info = self.dw.allpages()
