@@ -108,6 +108,8 @@ class MetaStructure(Entity):
 			return enabler
 		if enabler in self.ses:
 			return enabler
+		if isinstance(enabler, InvalidEntity):
+			return enabler
 		return None
 
 	def find_application(self, id):

@@ -72,22 +72,13 @@ class MetaProcessing(Job):
 		self.outpage = outpage
 	
 	def summary(self):
-		return "Processing Meta Structure %s" % self.metapage
+		return "Regenerating output from meta structure at %s" % self.outpage
 	
 	def required(self):
 		return True
 
 	def perform(self, dw):
-		logging.info("Loading page of meta structure %s ..." % self.metapage)
-		metadoc = dw.getpage(self.metapage)
-		if metadoc is None:
-			logging.fatal("Meta structure %s not found." % self.metapage)
-
-		meta, data = metagenerate.process_meta(metadoc)
-		if meta is None:
-			logging.fatal("Invalid meta structure %s" % self.metapage)
-		
-		metagenerate.generate_page(dw, self.outpage, meta, data)
+		metagenerate.generate_meta_information(dw, self.outpage)
 		return True
 
 	def responsible(self, dw):
