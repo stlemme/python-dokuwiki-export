@@ -34,19 +34,9 @@ class MetaData(object):
 	def find(self, id):
 		return self.entities[id] if id in self.entities else None
 	
-	# def enabler(self, id):
-		# if id in self.ge:
-			# return self.ge[id]
-		# if id in self.se:
-			# return self.se[id]
-		# return None
 
-	# def application(self, id):
-		# if id in self.app:
-			# return self.app[id]
-		# return None
-		
-	# def location(self, id):
+
+		# def location(self, id):
 		# if id in self.loc:
 			# return self.loc[id]
 		# return None

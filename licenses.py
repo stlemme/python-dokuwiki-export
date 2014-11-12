@@ -23,9 +23,10 @@ class Licenses(Values):
 		
 		ovrlic = license
 		# TODO: clone instance
-		license = dict(template)
+		# license = dict(template)
+		license = template.clone()
 		# TODO: iterate over Values
 		for k, v in ovrlic.items():
-			license[k] = v
+			license.set(k, v)
 		
 		return license

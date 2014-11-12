@@ -33,10 +33,10 @@ class MetaError(Exception):
 	# def __init__(self, problem, text):
 		# MetaError.__init__(self, 'Invalid timeframe: "%s"' % problem, text)
 
-		
+
 class AmbiguousReference(MetaError):
 	def __init__(self, ref, text):
-		MetaError.__init__(self, 'Ambiguous reference: "%s"' % ref, text)
+		MetaError.__init__(self, 'Ambiguous symbol: "%s"' % ref, text)
 
 
 ###############
@@ -70,7 +70,7 @@ class NamedEntityStmt(Grammar):
 		return self.get(Identifier).string
 
 	def get_aliases(self):
-		aliasstmt = self.get(AliasStmt)
+		aliasstmt = self.find(AliasStmt)
 		if aliasstmt is None:
 			return []
 		return [alias.string for alias in aliasstmt.find_all(RedIdentifier)]
@@ -110,7 +110,7 @@ class PartnerRef(ReferenceStmt):
 class OriginatorStmt(Grammar):
 	grammar = WHITESPACE, LITERAL("DEVELOPED") | LITERAL("PROVIDED") | LITERAL("CONDUCTED"), WHITESPACE, LITERAL("BY"), WHITESPACE, PartnerRef
 
-	def get_partnername(self):
+	def get_name(self):
 		return self.get(PartnerRef).string
 
 
@@ -132,6 +132,9 @@ class PointInTime(Grammar):
 class TimeframeStmt(Grammar):
 	grammar = (WHITESPACE, LITERAL("FROM"), WHITESPACE, PointInTime, WHITESPACE, LITERAL("ON"))
 	
+	def get_date(self):
+		return self.get(PointInTime).string
+	
 import date
 
 def validateTimeframe(pit):
@@ -151,18 +154,28 @@ class UseStmt(Grammar):
 		LIST_OF(EnablerRef, sep=",", whitespace_mode='optional')
 	)
 	
-	def get_use_state(self):
+	def get_state(self):
 		return self.elements[0].string
 		
 	def get_timing(self):
-		return None # self.get(TimeframeStmt)
+		tf = self.find(TimeframeStmt)
+		if tf is None:
+			return None
+		return tf.get_date()
 		
 	def get_enablers(self):
 		return [e.string for e in self.find_all(EnablerRef)]
 
 
+	def grammar_elem_init(self, data):
+		if self.get_state() == 'USES':
+			return
+		
+		tf = self.find(TimeframeStmt)
+		if tf is None:
+			logging.info("For upcoming usage information (WILL/MAY USE) an information on the time frame is expected.")
+		
 
-	
 
 
 class OriginatedEntityStmt(NamedEntityStmt):
@@ -190,27 +203,10 @@ class DependentEntityStmt(OriginatedEntityStmt):
 				continue
 			
 			timing = u.get_timing()
-			# TODO:
-			if timing is not None:
-				# if usestate == "USES":
-					# raise InvalidTimeframe("Timeframe for USES relation neither allowed nor necessary!")
-
-				timing = validateTimeframe(timing.elements[3].string)
-				# TODO: check return value
-			# print(timeframe)
-				
-			enablers = u.get_enablers() # [e.string for e in u.elements[3].find_all(RedIdentifier)]
+			enablers = u.get_enablers()
 			
 			result.extend([(state, e, timing) for e in enablers])
-			# print(enablers)
-			# l = [e for e in [data.enabler(e) for e in enablers] if e is not None]
-			# for ename in enablers:
-				# e = data.enabler(ename)
-				# if e is None:
-					# raise UnknownEnabler(ename, hint)
-				# usestates[usestate].append(e)
-				# timing[e] = timeframe
-				# print('Enabler %s integrated by %s' % (e.identifier, timeframe))
+
 		return result
 
 class WikiPageStmt(Grammar):
@@ -234,7 +230,7 @@ class SpecificEnablerStmt(DependentEntityStmt):
 
 	def get_meta_page(self):
 		desc = self.find(DescriptionPageStmt)
-		print(desc)
+		# print(desc)
 		if desc is None:
 			return None
 		return desc.get_wiki_page()

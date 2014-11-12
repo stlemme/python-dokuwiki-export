@@ -32,6 +32,12 @@ class SpecificEnabler(Values):
 	def get_naming_conventions(self):
 		return self.nc
 		
+	def get_name(self):
+		return self.get_naming_conventions().fullname()
+		
+	def __repr__(self):
+		return "SpecificEnabler<%s>" % self.get_name()
+		
 	def fill_license(self, licenses):
 		lic = self.get('/spec/license')
 		lic = licenses.process(lic)
@@ -148,7 +154,9 @@ class SpecificEnabler(Values):
 		se = SpecificEnabler(se_meta_page)
 
 		meta = dw.getpage(se_meta_page)
-		# TODO: handle meta is None
+		if meta is None:
+			return se
+		
 		metadata = wikiutils.strip_code_sections(meta)
 		metajson = '\n'.join(metadata)
 		

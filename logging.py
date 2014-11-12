@@ -29,6 +29,9 @@ def output(intro, text):
 		out.write(l)
 		out.write('\n')
 	
+def seperator():
+	out.write('\n')
+
 def debug(text):
 	if verbose:
 		output("[Debug]   ", text)
@@ -42,6 +45,7 @@ def warning(text):
 def error(text):
 	output("[Error]   ", text)
 	
+
 class FatalError(Exception):
 	pass
 

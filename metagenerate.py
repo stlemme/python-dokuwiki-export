@@ -22,12 +22,15 @@ def generate_page(dw, outpage, meta):
 	meta_structure = meta.get_ast()
 	meta_data = meta.get_data()
 
-	print(meta.ges)
-	print(meta.locations)
-	print(meta.scenarios)
-	print(meta.ses)
-	print(meta.apps)
-	
+	# print(meta.ges)
+	# print(meta.locations)
+	# print(meta.scenarios)
+	# print(meta.ses)
+	# print(meta.apps)
+
+	logging.seperator()
+	for e in meta.edges:
+		print(e)
 	
 	# Overall timeline of experiments
 	#######################################
@@ -57,52 +60,53 @@ def generate_page(dw, outpage, meta):
 	# Dependencies per scenario
 	#######################################
 	
-	v = ExperimentsVisitor()
-	v.visit(meta_structure)
+	# v = ExperimentsVisitor()
+	# v.visit(meta_structure)
 	
-	experiments = list(set([(e.scenario, e.site) for e in v.result]))
+	# experiments = list(set([(e.scenario, e.site) for e in v.result]))
 	
 	# Dependencies per scenario (only actual usage)
-	generated_content += [
-		('Scenario "%s" on Site %s - USES' % e, DependencyPresenter(e[0], e[1], ['USES'])) for e in experiments
-	]
+	# generated_content += [
+		# ('Scenario "%s" on Site %s - USES' % e, DependencyPresenter(e[0], e[1], ['USES'])) for e in experiments
+	# ]
 
 	# Dependencies per scenario (actual and planned usage)
-	relations = ['USES', 'WILL USE', 'MAY USE']
-	generated_content += [
-		('Scenario "%s" on Site %s - ALL' % e, DependencyPresenter(e[0], e[1], relations)) for e in experiments
-	]
+	# relations = ['USES', 'WILL USE', 'MAY USE']
+	# generated_content += [
+		# ('Scenario "%s" on Site %s - ALL' % e, DependencyPresenter(e[0], e[1], relations)) for e in experiments
+	# ]
 	
 	# Enablers used in experiments
-	niceenabler = lambda e: e.identifier + ' ' + e.entity
+	# niceenabler = lambda e: e.identifier + ' ' + e.entity
 	
-	experiments = v.result # [e for e in v.result if (e.site == "Barcelona") and (e.application.identifier == "Smart City Guide (Android App)")]
+	# experiments = v.result # [e for e in v.result if (e.site == "Barcelona") and (e.application.identifier == "Smart City Guide (Android App)")]
 
-	generated_content += [(
-			'Enablers tested in Scenario "%s" on Site %s at %s' % (e.scenario, e.site, e.date),
-			ListPresenter(
-				EnablersTestedVisitor(e.application, ts = e.date),
-				niceenabler
-			)
-		) for e in experiments
-	]
+	# generated_content += [(
+			# 'Enablers tested in Scenario "%s" on Site %s at %s' % (e.scenario, e.site, e.date),
+			# ListPresenter(
+				# EnablersTestedVisitor(e.application, ts = e.date),
+				# niceenabler
+			# )
+		# ) for e in experiments
+	# ]
 	
 
 	# GE Utilization
 	#######################################
 	
-	id = lambda e: e.identifier
-	ges = list(set(meta_data.ge.values()))
+	# TODO: step 2
+	# id = lambda e: e.identifier
+	# ges = list(set(meta_data.ge.values()))
 	
-	generated_content += [(
-			"Utilization of %s GE" % ge.identifier,
-			ListPresenter(UsedByVisitor(
-				ge,
-				relations = ['USES'],
-				experiment = False
-			), id)
-		) for ge in ges
-	]
+	# generated_content += [(
+			# "Utilization of %s GE" % ge.identifier,
+			# ListPresenter(UsedByVisitor(
+				# ge,
+				# relations = ['USES'],
+				# experiment = False
+			# ), id)
+		# ) for ge in ges
+	# ]
 	
 	
 	# Overall Uptake of Generic Enablers
@@ -112,9 +116,9 @@ def generate_page(dw, outpage, meta):
 	# print('\nbla')
 	# print(csse.usestates)
 	
-	generated_content += [
-		("Overall Uptake of Generic Enablers", UptakePresenter(hideunused=True))
-	]
+	# generated_content += [
+		# ("Overall Uptake of Generic Enablers", UptakePresenter(hideunused=True))
+	# ]
 	
 	# csse = data.se['Content Sharing']
 	# print('\nblub')
@@ -123,9 +127,10 @@ def generate_page(dw, outpage, meta):
 	# FI-PPP SEis Usage and General Information
 	#######################################
 
-	generated_content += [
-		("FI-PPP SEis Usage and General Information", CockpitPresenter())
-	]
+	# TODO: step 3
+	# generated_content += [
+		# ("FI-PPP SEis Usage and General Information", CockpitPresenter())
+	# ]
 
 	# GE Validation Survey
 	#######################################

@@ -47,3 +47,17 @@ class Values(object):
 		for item in self.values:
 			yield item
 	
+	def items(self):
+		return self.values.items()
+		
+	def clone(self):
+		return Values(dict(self.values))
+	
+	def __len__(self):
+		return self.values.__len__()
+	
+	def __getitem__(self, idx):
+		return self.get(idx)
+
+	def __setitem__(self, idx, val):
+		return self.set(idx, val)
