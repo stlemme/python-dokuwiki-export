@@ -5,10 +5,6 @@ from metagrammar import *
 # TODO: rename to MetaAdapter
 class MetaData(object):
 	def __init__(self, partners, warning = print, error = print):
-		# self.ge = {}
-		# self.se = {}
-		# self.loc = {}
-		# self.app = {}
 		self.partners = partners
 		self.ids = set()
 		self.entities = {}
@@ -16,10 +12,6 @@ class MetaData(object):
 		self.warning = warning
 		self.error = error
 		
-		# self.insert_default(self.se, SE, "Unknown Specific/Generic Enabler")
-		# self.insert_default(self.app, APP, "Unknown Application")
-		# self.insert_default(self.loc, LOC, "Unknown Deployment Location")
-
 	def add_id(self, id):
 		if id in self.ids:
 			return True
@@ -34,24 +26,6 @@ class MetaData(object):
 	def find(self, id):
 		return self.entities[id] if id in self.entities else None
 	
-
-
-		# def location(self, id):
-		# if id in self.loc:
-			# return self.loc[id]
-		# return None
-		
-	# def contact(self, id):
-		# return self.partners.get_person(id)
-		
-		
-	# def insert_default(self, map, grammar, name):
-		# g = grammar()
-		# g.identifier = name
-		# g.aliases = []
-		# g.entity = grammar.__name__
-		# map[name] = g
-
 		
 
 class MetaProcessor:
@@ -59,9 +33,9 @@ class MetaProcessor:
 		self.data = data
 	
 	def process(self, metadoc):
-		# meta = '\n'.join(doc)
 		
 		p = MetaStructureGrammar.parser(self.data)
+
 		try:
 			result = p.parse_text(metadoc, reset=True, bol=True, eof=True)
 				
@@ -80,12 +54,3 @@ class MetaProcessor:
 			return None
 		pass
 
-	
-	# def get_stmts(self, meta_ast, stmt):
-		# return meta_ast.find_all(stmt)
-		
-	# def get_referenced_stmt(self, meta_ast, stmt):
-		# TODO: use find and 
-		# return None
-		
-	

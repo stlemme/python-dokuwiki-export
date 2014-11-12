@@ -37,7 +37,7 @@ class DependencyPresenter(PresenterBase):
 	def present(self, meta):
 		self.ev.visit(meta)
 		# TODO: handle multiple apps per experiment
-		self.apps = [exp.application for exp in self.ev.result]
+		self.apps = [exp.application for exp in self.ev.get_result()]
 		# print(self.apps)
 		for a in self.apps:
 			self.dv.visit(a)

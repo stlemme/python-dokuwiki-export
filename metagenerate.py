@@ -1,5 +1,5 @@
 
-from presenter import ExperimentTimelinePresenter, ListPresenter, DependencyPresenter, UptakePresenter, CockpitPresenter, GESurveyPresenter
+from presenter import ExperimentTimelinePresenter, ListPresenter # , DependencyPresenter, UptakePresenter, CockpitPresenter, GESurveyPresenter
 import wiki
 import wikiconfig
 import sys
@@ -7,7 +7,6 @@ from outbuffer import *
 from visitor import *
 import logging
 from fidoc import FIdoc
-from metaprocessor import MetaData
 
 
 def generate_page(dw, outpage, meta):	
@@ -19,8 +18,8 @@ def generate_page(dw, outpage, meta):
 	generated_content = []
 	
 	
-	meta_structure = meta.get_ast()
-	meta_data = meta.get_data()
+	# meta_structure = meta.get_ast()
+	# meta_data = meta.get_data()
 
 	# print(meta.ges)
 	# print(meta.locations)
@@ -28,9 +27,9 @@ def generate_page(dw, outpage, meta):
 	# print(meta.ses)
 	# print(meta.apps)
 
-	logging.seperator()
-	for e in meta.edges:
-		print(e)
+	# logging.seperator()
+	# for e in meta.edges:
+		# print(e)
 	
 	# Overall timeline of experiments
 	#######################################
@@ -52,8 +51,10 @@ def generate_page(dw, outpage, meta):
 	# All tested scenarios
 	#######################################
 	
+	nice = lambda scn : scn.get_name()
+	
 	generated_content += [
-		("All Tested Scenarios", ListPresenter(ScenarioVisitor())),
+		("All Tested Scenarios", ListPresenter(TestedScenarioVisitor(), nice)),
 	]
 	
 	
@@ -145,7 +146,7 @@ def generate_page(dw, outpage, meta):
 	
 	for h, p in generated_content:
 		logging.info('Generating -> %s ...' % h)
-		p.present(meta_structure)
+		p.present(meta)
 
 		out << dw.heading(2, h)
 		p.dump(out)

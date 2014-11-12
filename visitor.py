@@ -1,19 +1,22 @@
 
 class Visitor(object):
-	def visit(self, grammar):
-		self.internal_visit(grammar)
+		
+	def get_result(self):
+		return None
 	
-	def internal_visit(self, grammar):
-		method = 'visit_' + grammar.__class__.__name__
+	def visit(self, entity):
+		self.internal_visit(entity)
+	
+	def internal_visit(self, entity):
+		method = 'visit_' + entity.__class__.__name__
 		visit = getattr(self, method, self.generic_visit)
-		return visit(grammar)
+		return visit(entity)
 
-	def generic_visit(self, grammar):
-		for e in grammar.elements:
-			if e is not None:
-				self.internal_visit(e)
+	def generic_visit(self, entity):
+		for e in entity.get_descendants():
+			self.internal_visit(e)
 
-				
+
 ##############################################################################
 
 
@@ -23,31 +26,41 @@ class ExperimentsVisitor(Visitor):
 		self.site = site
 		self.scenario = scenario
 		
-	def visit_EXPERIMENT(self, grammar):
+	def visit_Experiment(self, exp):
 		if self.site is not None:
-			if grammar.site != self.site:
+			if exp.get_site() != self.site:
 				return
-		if self.scenario is not None:
-			if grammar.scenario != self.scenario:
-				return
-		self.result.append(grammar)
 
+		if self.scenario is not None:
+			if exp.get_scenario() != self.scenario:
+				return
+		
+		self.result.append(exp)
+
+	def get_result(self):
+		return self.result
 
 ##############################################################################
 
 
-class ScenarioVisitor(Visitor):
+class TestedScenarioVisitor(Visitor):
 	def __init__(self, site = None):
 		self.result = []
 		self.site = site
 		
-	def visit_EXPERIMENT(self, grammar):
+	def visit_Experiment(self, exp):
 		if self.site is not None:
-			if grammar.site != self.site:
+			if exp.get_site() != self.site:
 				return
-
-		if not grammar.scenario in self.result:
-			self.result.append(grammar.scenario)
+				
+		scenario = exp.get_scenario()
+		if scenario in self.result:
+			return
+			
+		self.result.append(scenario)
+		
+	def get_result(self):
+		return self.result
 		
 
 ##############################################################################
@@ -274,44 +287,44 @@ class UsedByVisitor(Visitor):
 ##############################################################################
 
 
-class GEVisitor(Visitor):
-	def __init__(self):
-		self.result = []
+# class GEVisitor(Visitor):
+	# def __init__(self):
+		# self.result = []
 		# self.site = site
 		# self.scenario = scenario
 		
-	def visit_GE(self, grammar):
-		if grammar in self.result:
-			logging.warning("GE %s specified multiple times")
-			return
+	# def visit_GE(self, grammar):
+		# if grammar in self.result:
+			# logging.warning("GE %s specified multiple times")
+			# return
 		# if self.site is not None:
 			# if grammar.site != self.site:
 				# return
 		# if self.scenario is not None:
 			# if grammar.scenario != self.scenario:
 				# return
-		self.result.append(grammar)
+		# self.result.append(grammar)
 		
 
 			
 ##############################################################################
 
 
-class SEVisitor(Visitor):
-	def __init__(self):
-		self.result = []
+# class SEVisitor(Visitor):
+	# def __init__(self):
+		# self.result = []
 		# self.site = site
 		# self.scenario = scenario
 		
-	def visit_SE(self, grammar):
-		if grammar in self.result:
-			logging.warning("SE %s specified multiple times")
-			return
+	# def visit_SE(self, grammar):
+		# if grammar in self.result:
+			# logging.warning("SE %s specified multiple times")
+			# return
 		# if self.site is not None:
 			# if grammar.site != self.site:
 				# return
 		# if self.scenario is not None:
 			# if grammar.scenario != self.scenario:
 				# return
-		self.result.append(grammar)
+		# self.result.append(grammar)
 		

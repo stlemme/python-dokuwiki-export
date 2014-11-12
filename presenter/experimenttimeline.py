@@ -7,11 +7,12 @@ import date
 class ExperimentTimelinePresenter(PresenterBase):
 	def __init__(self, site = None):
 		PresenterBase.__init__(self)
-		self.v = ExperimentsVisitor(site)
+		self.site = site
+		self.v = ExperimentsVisitor(self.site)
 		
 	def present(self, meta):
 		self.v.visit(meta)
-		self.experiments = [(exp.date, exp.site, exp.scenario) for exp in self.v.result]
+		self.experiments = [(exp.get_date(), exp.get_site(), exp.get_scenario().get_name()) for exp in self.v.get_result()]
 		self.experiments.sort(key = lambda tup: (date.parse(tup[0]), tup[2]))
 		
 	def dump(self, out):

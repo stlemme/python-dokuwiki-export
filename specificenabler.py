@@ -7,7 +7,22 @@ from catalogauto import *
 from jsonschema.jsonschema import validate, ValidationError, SchemaError
 
 
-class SpecificEnabler(Values):
+class Entity(Values):
+	def get_descendants(self):
+		return []
+
+class NamedEntity(Entity):
+	def __init__(self, name):
+		self.name = name
+		
+	def get_name(self):
+		return self.name
+	
+	def __repr__(self):
+		return "%s<%s>" % (self.__class__.__name__, self.get_name())
+
+
+class SpecificEnabler(NamedEntity):
 
 	def __init__(self, metapage):
 		Values.__init__(self)
@@ -31,12 +46,6 @@ class SpecificEnabler(Values):
 	
 	def get_naming_conventions(self):
 		return self.nc
-		
-	def get_name(self):
-		return self.get_naming_conventions().fullname()
-		
-	def __repr__(self):
-		return "SpecificEnabler<%s>" % self.get_name()
 		
 	def fill_license(self, licenses):
 		lic = self.get('/spec/license')

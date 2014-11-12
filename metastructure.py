@@ -3,20 +3,9 @@ import wikiutils
 import logging
 from metaprocessor import MetaData, MetaProcessor
 from metagrammar import *
-from specificenabler import SpecificEnabler
+from specificenabler import Entity, NamedEntity, SpecificEnabler
 
-class Entity(object):
-	pass
-
-class NamedEntity(Entity):
-	def __init__(self, name):
-		self.name = name
-		
-	def get_name(self):
-		return self.name
 	
-	def __repr__(self):
-		return "%s<%s>" % (self.__class__.__name__, self.get_name())
 	
 class GenericEnabler(NamedEntity):
 	pass
@@ -41,10 +30,44 @@ class Application(NamedEntity):
 		NamedEntity.__init__(self, name)
 		self.provider = provider
 	
+	def get_descendants(self):
+		return []
+	
 
+class Experiment(Entity):
+	def __init__(self, site, date, conductor, place = None):
+		self.site = site
+		self.date = date
+		self.conductor = conductor
+		self.place = place
+		self.scenario = None
+		self.application = None
+		self.deployments = {}
 
+	def set_scenario(self, scenario, application):
+		self.scenario = scenario
+		self.application = application
+	
+	def set_enabler_location(self, enabler, location):
+		if enabler in self.deployments:
+			logging.warning("Ambiguous deployment information of %s during %s - using previous." % (enabler, self))
+			return
+		self.deployments[enabler] = location
 
-class MetaStructure(object):
+	def __repr__(self):
+		return "Experiment<%s, %s, %s>" % (self.site, self.date, self.conductor.get('name'))
+
+	def get_site(self):
+		return self.site
+		
+	def get_scenario(self):
+		return self.scenario
+		
+	def get_date(self):
+		return self.date
+		
+
+class MetaStructure(Entity):
 	def __init__(self):
 		self.ast = None
 		self.data = None
@@ -55,6 +78,8 @@ class MetaStructure(object):
 
 		self.locations = []
 		self.scenarios = []
+		
+		self.experiments = []
 
 		self.edges = []
 	
@@ -64,6 +89,10 @@ class MetaStructure(object):
 
 	def get_data(self):
 		return self.data
+		
+	def get_descendants(self):
+		return self.ges + self.ses + self.apps + self.locations + self.scenarios + self.experiments
+
 	
 	
 	def find_dependencies(self, entity):
@@ -97,11 +126,13 @@ class MetaStructure(object):
 		scenario = self.data.find(id)
 		if scenario in self.scenarios:
 			return scenario
-		return None	
+		return None
 	
-	
-	
-	
+	def get_experiments(self, site = None):
+		if site is None:
+			return self.experiments
+		return [exp for exp in self.experiments if exp.get_site() == site]
+
 	
 	def set_ast(self, ast, data):
 		self.ast = ast
@@ -112,8 +143,11 @@ class MetaStructure(object):
 	
 	
 	def extract_basic_entities(self):
+		logging.info("Extract Generic Enablers")
 		self.extract_named_entities(GenericEnabler, GenericEnablerStmt, self.ges)
+		logging.info("Extract deployment locations")
 		self.extract_named_entities(Location, LocationStmt, self.locations)
+		logging.info("Extract scenarios")
 		self.extract_named_entities(Scenario, ScenarioStmt, self.scenarios)
 	
 	def extract_ses(self, dw, partners, licenses, pub):
@@ -175,9 +209,59 @@ class MetaStructure(object):
 			self.edges.append((entity, depentity, state, timing))
 		
 	
-	def extract_experiments(self, partners, licenses, pub):
-		pass
-		
+	def extract_experiments(self, partners):
+		stmts = self.ast.find_all(ExperimentStmt)
+		for expstmt in stmts:
+			site = expstmt.get_site()
+			date = expstmt.get_date()
+			logging.debug('Processing experiment of site %s at %s' % (site, date))
+			
+			conductor = partners.get_person(expstmt.get_originator())
+			if conductor is None:
+				logging.warning('Conductor of experiment at site "%s" is unknown - Skip!' % site)
+				continue
+			
+			place = expstmt.get_place()
+
+			exp = Experiment(site, date, conductor, place)
+
+			scenarioid = expstmt.get_scenario()
+			scenario = self.find_scenario(scenarioid)
+			if scenario is None:
+				logging.warning('%s refers to unknown scenario "%s" - Skip!' % (exp, scenarioid))
+				continue
+			
+			appid = expstmt.get_application()
+			app = self.find_application(appid)
+			if app is None:
+				logging.warning('%s refers to unknown application "%s" - Skip!' % (exp, appid))
+				continue
+			
+			exp.set_scenario(scenario, app)
+			
+			deployments = expstmt.get_deployments()
+			
+			for enablerid, locationid in deployments.items():
+				enabler = self.find_enabler(enablerid)
+				if enabler is None:
+					logging.warning('%s refers to unknown enabler "%s" - it is ignored!' % (exp, enablerid))
+					continue
+					
+				if isinstance(enabler, InvalidEntity):
+					logging.warning('%s refers to enabler "%s" (%s), which contain invalid/insufficient information - it is ignored!' % (exp, enablerid, enabler))
+					continue
+
+				location = self.find_location(locationid)
+				if location is None:
+					logging.warning('%s refers to unknown deployment location "%s" - it is ignored!' % (exp, locationid))
+					continue
+					
+				exp.set_enabler_location(enabler, location)
+
+			self.experiments.append(exp)
+			
+
+			
 	def extract_named_entities(self, EntityClass, StmtClass, container):
 		stmts = self.ast.find_all(StmtClass)
 		for stmt in stmts:
@@ -204,17 +288,25 @@ class MetaStructure(object):
 		
 		mp = MetaProcessor(meta_data)
 		
-		logging.info("Processing meta structure ...")
+		logging.info("Parsing meta structure ...")
 		meta_ast = mp.process(metadoc)
 		if meta_ast is None:
 			return None
+		logging.info("Finished parsing.")
 		
 		ms.set_ast(meta_ast, meta_data)
 
+		logging.info("Processing meta structure ...")
+
 		ms.extract_basic_entities()
+		logging.info("Extract Specific Enablers")
 		ms.extract_ses(dw, partners, licenses, pub)
+		logging.info("Extract applications")
 		ms.extract_apps(partners)
-		# ms.extract_experiments(partners, licenses, pub)
+		logging.info("Extract experiments")
+		ms.extract_experiments(partners)
+
+		logging.info("Meta structure successfully loaded.")
 		
 		return ms
 	

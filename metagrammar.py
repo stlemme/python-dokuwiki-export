@@ -13,27 +13,6 @@ class MetaError(Exception):
 	def __str__(self):
 		return "%s\nused in:\n%s" % (self.problem, self.text)
 	
-# class UnknownEnabler(MetaError):
-	# def __init__(self, enabler, text):
-		# MetaError.__init__(self, 'Unknown Enabler (SE/GE) "%s"' % enabler, text)
-		
-# class UnknownApplication(MetaError):
-	# def __init__(self, app, text):
-		# MetaError.__init__(self, 'Unknown application: "%s"' % app, text)
-
-# class UnknownLocation(MetaError):
-	# def __init__(self, loc, text):
-		# MetaError.__init__(self, 'Unknown deployment location: "%s"' % loc, text)
-
-# class UnknownPartner(MetaError):
-	# def __init__(self, partner, text):
-		# MetaError.__init__(self, 'Unknown partner: "%s"' % partner, text)
-
-# class InvalidTimeframe(MetaError):
-	# def __init__(self, problem, text):
-		# MetaError.__init__(self, 'Invalid timeframe: "%s"' % problem, text)
-
-
 class AmbiguousReference(MetaError):
 	def __init__(self, ref, text):
 		MetaError.__init__(self, 'Ambiguous symbol: "%s"' % ref, text)
@@ -61,8 +40,6 @@ class ReferenceStmt(Grammar):
 ###############
 	
 class NamedEntityStmt(Grammar):
-	# grammar = (LITERAL(    ), WHITESPACE, Identifier, OPTIONAL(WHITESPACE, AsStatement))
-	# grammar_whitespace_mode = 'required'
 	def get_keyword(self):
 		return self.elements[0].string
 
@@ -135,15 +112,15 @@ class TimeframeStmt(Grammar):
 	def get_date(self):
 		return self.get(PointInTime).string
 	
-import date
+# import date
 
-def validateTimeframe(pit):
+# def validateTimeframe(pit):
 	# TODO: validate against various regexp, fuzzy date parsing, etc.
 	# TODO: store respective datetime object
-	tf = date.parseProjectDate(pit)
-	if tf < date.projectbegin or tf > date.projectend:
-		logging.warning("Timeframe outside of project course: %s (%s)" % (pit, tf))
-	return (pit, tf)
+	# tf = date.parseProjectDate(pit)
+	# if tf < date.projectbegin or tf > date.projectend:
+		# logging.warning("Timeframe outside of project course: %s (%s)" % (pit, tf))
+	# return (pit, tf)
 
 
 class UseStmt(Grammar):
@@ -247,16 +224,39 @@ class ApplicationStmt(DependentEntityStmt):
 
 ###############
 
-
+class ExperimentationSite(Grammar):
+	grammar = (
+		LITERAL("Barcelona") |
+		LITERAL("Berlin") |
+		LITERAL("Brittany") |
+		LITERAL("Cologne") |
+		LITERAL("Zurich") |
+		LITERAL("Lancaster")
+	)
 
 class Place(Grammar):
 	grammar = (Identifier)
 
-class Date(Grammar):
+
+class ExperimentLocationStmt(Grammar):
+	grammar = (WHITESPACE, LITERAL("IN"), WHITESPACE, OR(
+		ExperimentationSite,
+		(Place, WHITESPACE, LITERAL("OF"), WHITESPACE, LITERAL("SITE"), WHITESPACE, ExperimentationSite)
+	))
+	
+	def get_site(self):
+		return self.find(ExperimentationSite).string
+		
+	def get_place(self):
+		p = self.find(Place)
+		if p is None:
+			return None
+		return p.string
+	
+
+class DateStmt(Grammar):
 	grammar = (Identifier)
 
-class ExperimentationSite(Grammar):
-	grammar = (Identifier)
 
 class ScenarioRef(ReferenceStmt):
 	pass
@@ -264,55 +264,55 @@ class ScenarioRef(ReferenceStmt):
 class ApplicationRef(ReferenceStmt):
 	pass
 
+class LocationRef(ReferenceStmt):
+	pass
+
 
 class DeploymentStmt(Grammar):
-	grammar = (LITERAL("WITH"), WHITESPACE, LIST_OF(RedIdentifier, WHITESPACE, LITERAL("DEPLOYED"), WHITESPACE, LITERAL("AT"), WHITESPACE, RedIdentifier, sep=',', whitespace_mode='optional'))
+	grammar = (EnablerRef, WHITESPACE, LITERAL("DEPLOYED"), WHITESPACE, LITERAL("AT"), WHITESPACE, LocationRef)
+	
+	def get_enabler(self):
+		return self.get(EnablerRef).string
+		
+	def get_location(self):
+		return self.get(LocationRef).string
 
 
-class EXPERIMENT(Grammar):
+class MultiDeploymentStmt(Grammar):
+	grammar = (LITERAL("WITH"), WHITESPACE, LIST_OF(DeploymentStmt, sep=',', whitespace_mode='optional'))
+
+
+class ExperimentStmt(Grammar):
 	grammar = (
-		LITERAL("EXPERIMENT"), WHITESPACE, LITERAL("IN"), WHITESPACE, Place,
-		OPTIONAL(WHITESPACE, LITERAL("OF"), WHITESPACE, LITERAL("SITE"), WHITESPACE, ExperimentationSite),
-		WHITESPACE, LITERAL("AT"), WHITESPACE, Date,
+		LITERAL("EXPERIMENT"), ExperimentLocationStmt,
+		WHITESPACE, LITERAL("AT"), WHITESPACE, DateStmt,
 		OriginatorStmt,
 		WHITESPACE, LITERAL("DRIVES"), WHITESPACE, ScenarioRef,
-		ONE_OR_MORE(WHITESPACE, DeploymentStmt),
+		ONE_OR_MORE(WHITESPACE, MultiDeploymentStmt),
 		WHITESPACE, LITERAL("BY"), WHITESPACE, LITERAL("RUNNING"), WHITESPACE, ApplicationRef
 	)
+	
+	def get_site(self):
+		return self.get(ExperimentLocationStmt).get_site()
+		
+	def get_place(self):
+		return self.get(ExperimentLocationStmt).get_place()
 
-	def grammar_elem_init2(self, data):
-		self.place = self.elements[4].string
-		self.site = self.place
-		if self.elements[5] is not None:
-			self.site = self.elements[5].elements[5].string
-			
-		self.date = self.elements[9].string
-		self.scenario = self.elements[14].string
-		
-		self.conductor = handleContact(self.elements[10], data, self.string)
-		
-		self.application = data.application(self.elements[21].string)
-		if self.application is None:
-			raise UnknownApplication(self.elements[21].string, self.string)
-		
-		self.deployment = {}
-		for d in self.elements[15].find_all(DeploymentStmt):
-			for ed in d.elements[2]:
-				if not len(ed.elements):
-					continue
-				ename = ed.elements[0].string
-				locname = ed.elements[6].string
-				# print("%s  --  %s" % (ename, locname))
-				e = data.enabler(ename)
-				l = data.location(locname)
-				if e is None:
-					raise UnknownEnabler(ename, self.string)
-				if l is None:
-					raise UnknownLocation(locname, self.string)
-				# TODO: check if it's overwritten
-				self.deployment[e] = l
-				
-		# TODO: check for complete deployment information
+	def get_originator(self):
+		return self.get(OriginatorStmt).get_name()
+
+	def get_date(self):
+		return self.get(DateStmt).string
+	
+	def get_scenario(self):
+		return self.get(ScenarioRef).string
+	
+	def get_application(self):
+		return self.get(ApplicationRef).string
+	
+	def get_deployments(self):
+		return dict([(dstmt.get_enabler(), dstmt.get_location()) for dstmt in self.find_all(DeploymentStmt)])
+
 
 ###############
 
@@ -324,7 +324,10 @@ class MetaStmt(Grammar):
 			LocationStmt,
 			ScenarioStmt,
 			ApplicationStmt,
-			EXPERIMENT, WHITESPACE, EMPTY
+			ExperimentStmt,
+			
+			WHITESPACE,
+			EMPTY
 		), EOL)
 
 class MetaStructureGrammar(Grammar):
