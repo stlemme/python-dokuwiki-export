@@ -1,5 +1,6 @@
 
 from modgrammar import *
+import logging
 
 
 grammar_whitespace_mode = 'explicit'
