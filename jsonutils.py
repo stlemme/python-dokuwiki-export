@@ -48,7 +48,12 @@ class Values(object):
 			yield item
 	
 	def items(self):
-		return self.values.items()
+		# return self.values.items()
+		for k in self:
+			yield (k, self.get(k))
+	
+	def values(self):
+		return self.values.values()
 		
 	def clone(self):
 		return Values(dict(self.values))
@@ -61,3 +66,7 @@ class Values(object):
 
 	def __setitem__(self, idx, val):
 		return self.set(idx, val)
+
+	def __str__(self):
+		return str(self.values)
+	

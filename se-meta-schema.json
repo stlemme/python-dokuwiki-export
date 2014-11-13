@@ -270,6 +270,30 @@
 		},
 		
 		"requirements": {
+			"type": "object",
+			"additionalProperties": {
+				"type": "object",
+				"properties": {
+					"title": {
+						"type": "string",
+						"maxLength": 45
+					},
+					"description": {
+						"type": "string",
+						"minLength": 25,
+						"maxLength": 200
+					},
+					"link": {
+						"oneOf": [
+							{ "$ref": "#/defs/wikimedia" },
+							{ "$ref": "#/defs/uri" },
+							{ "$ref": "#/defs/null" }
+						]
+					}
+				},
+				"required": ["title", "description"],
+				"additionalProperties": false
+			}
 		}
 		
 	},
@@ -295,6 +319,10 @@
 		"wikimedia": {
 			"type": "string",
 			"pattern": "^(:[a-zA-Z0-9_\\-\\.]+)+\\.(png|jpg|gif)$"
+		},
+		
+		"null": {
+			"type": "null"
 		},
 		
 		"instance": {

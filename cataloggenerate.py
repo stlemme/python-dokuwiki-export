@@ -4,17 +4,19 @@
 import logging
 from wiki import *
 import re
-import jsonutils
+from jsonutils import Values
 from fidoc import FIdoc
 from thumbnail import ThumbnailGenerator
 import appearance
+from specificenabler import SpecificEnabler
 
 
 class CatalogGenerator(object):
 
-	def __init__(self, template):
+	def __init__(self, template, escaping = lambda t : t):
 		self.template = template
 		self.se = None
+		self.escape = escaping
 	
 	def generate_entry(self, se):
 		self.se = se
@@ -56,8 +58,10 @@ class CatalogGenerator(object):
 		# print(path)
 		val = self.se.get(path)
 		if val is None:
+			logging.warning('Undefined property %s' % path)
 			val = "[[UNDEFINED]]"
 		# print(val)
+		val = self.escape(val)
 		return self.process_text_snippet(val)
 	
 	rx_for = re.compile(r'\{\{for (/[a-zA-Z\-/]+)\}\}([ \t\f\v]*\n)?(.+?)\{\{endfor\}\}([ \t\f\v]*\n)?', re.DOTALL)
@@ -71,22 +75,36 @@ class CatalogGenerator(object):
 		if val is None:
 			return ""
 		text = ""
-		if type(val) is dict:
-			val = val.values()
-		for item in val:
-			current = re.sub(r'%value(/[a-zA-Z0-9\-/]+)?%', lambda m: self.handle_item_value(item, m), repl)
+
+		if isinstance(val, list):
+			items = enumerate(val)
+		else:
+			items = val.items()
+
+		for k, v in items:
+			# print(k, '  --  ', v)
+			current = re.sub(r'%value(/[a-zA-Z0-9\-/]+)?%', lambda m: self.handle_item_value(v, m), repl)
 			text += self.process_text_snippet(current)
+		
 		return text
 
 	def handle_item_value(self, item, match):
-		if len(match.group()) == 7:
+		if match.group() == '%value%':
 			return str(item)
 		path = match.group(1)
 		# print(path)
-		val = jsonutils.json_get(item, path)
+
+		val = None
+		if isinstance(item, Values):
+			val = item.get(path)
+		if isinstance(item, dict):
+			val = item[path]
+
 		if val is None:
+			logging.warning('Undefined property %s of item' % path)
 			val = "[[UNDEFINED]]"
 		# print(val)
+		val = self.escape(val)
 		return val
 
 	rx_if = re.compile(r'\{\{if (/[a-zA-Z\-/]+) (!=|==) "([^\"]*)"\}\}([ \t\f\v]*\n)?(.+?)\{\{endif\}\}([ \t\f\v]*\n)?', re.DOTALL)
@@ -110,7 +128,7 @@ class CatalogGenerator(object):
 
 		return self.process_text_snippet(repl)
 
-		
+
 def debug_invalid_se(metapage, se):
 	logging.warning("Skip meta page of %s, because it describes no valid SE." % metapage)
 	metajson = se.get('/metajson')
@@ -118,6 +136,11 @@ def debug_invalid_se(metapage, se):
 		return
 	with open('_catalog/failed.meta' + re.sub(':', '.', metapage) + '.txt', 'w') as meta_file:
 		meta_file.write(metajson)
+
+		
+def non_ascii_escaping(text):
+	# return text.encode('ascii', 'xmlcharrefreplace').decode('ascii')
+	return text
 
 
 def generate_catalog(dw, template_filename, meta_pages = None):
@@ -129,15 +152,16 @@ def generate_catalog(dw, template_filename, meta_pages = None):
 	template = templatefile.decode("utf-8")
 	# print(template)
 	
-	cgen = CatalogGenerator(template)
+	escaping = non_ascii_escaping
+	
+	cgen = CatalogGenerator(template, escaping)
 	thgen = ThumbnailGenerator()
 
-	
 	if meta_pages is None:
 		meta_pages = fidoc.list_all_se_meta_pages()
 	
 	for metapage in meta_pages:
-		logging.info("Start processing of meta page %s" % metapage)
+		logging.debug("Start processing of meta page %s" % metapage)
 		entry = None
 
 		se = fidoc.get_specific_enabler(metapage)
@@ -159,7 +183,7 @@ def generate_catalog(dw, template_filename, meta_pages = None):
 		
 		entry_filename = '_catalog/catalog.' + '.'.join(np)
 		
-		with open(entry_filename + '.txt', 'w') as entry_file:
+		with open(entry_filename + '.txt', encoding='utf-8', mode='w') as entry_file:
 			entry_file.write(entry)
 		
 		bgcolor = appearance.select_bgcolor(se_name)
