@@ -67,6 +67,6 @@ class Values(object):
 	def __setitem__(self, idx, val):
 		return self.set(idx, val)
 
-	def __str__(self):
-		return str(self.values)
+	# def __str__(self):
+		# return str(self.values)
 	
