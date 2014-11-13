@@ -9,6 +9,7 @@ from fidoc import FIdoc
 from thumbnail import ThumbnailGenerator
 import appearance
 from specificenabler import SpecificEnabler
+import htmlutils
 
 
 class CatalogGenerator(object):
@@ -138,11 +139,6 @@ def debug_invalid_se(metapage, se):
 		meta_file.write(metajson)
 
 		
-def non_ascii_escaping(text):
-	# return text.encode('ascii', 'xmlcharrefreplace').decode('ascii')
-	return text
-
-
 def generate_catalog(dw, template_filename, meta_pages = None):
 	fidoc = FIdoc(dw)
 
@@ -152,7 +148,7 @@ def generate_catalog(dw, template_filename, meta_pages = None):
 	template = templatefile.decode("utf-8")
 	# print(template)
 	
-	escaping = non_ascii_escaping
+	escaping = htmlutils.html_named_entity_escaping
 	
 	cgen = CatalogGenerator(template, escaping)
 	thgen = ThumbnailGenerator()
