@@ -62,7 +62,10 @@ class Experiment(Entity):
 		
 	def get_scenario(self):
 		return self.scenario
-		
+
+	def get_application(self):
+		return self.application
+	
 	def get_date(self):
 		return self.date
 		
@@ -100,7 +103,10 @@ class MetaStructure(Entity):
 	
 	def find_edges(self, entity1, entity2):
 		return [dep for dep in self.edges if dep[0] == entity1 and dep[1] == entity2]
-	
+
+	def find_relations(self, entity):
+		return [dep for dep in self.edges if dep[0] == entity or dep[1] == entity]
+
 	
 	def find_enabler(self, id):
 		enabler = self.data.find(id)
@@ -135,7 +141,10 @@ class MetaStructure(Entity):
 			return self.experiments
 		return [exp for exp in self.experiments if exp.get_site() == site]
 
-	
+	def get_generic_enablers(self):
+		return self.ges
+
+		
 	def set_ast(self, ast, data):
 		self.ast = ast
 		self.data = data

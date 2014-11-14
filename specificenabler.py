@@ -13,6 +13,7 @@ class Entity(Values):
 
 class NamedEntity(Entity):
 	def __init__(self, name):
+		Entity.__init__(self)
 		self.name = name
 		
 	def get_name(self):
@@ -25,7 +26,7 @@ class NamedEntity(Entity):
 class SpecificEnabler(NamedEntity):
 
 	def __init__(self, metapage):
-		Values.__init__(self)
+		NamedEntity.__init__(self, 'SE at %s' % metapage)
 		self.valid = False
 		self.metapage = metapage
 
@@ -46,6 +47,9 @@ class SpecificEnabler(NamedEntity):
 	
 	def get_naming_conventions(self):
 		return self.nc
+		
+	def get_name(self):
+		return self.get_naming_conventions().fullname()
 		
 	def fill_license(self, licenses):
 		lic = self.get('/spec/license')

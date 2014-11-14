@@ -30,21 +30,21 @@ def json_set(json_data, path, data):
 
 class Values(object):
 	def __init__(self, values = None):
-		self.values = {} if values is None else values
+		self.internal_values = {} if values is None else values
 
 	def get(self, path):
-		obj = json_get(self.values, path)
+		obj = json_get(self.internal_values, path)
 		if isinstance(obj, dict):
 			obj = Values(obj)
 		return obj
 
 	def set(self, path, data):
 		if isinstance(data, Values):
-			data = data.values
-		json_set(self.values, path, data)
+			data = data.internal_values
+		json_set(self.internal_values, path, data)
 
 	def __iter__(self):
-		for item in self.values:
+		for item in self.internal_values:
 			yield item
 	
 	def items(self):
@@ -53,13 +53,13 @@ class Values(object):
 			yield (k, self.get(k))
 	
 	def values(self):
-		return self.values.values()
+		return self.internal_values.values()
 		
 	def clone(self):
-		return Values(dict(self.values))
+		return Values(dict(self.internal_values))
 	
 	def __len__(self):
-		return self.values.__len__()
+		return self.internal_values.__len__()
 	
 	def __getitem__(self, idx):
 		return self.get(idx)

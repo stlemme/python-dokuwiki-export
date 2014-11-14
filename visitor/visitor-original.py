@@ -192,26 +192,36 @@ class EnablersTestedVisitor(DependencyVisitor):
 
 ##############################################################################
 
-class UsedByVisitor(Visitor):
-	def __init__(self, enabler, relations = ['USES'], se = True, app = True, experiment = True, transitive = True):
+
+class UsedByVisitor(MetaVisitor):
+	def __init__(
+		self,
+		enabler,
+		follow_relations = ['USES'],
+		collect_entities = [SpecificEnabler, Application, Experiment],
+		transitive = True
+	):
 		self.result = []
 		self.enabler = enabler
-		self.relations = relations
-		self.se = se
-		self.app = app
-		self.experiment = experiment
+		self.follow_relations = follow_relations
+		self.collect_entities = collect_entities
 		self.transitive = transitive
-		
-	def visit_Entity(self, grammar):
-		if grammar in self.result:
+		self.meta = None
+	
+	def visit_MetaStructure(self, meta):
+		self.meta = meta
+		return [self.enabler]
+
+	def visit_Entity(self, entity):
+		if entity in self.result:
 			return
 
 		dep = set()
 		for rel in self.relations:
-			dep |= set(grammar.usestates[rel])
+			dep |= set(entity.usestates[rel])
 
 		if self.enabler in dep:
-			self.result.append(grammar)
+			self.result.append(entity)
 			return
 		
 		if not self.transitive:
@@ -223,59 +233,26 @@ class UsedByVisitor(Visitor):
 		if len(set(self.result) & dep) > 0:
 			self.result.append(grammar)
 
-	def visit_SE(self, grammar):
-		if not self.se:
+	
+	def visit_SpecificEnabler(self, entity):
+		if SpecificEnabler not in self.collect_entities:
 			return
-			
-		self.visit_Entity(grammar)
+		self.visit_Entity(entity)
 
-			
-			# if self.enabler in grammar.usestates[rel]:
-				# self.result.append(grammar)
-				# return
-			
-		# if not len(self.transitive):
-			# return
-			
-		# for transitive in self.transitive:
-			# for e in grammar.usestates[transitive]:
-				# self.visit(e)
-				# if e in self.result:
-					# self.result.append(grammar)
-					# return
-		
-		
-	def visit_APP(self, grammar):
-		if not self.app:
+	
+	def visit_Application(self, entity):
+		if Application not in self.collect_entities:
 			return
-			
-		self.visit_Entity(grammar)
+		self.visit_Entity(entity)
 
-		# if grammar in self.result:
-			# return
-
-		# if self.enabler in grammar.usestates[self.relation]:
-			# self.result.append(grammar)
-			# return
-			
-		# if not len(self.transitive):
-			# return
-
-		# for transitive in self.transitive:
-			# for e in grammar.usestates[transitive]:
-				# self.visit(e)
-				# if e in self.result:
-					# self.result.append(grammar)
-					# return
-		
-	def visit_EXPERIMENT(self, grammar):
-		if not self.experiment:
+	def visit_Experiment(self, entity):
+		if Experiment not in self.collect_entities:
 			return
-			
+		
 		# if not len(self.transitive):
 			# return
 		
-		if grammar in self.result:
+		if entity in self.result:
 			return
 
 		self.visit(grammar.application)

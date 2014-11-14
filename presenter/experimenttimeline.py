@@ -1,5 +1,5 @@
 
-from presenter import PresenterBase
+from . import PresenterBase
 from visitor import ExperimentsVisitor
 import date
 

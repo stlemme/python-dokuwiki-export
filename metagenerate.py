@@ -1,5 +1,6 @@
 
-from presenter import ExperimentTimelinePresenter, ListPresenter # , DependencyPresenter, UptakePresenter, CockpitPresenter, GESurveyPresenter
+from presenter import ExperimentTimelinePresenter, ListPresenter, UptakePresenter
+# , DependencyPresenter, CockpitPresenter, GESurveyPresenter
 import wiki
 import wikiconfig
 import sys
@@ -54,7 +55,7 @@ def generate_page(dw, outpage, meta):
 	nice = lambda scn : scn.get_name()
 	
 	generated_content += [
-		("All Tested Scenarios", ListPresenter(TestedScenarioVisitor(), nice)),
+		("All Tested Scenarios", ListPresenter(TestedScenariosVisitor(), nice)),
 	]
 	
 	
@@ -112,18 +113,11 @@ def generate_page(dw, outpage, meta):
 	
 	# Overall Uptake of Generic Enablers
 	#######################################
-
-	# csse = data.se['Content Sharing']
-	# print('\nbla')
-	# print(csse.usestates)
 	
-	# generated_content += [
-		# ("Overall Uptake of Generic Enablers", UptakePresenter(hideunused=True))
-	# ]
+	generated_content += [
+		("Overall Uptake of Generic Enablers", UptakePresenter(hideunused=True))
+	]
 	
-	# csse = data.se['Content Sharing']
-	# print('\nblub')
-	# print(csse.usestates)
 	
 	# FI-PPP SEis Usage and General Information
 	#######################################
@@ -140,6 +134,7 @@ def generate_page(dw, outpage, meta):
 		# ("GE Validation Survey", GESurveyPresenter())
 	# ]
 	
+	
 	#######################################
 	# main generation loop
 	#######################################
@@ -152,17 +147,6 @@ def generate_page(dw, outpage, meta):
 		p.dump(out)
 		out << ''
 		
-		# csse3 = data.se['Content Sharing']
-		# print('\nblub3:', h)
-		# print(csse3.usestates)
-		# if len(csse3.usestates['USES']) != len(csse.usestates['USES']):
-			# print('DAMAGED!')
-
-	
-	# csse = data.se['Content Sharing']
-	# print('\nblub2')
-	# print(csse.usestates)
-
 	logging.info("Flushing generated content ...")
 	out.flush()
 
@@ -171,8 +155,6 @@ def generate_page(dw, outpage, meta):
 def generate_meta_information(dw, generatedpage):
 	fidoc = FIdoc(dw)
 	
-	# meta_data = MetaData(logging.warning, logging.error)
-
 	logging.info("Loading page of meta structure ...")
 	meta = fidoc.get_meta_structure()
 	

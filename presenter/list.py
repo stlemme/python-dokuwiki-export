@@ -1,5 +1,5 @@
 
-from presenter import PresenterBase
+from . import PresenterBase
 
 
 class ListPresenter(PresenterBase):
