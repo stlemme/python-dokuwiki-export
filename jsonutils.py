@@ -52,6 +52,9 @@ class Values(object):
 		for k in self:
 			yield (k, self.get(k))
 	
+	def keys(self):
+		return self.internal_values.keys()
+	
 	def values(self):
 		return self.internal_values.values()
 		

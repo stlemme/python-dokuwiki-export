@@ -21,6 +21,8 @@ class MetaStructure(Entity):
 		
 		self.experiments = []
 
+		self.invalid = []
+
 		self.edges = []
 	
 	
@@ -29,9 +31,9 @@ class MetaStructure(Entity):
 
 	def get_adapter(self):
 		return self.adapter
-		
+
 	def get_descendants(self):
-		return self.ges + self.ses + self.apps + self.locations + self.scenarios + self.experiments
+		return self.ges + self.ses + self.apps + self.locations + self.scenarios + self.experiments + self.invalid
 
 	
 	
@@ -51,7 +53,7 @@ class MetaStructure(Entity):
 			return enabler
 		if enabler in self.ses:
 			return enabler
-		if isinstance(enabler, InvalidEntity):
+		if isinstance(enabler, InvalidEntity) and enabler.get_keyword() in ['GE', 'SE']:
 			return enabler
 		return None
 
@@ -81,13 +83,18 @@ class MetaStructure(Entity):
 	def get_generic_enablers(self):
 		return self.ges
 
+	def get_specific_enablers(self):
+		return self.ses
+
 		
 	def set_ast(self, ast, adapter):
 		self.ast = ast
 		self.adapter = adapter
 		
 	def declare_invalid_stmt(self, stmt):
-		self.adapter.map(stmt, InvalidEntity(stmt.get_keyword(), stmt.get_identifier()))
+		invalid = InvalidEntity(stmt.get_keyword(), stmt.get_identifier())
+		self.adapter.map(stmt, invalid)
+		self.invalid.append(invalid)
 	
 	
 	def extract_basic_entities(self):

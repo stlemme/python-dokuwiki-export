@@ -1,13 +1,15 @@
 
-from presenter import ExperimentTimelinePresenter, ListPresenter, UptakePresenter
-# , DependencyPresenter, CockpitPresenter, GESurveyPresenter
+from presenter import ExperimentTimelinePresenter, ListPresenter, UptakePresenter, CockpitPresenter
+# , DependencyPresenter, GESurveyPresenter
 import wiki
 import wikiconfig
 import sys
 from outbuffer import *
 from visitor import *
+from entities import SpecificEnabler, Application, PrettyPrinter
 import logging
 from fidoc import FIdoc
+
 
 
 def generate_page(dw, outpage, meta):	
@@ -18,19 +20,8 @@ def generate_page(dw, outpage, meta):
 	
 	generated_content = []
 	
-	
-	# meta_structure = meta.get_ast()
-	# meta_data = meta.get_data()
+	pp = PrettyPrinter()
 
-	# print(meta.ges)
-	# print(meta.locations)
-	# print(meta.scenarios)
-	# print(meta.ses)
-	# print(meta.apps)
-
-	# logging.seperator()
-	# for e in meta.edges:
-		# print(e)
 	
 	# Overall timeline of experiments
 	#######################################
@@ -52,10 +43,8 @@ def generate_page(dw, outpage, meta):
 	# All tested scenarios
 	#######################################
 	
-	nice = lambda scn : scn.get_name()
-	
 	generated_content += [
-		("All Tested Scenarios", ListPresenter(TestedScenariosVisitor(), nice)),
+		("All Tested Scenarios", ListPresenter(TestedScenariosVisitor(), pp.print_Scenario)),
 	]
 	
 	
@@ -96,19 +85,15 @@ def generate_page(dw, outpage, meta):
 	# GE Utilization
 	#######################################
 	
-	# TODO: step 2
-	# id = lambda e: e.identifier
-	# ges = list(set(meta_data.ge.values()))
-	
-	# generated_content += [(
-			# "Utilization of %s GE" % ge.identifier,
-			# ListPresenter(UsedByVisitor(
-				# ge,
-				# relations = ['USES'],
-				# experiment = False
-			# ), id)
-		# ) for ge in ges
-	# ]
+	generated_content += [(
+			"Utilization of %s GE" % ge.get_name(),
+			ListPresenter(UsedByVisitor(
+				ge,
+				follow_relations = ['USES'],
+				collect_entities = [SpecificEnabler, Application]
+			), pp.dispatch)
+		) for ge in meta.get_generic_enablers()
+	]
 	
 	
 	# Overall Uptake of Generic Enablers
@@ -122,11 +107,19 @@ def generate_page(dw, outpage, meta):
 	# FI-PPP SEis Usage and General Information
 	#######################################
 
-	# TODO: step 3
-	# generated_content += [
-		# ("FI-PPP SEis Usage and General Information", CockpitPresenter())
-	# ]
+	generated_content += [
+		("FI-PPP SEis Usage and General Information", CockpitPresenter())
+	]
 
+
+	# Incomplete/invalid SEis
+	#######################################
+
+	generated_content += [
+		("Incomplete and/or invalid SEs", ListPresenter(InvalidEntitiesVisitor('SE'), pp.dispatch))
+	]
+
+	
 	# GE Validation Survey
 	#######################################
 
@@ -157,6 +150,7 @@ def generate_meta_information(dw, generatedpage):
 	
 	logging.info("Loading page of meta structure ...")
 	meta = fidoc.get_meta_structure()
+	# pub = fidoc.get_publisher()
 	
 	if meta is None:
 		logging.fatal("Invalid meta structure.")

@@ -1,120 +1,121 @@
 
-from presenter import PresenterBase
-from visitor import SEVisitor
-# import releases
-import re
+from . import PresenterBase
+import releases
+# from entities import InvalidEntity
+
+
+products = {
+	"Recommendation Services": "REPERIO",
+	"Virtual/mixed Reality": "KIWANO",
+	"Content Similarity": "Search & Discovery"
+}
 
 
 class CockpitPresenter(PresenterBase):
-	release0913 = {
-		"socialtv": [
-			"Audio Mining",
-			"Audio Fingerprinting",
-			"Content Optimisation",
-			"Second Screen Framework",
-			"TV Application Layer"
-		],
-		"smartcity": [
-			"Local Information",
-			"Recommendation Services",
-			"Open City Database"
-		],
-		"gaming": [
-			"Reality Mixer - Reflection Mapping",
-			"Reality Mixer - Camera Artifact Rendering",
-			"Leaderboard",
-			"Augmented Reality - Fast Feature Tracking",
-			"Augmented Reality - Marker Tracking",
-			"Game Synchronization",
-			"Spatial Matchmaking"
-		],
-		"common": [
-			"Content Sharing",
-			"Social Network",
-			"Content Enrichment"
-		]
-	}
-	
-	products = {
-		"Recommendation Services": "REPERIO",
-		"Virtual/mixed Reality": "KIWANO",
-		"Content Similarity": "Search & Discovery",
-		"Content Atmosphere": "Search & Discovery"
-	}
-	
-	url_exceptions = {
-		"Audio Fingerprinting": "use-audio-fingerprinting",
-		"Social Network": "social-network-enabler",
-		"Content Sharing": "content-sharing",
-		"Content Enrichment": "content-enrichment",
-		"Open City Database": "open-city-database (missing)",
-		"Local Information": "local-information (missing)",
-		"Recommendation Services": "recommendation-services",
-		"Audio Mining": "audio-mining",
-		"Content Optimisation": "content-optimisation",
-		"Second Screen Framework": "second-screen-framework",
-		"TV Application Layer": "tv-application-layer",
-		"Reality Mixer - Camera Artifact Rendering": "reality-mixer-camera-artefact-rendering-se (AE/BE conflict)"
-	}
-	
 	def __init__(self, placeholder = "n/a"):
 		PresenterBase.__init__(self)
-		self.v = SEVisitor()
 		self.placeholder = placeholder
 
-	def lookup_product(self, id):
-		if id in self.products:
-			return self.products[id]
-		
+	def lookup_product(self, se):
+		id = se.get_name()
+		if id in products:
+			return products[id]
 		return '-'
 		
-	def lookup_platform(self, id):
-		for p, ses in self.release0913.items():
-			if id in ses:
-				return p
-				
-		return None
+	def lookup_roadmap(self, se):
+		nc = se.get_naming_conventions()
+		roadmap = nc.roadmap()
+		return roadmap
 		
+	def lookup_availability(self, se):
+		roadmap = self.lookup_roadmap(se)
+		if roadmap is None:
+			return False
+		return se.get_name() in releases.current[roadmap]
 		
-	def present(self, meta):
-		self.v.visit(meta)
+	def lookup_owners(self, se):
+		return ', '.join(se.get('/spec/owners'))
+	
+	def lookup_wikipage(self, se):
+		if not self.lookup_availability(se):
+			return 'not (yet) available'
+		return se.get('/auto/documentation/wiki-url')
+	
+	def lookup_catalog(self, se):
+		if not self.lookup_availability(se):
+			return 'not (yet) available'
+		nc = se.get_naming_conventions()
+		return nc.catalogurl()
+	
+	def lookup_mode(self, se):
+		mode = []
 		
-		self.exploitation = []
-		for se in self.v.result:
-			id = se.identifier
-			product = self.lookup_product(id)
-			platform = self.lookup_platform(id)
-			owner = se.provider[0].identifier
+		if se.get('/auto/license/is-open-source') == 'Yes':
+			template = se.get('/spec/license/template')
+			mode.append('open source (%s)' % template)
 			
-			if platform is not None:
-				cleanid = re.sub(r'[^\w\-]', '', id).replace('-', '.').lower()
-				spec = 'http://wiki.mediafi.org/doku.php/ficontent.%s.enabler.%s' % (platform, cleanid)
-				urlid = re.sub(r'\W+', '-', id).lower()
-				#if id in self.url_exceptions:
-				#	urlid = self.url_exceptions[id]
-				catalog = 'http://mediafi.org/?portfolio=%s' % urlid
-			else:
-				spec = 'not yet released'
-				catalog = 'not yet released'
-			
-			self.exploitation.append((
-				se.identifier,
-				product,
-				owner,
-				self.placeholder, # Open Source?
-				self.placeholder, # FI-PPP mode
-				'', # FI-PPP date
-				'', # FI-PPP date
-				self.placeholder, # FI-LAB mode
-				'', # FI-LAB date
-				'', # FI-LAB date
-				self.placeholder, # others mode
-				'', # others date
-				spec,
-				catalog
-			))
+		if se.get('/auto/delivery/hosted-service') == 'Yes':
+			saas = 'SaaS'
+			if se.get('/spec/delivery/instances/public') is not None:
+				saas = 'Global SaaS instance'
+			elif se.get('/spec/delivery/instances/fi-ppp') is not None:
+				saas = 'Dedicated SaaS instance'
+			mode.append(saas)
 
-		self.exploitation.sort(key = lambda tup: (tup[12], tup[0]))
+		binary = se.get('/spec/delivery/binary')
+		if binary is not None:
+			platforms = ', '.join(binary.keys())
+			mode.append('binaries (%s)' % platforms)
+			
+		if len(mode) == 0:
+			return self.placeholder
+		
+		return ', '.join(mode)
+
+	def present_se(self, se):
+		# if isinstance(se, InvalidEntity):
+			# return (
+				# se.get_name(),    # name
+				# self.placeholder, # product
+				# self.placeholder, # owner
+				# self.placeholder, # Open Source?
+				# self.placeholder, # FI-PPP mode
+				# '', # FI-PPP date
+				# '', # FI-PPP date
+				# self.placeholder, # FI-LAB mode
+				# '', # FI-LAB date
+				# '', # FI-LAB date
+				# self.placeholder, # others mode
+				# '', # others date
+				# self.placeholder, # wiki page
+				# self.placeholder  # catalog entry
+			# )
+	
+		return (
+			se.get_name(),           # name
+			self.lookup_product(se), # product
+			self.lookup_owners(se),  # owner
+			se.get('/auto/license/is-open-source'), # Open Source?
+			self.lookup_mode(se), # FI-PPP mode
+			'', # FI-PPP date
+			'', # FI-PPP date
+			# self.lookup_mode(se), # FI-LAB mode
+			# '', # FI-LAB date
+			# '', # FI-LAB date
+			# self.lookup_mode(se), # others mode
+			# '', # others date
+			self.lookup_wikipage(se), # wiki page
+			self.lookup_catalog(se) # catalog entry
+		)
+	
+	def present(self, meta):
+		self.exploitation = []
+		
+		for se in meta.get_specific_enablers():
+			row = self.present_se(se)
+			self.exploitation.append(row)
+
+		self.exploitation.sort(key = lambda tup: (tup[7], tup[0]))
 		
 	def dump(self, out):
 		heading = [
@@ -123,23 +124,25 @@ class CockpitPresenter(PresenterBase):
 			"availability beyond the FI-PPP",
 			"FI-PPP SEs",
 			"SE implementation product(s) name(s) / owner",
-			"",
+			# "",
 			"Open Source (Yes/No/Planned)",
 			"mode",
 			"date last update",
 			"date next / 1st update",
-			"mode",
-			"date last update",
-			"date next / 1st update",
-			"currently planned mode",
-			"when",
+			# "mode",
+			# "date last update",
+			# "date next / 1st update",
+			# "currently planned mode",
+			# "when",
 			"Baseline assets",
 			"Entry in Catalogue"
 		]
 		
-		out.write('^ ^^^^ %s ^^^ %s ^^^ %s ^^ ^^' % tuple(heading[0:3]))
+		out.write('^ ^^^ %s ^^^ ^^' % "availability")
+		# out.write('^ ^^^^ %s ^^^ %s ^^^ %s ^^ ^^' % tuple(heading[0:3]))
 		out.write('^ %s ^' % (' ^ '.join(heading[3:])))
 		
 		for exp in self.exploitation:
-			out.write('| %s | %s / %s | | %s | %s | %s | %s | %s | %s | %s | %s | %s | %s | %s |' % exp)
+			out.write('| %s | %s / %s | %s | %s | %s | %s | %s | %s |' % exp)
+			# out.write('| %s | %s / %s | | %s | %s | %s | %s | %s | %s | %s | %s | %s | %s | %s |' % exp)
 

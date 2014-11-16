@@ -5,5 +5,5 @@ from .experimenttimeline import ExperimentTimelinePresenter
 from .list import ListPresenter
 # from presenter.dependency import DependencyPresenter
 from .uptake import UptakePresenter
-# from presenter.cockpit import CockpitPresenter
+from .cockpit import CockpitPresenter
 # from presenter.gesurvey import GESurveyPresenter
