@@ -1,16 +1,13 @@
 
 from metagrammar import *
+import logging
 
-
-# TODO: rename to MetaAdapter
-class MetaData(object):
-	def __init__(self, partners, warning = print, error = print):
+# TODO: refactor as internal class
+class MetaAdapter(object):
+	def __init__(self, partners):
 		self.partners = partners
 		self.ids = set()
 		self.entities = {}
-		
-		self.warning = warning
-		self.error = error
 		
 	def add_id(self, id):
 		if id in self.ids:
@@ -29,18 +26,18 @@ class MetaData(object):
 		
 
 class MetaProcessor:
-	def __init__(self, data):
-		self.data = data
+	def __init__(self, adapter):
+		self.adapter = adapter
 	
 	def process(self, metadoc):
 		
-		p = MetaStructureGrammar.parser(self.data)
+		p = MetaStructureGrammar.parser(self.adapter)
 
 		try:
 			result = p.parse_text(metadoc, reset=True, bol=True, eof=True)
 				
 			if len(p.remainder()):
-				self.data.error("Unable to parse: %s ..." % p.remainder()[:60])
+				logging.error("Unable to parse: %s ..." % p.remainder()[:60])
 				return None
 				
 			# print()
@@ -49,8 +46,8 @@ class MetaProcessor:
 			return result
 
 		except (ParseError, MetaError) as e:
-			self.data.error('Parsing failed!')
-			self.data.error(str(e))
+			logging.error('Parsing failed!')
+			logging.error(str(e))
 			return None
 		pass
 

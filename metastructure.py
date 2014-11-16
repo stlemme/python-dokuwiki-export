@@ -1,7 +1,7 @@
 
 import wikiutils
 import logging
-from metaprocessor import MetaData, MetaProcessor
+from metaprocessor import MetaAdapter, MetaProcessor
 from metagrammar import *
 from specificenabler import Entity, NamedEntity, SpecificEnabler
 
@@ -73,7 +73,7 @@ class Experiment(Entity):
 class MetaStructure(Entity):
 	def __init__(self):
 		self.ast = None
-		self.data = None
+		self.adapter = None
 		
 		self.ges = []
 		self.ses = []
@@ -90,8 +90,8 @@ class MetaStructure(Entity):
 	def get_ast(self):
 		return self.ast
 
-	def get_data(self):
-		return self.data
+	def get_adapter(self):
+		return self.adapter
 		
 	def get_descendants(self):
 		return self.ges + self.ses + self.apps + self.locations + self.scenarios + self.experiments
@@ -109,7 +109,7 @@ class MetaStructure(Entity):
 
 	
 	def find_enabler(self, id):
-		enabler = self.data.find(id)
+		enabler = self.adapter.find(id)
 		if enabler in self.ges:
 			return enabler
 		if enabler in self.ses:
@@ -119,19 +119,19 @@ class MetaStructure(Entity):
 		return None
 
 	def find_application(self, id):
-		app = self.data.find(id)
+		app = self.adapter.find(id)
 		if app in self.apps:
 			return app
 		return None
 	
 	def find_location(self, id):
-		loc = self.data.find(id)
+		loc = self.adapter.find(id)
 		if loc in self.locations:
 			return loc
 		return None
 
 	def find_scenario(self, id):
-		scenario = self.data.find(id)
+		scenario = self.adapter.find(id)
 		if scenario in self.scenarios:
 			return scenario
 		return None
@@ -145,12 +145,12 @@ class MetaStructure(Entity):
 		return self.ges
 
 		
-	def set_ast(self, ast, data):
+	def set_ast(self, ast, adapter):
 		self.ast = ast
-		self.data = data
+		self.adapter = adapter
 		
 	def declare_invalid_stmt(self, stmt):
-		self.data.map(stmt, InvalidEntity(stmt.get_keyword(), stmt.get_identifier()))
+		self.adapter.map(stmt, InvalidEntity(stmt.get_keyword(), stmt.get_identifier()))
 	
 	
 	def extract_basic_entities(self):
@@ -182,7 +182,7 @@ class MetaStructure(Entity):
 				continue
 
 			self.ses.append(se)
-			self.data.map(sestmt, se)
+			self.adapter.map(sestmt, se)
 			
 			self.add_dependencies(se, sestmt.get_dependencies())
 
@@ -199,7 +199,7 @@ class MetaStructure(Entity):
 			app = Application(id, developer)
 
 			self.apps.append(app)
-			self.data.map(appstmt, app)
+			self.adapter.map(appstmt, app)
 			
 			self.add_dependencies(app, appstmt.get_dependencies())
 	
@@ -280,7 +280,7 @@ class MetaStructure(Entity):
 			logging.debug('Processing %s %s' % (stmt.get_keyword(), id))
 			entity = EntityClass(id)
 			container.append(entity)
-			self.data.map(stmt, entity)
+			self.adapter.map(stmt, entity)
 
 	
 	
@@ -295,9 +295,9 @@ class MetaStructure(Entity):
 		doc = wikiutils.strip_code_sections(page)
 		metadoc = '\n'.join(doc)
 
-		meta_data = MetaData(partners, logging.warning, logging.error)
+		meta_adapter = MetaAdapter(partners)
 		
-		mp = MetaProcessor(meta_data)
+		mp = MetaProcessor(meta_adapter)
 		
 		logging.info("Parsing meta structure ...")
 		meta_ast = mp.process(metadoc)
@@ -305,15 +305,18 @@ class MetaStructure(Entity):
 			return None
 		logging.info("Finished parsing.")
 		
-		ms.set_ast(meta_ast, meta_data)
+		ms.set_ast(meta_ast, meta_adapter)
 
 		logging.info("Processing meta structure ...")
 
 		ms.extract_basic_entities()
+		
 		logging.info("Extract Specific Enablers")
 		ms.extract_ses(dw, partners, licenses, pub)
+		
 		logging.info("Extract applications")
 		ms.extract_apps(partners)
+		
 		logging.info("Extract experiments")
 		ms.extract_experiments(partners)
 
