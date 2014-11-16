@@ -2,6 +2,7 @@
 from metagrammar import *
 import logging
 
+
 # TODO: refactor as internal class
 class MetaAdapter(object):
 	def __init__(self, partners):

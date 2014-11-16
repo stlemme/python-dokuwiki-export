@@ -8,7 +8,7 @@ import releases
 from publisher import *
 from licenses import Licenses
 from partners import Partners
-from specificenabler import SpecificEnabler
+from entities import SpecificEnabler
 from metastructure import MetaStructure
 
 

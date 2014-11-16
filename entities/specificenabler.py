@@ -1,26 +1,10 @@
 
-from jsonutils import Values
+from . import NamedEntity
 import logging
 import wikiutils
 import json
 from catalogauto import *
 from jsonschema.jsonschema import validate, ValidationError, SchemaError
-
-
-class Entity(Values):
-	def get_descendants(self):
-		return []
-
-class NamedEntity(Entity):
-	def __init__(self, name):
-		Entity.__init__(self)
-		self.name = name
-		
-	def get_name(self):
-		return self.name
-	
-	def __repr__(self):
-		return "%s<%s>" % (self.__class__.__name__, self.get_name())
 
 
 class SpecificEnabler(NamedEntity):
