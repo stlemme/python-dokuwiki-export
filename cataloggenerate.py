@@ -8,7 +8,7 @@ from jsonutils import Values
 from fidoc import FIdoc
 from thumbnail import ThumbnailGenerator
 import appearance
-from specificenabler import SpecificEnabler
+from entities import SpecificEnabler
 import htmlutils
 
 
