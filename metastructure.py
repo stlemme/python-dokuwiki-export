@@ -4,7 +4,7 @@ import logging
 from metaprocessor import MetaAdapter, MetaProcessor
 from metagrammar import *
 from entities import *
-
+import date
 
 
 class MetaStructure(Entity):
@@ -20,6 +20,8 @@ class MetaStructure(Entity):
 		self.scenarios = []
 		
 		self.experiments = []
+		
+		self.releases = []
 
 		self.invalid = []
 
@@ -148,6 +150,31 @@ class MetaStructure(Entity):
 			self.add_dependencies(app, appstmt.get_dependencies())
 	
 	
+	def validate_timing(self, timing):
+		if timing is None:
+			logging.info('Lacking of timeframe for uptake!')
+			return False
+	
+		d = date.parseProjectDate(timing)
+		if d is None:
+			logging.info('Unknown format of timeframe "%s" for uptake!' % timing)
+			return False
+			
+		if d < date.projectbegin:
+			logging.info('Timeframe for uptake "%s" out of project duration!' % timing)
+			return False
+			
+		if date.projectend < d:
+			logging.info('Timeframe for uptake "%s" out of project duration!' % timing)
+			return False
+			
+		if d < date.today():
+			logging.info('Timeframe for uptake "%s" has passed!' % timing)
+			return False
+		
+		return True
+			
+
 	def add_dependencies(self, entity, dependencies):
 		for state, depid, timing in dependencies:
 			depentity = self.find_enabler(depid)
@@ -160,7 +187,10 @@ class MetaStructure(Entity):
 				logging.warning('%s refers to dependency "%s" (%s), which contain invalid/insufficient information - it is ignored!' % (entity, depid, depentity))
 				continue
 			
-			# TODO: validate timing
+			if state != 'USES':
+				if not self.validate_timing(timing):
+					logging.warning('%s referring to dependency "%s" has an invalid timeframe "%s" for uptake!' % (entity, depentity, timing))
+			
 			self.edges.append((entity, depentity, state, timing))
 		
 	
@@ -214,8 +244,38 @@ class MetaStructure(Entity):
 				exp.set_enabler_location(enabler, location)
 
 			self.experiments.append(exp)
+	
+	
+	def extract_releases(self):
+		stmts = self.ast.find_all(ReleaseStmt)
+		for relstmt in stmts:
+			platform = relstmt.get_platform()
+			relname = relstmt.get_release_name()
+			logging.debug('Processing release %s of %s' % (relname, platform))
 			
+			rel = Release(platform, relname)
+			
+			reldate = date.parseProjectDate(rel.get_name())
+			logging.info("Release date: %s" % reldate)
+			rel.set_date(reldate)
 
+			ids = relstmt.get_content()
+			for id in ids:
+				se = self.find_enabler(id)
+				if se is not None:
+					# TODO: ensure se to be a specific enabler
+					rel.add_se(se)
+					continue
+
+				app = self.find_application(id)
+				if app is not None:
+					rel.add_app(app)
+					continue
+					
+				logging.warning('%s refers to unknown content "%s" - Ignored!' % (rel, id))
+			
+			self.releases.append(rel)
+			
 			
 	def extract_named_entities(self, EntityClass, StmtClass, container):
 		stmts = self.ast.find_all(StmtClass)
@@ -263,6 +323,9 @@ class MetaStructure(Entity):
 		
 		logging.info("Extract experiments")
 		ms.extract_experiments(partners)
+
+		logging.info("Extract releases")
+		ms.extract_releases()
 
 		logging.info("Meta structure successfully loaded.")
 		

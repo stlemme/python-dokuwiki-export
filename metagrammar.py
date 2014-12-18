@@ -317,6 +317,36 @@ class ExperimentStmt(Grammar):
 
 ###############
 
+class ReleaseNameStmt(Grammar):
+	grammar = (WORD("[0-9]{2}"), LITERAL("/"), WORD("[0-9]{2}"))
+
+class PlatformNameStmt(Grammar):
+	grammar = (OR(
+		LITERAL("Social Connected TV Platform"),
+		LITERAL("Smart City Platform"),
+		LITERAL("Pervasive Games Platform")
+	))
+
+class ReleaseStmt(Grammar):
+	grammar = (
+		LITERAL("RELEASE"), WHITESPACE, ReleaseNameStmt,
+		WHITESPACE, LITERAL("OF"), WHITESPACE, PlatformNameStmt,
+		WHITESPACE, LITERAL("CONTAINS"), WHITESPACE,
+		LIST_OF(OR(ApplicationRef, EnablerRef), sep=',', whitespace_mode='optional')
+	)
+
+	def get_release_name(self):
+		return self.get(ReleaseNameStmt).string
+
+	def get_platform(self):
+		return self.get(PlatformNameStmt).string
+
+	def get_content(self):
+		return [ref.string for ref in self.find_all(ReferenceStmt)]
+
+
+###############
+
 
 class MetaStmt(Grammar):
 	grammar = (BOL, OR(
@@ -326,6 +356,7 @@ class MetaStmt(Grammar):
 			ScenarioStmt,
 			ApplicationStmt,
 			ExperimentStmt,
+			ReleaseStmt,
 			
 			WHITESPACE,
 			EMPTY
