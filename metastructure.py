@@ -59,6 +59,10 @@ class MetaStructure(Entity):
 			return enabler
 		return None
 
+	def find_specific_enabler(self, id):
+		enabler = self.adapter.find(id)
+		return enabler if enabler in self.ses else None
+
 	def find_application(self, id):
 		app = self.adapter.find(id)
 		if app in self.apps:
@@ -76,6 +80,15 @@ class MetaStructure(Entity):
 		if scenario in self.scenarios:
 			return scenario
 		return None
+		
+	def find_current_release(self):
+		# TODO: double check
+		return None
+		rel_dates = [rel.get_date() for rel in self.get_releases()]
+		next_upcoming = min([d for d in rel_dates if date.today() < d])
+		releases = [rel for rel in self.get_releases() if rel.get_date() == next]
+		# print(releases)
+		return releases
 	
 	def get_experiments(self, site = None):
 		if site is None:
@@ -88,6 +101,8 @@ class MetaStructure(Entity):
 	def get_specific_enablers(self):
 		return self.ses
 
+	def get_releases(self):
+		return self.releases
 		
 	def set_ast(self, ast, adapter):
 		self.ast = ast
@@ -249,34 +264,27 @@ class MetaStructure(Entity):
 	def extract_releases(self):
 		stmts = self.ast.find_all(ReleaseStmt)
 		for relstmt in stmts:
-			platform = relstmt.get_platform()
 			relname = relstmt.get_release_name()
-			logging.debug('Processing release %s of %s' % (relname, platform))
+			logging.debug('Processing release %s' % relname)
 			
-			rel = Release(platform, relname)
+			rel = Release(relname)
 			
 			reldate = date.parseProjectDate(rel.get_name())
 			logging.info("Release date: %s" % reldate)
 			rel.set_date(reldate)
 
-			ids = relstmt.get_content()
-			for id in ids:
-				se = self.find_enabler(id)
-				if se is not None:
-					# TODO: ensure se to be a specific enabler
-					rel.add_se(se)
+			for id in relstmt.get_content():
+				se = self.find_specific_enabler(id)
+				if se is None:
+					logging.warning('%s refers to unknown/invalid SE "%s" - Ignored!' % (rel, id))
 					continue
 
-				app = self.find_application(id)
-				if app is not None:
-					rel.add_app(app)
-					continue
-					
-				logging.warning('%s refers to unknown content "%s" - Ignored!' % (rel, id))
-			
+				# TODO: ensure se to be a specific enabler
+				rel.add_se(se)
+
 			self.releases.append(rel)
-			
-			
+		
+		
 	def extract_named_entities(self, EntityClass, StmtClass, container):
 		stmts = self.ast.find_all(StmtClass)
 		for stmt in stmts:

@@ -27,6 +27,10 @@ class wiki(object):
 	def pageinfo(self, page, ns = []):
 		return None
 		
+	def pageexists(self, page, ns = []):
+		info = self.pageinfo(page, ns)
+		return info is not None
+	
 	def getfile(self, file, ns = []):
 		return None
 		
@@ -63,7 +67,7 @@ class wiki(object):
 	def heading(self, level, heading):
 		return ("=" * (7 - level)) + " " + heading + " " + ("=" * (7 - level))
 
-	
+
 	rx_link = re.compile(r"\[\[([^\|]+?)(\|(.+?))?\]\]")
 
 	def parselink(self, link):

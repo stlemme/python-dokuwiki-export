@@ -1,5 +1,5 @@
 
-from presenter import ExperimentTimelinePresenter, ListPresenter, UptakePresenter, CockpitPresenter
+from presenter import ExperimentTimelinePresenter, ListPresenter, UptakePresenter, CockpitPresenter, RoadmapPresenter
 # , DependencyPresenter, GESurveyPresenter
 import wiki
 import wikiconfig
@@ -127,6 +127,19 @@ def generate_page(dw, outpage, meta):
 		# ("GE Validation Survey", GESurveyPresenter())
 	# ]
 	
+	# Roadmap Releases
+	#######################################
+
+	# releases = set([rel.get_name() for rel in meta.get_releases()])
+	roadmaps = ['socialtv', 'smartcity', 'gaming', 'common']
+	
+	for rel in meta.get_releases():
+		generated_content += [(
+				"Roadmap %s - %s" % (road, rel.get_name()),
+				RoadmapPresenter(dw, road, rel)
+			) for road in roadmaps
+		]
+
 	
 	#######################################
 	# main generation loop
