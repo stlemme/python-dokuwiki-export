@@ -153,22 +153,29 @@ def generate_catalog(dw, template_filename, meta_pages = None):
 	cgen = CatalogGenerator(template, escaping)
 	thgen = ThumbnailGenerator()
 
-	if meta_pages is None:
-		meta_pages = fidoc.list_all_se_meta_pages()
+	# if meta_pages is None:
+		# meta_pages = fidoc.list_all_se_meta_pages()
+		
+	meta = fidoc.get_meta_structure()
 	
-	for metapage in meta_pages:
-		logging.debug("Start processing of meta page %s" % metapage)
+	rel = meta.find_current_release()
+	rel_ses = rel.get_specific_enablers()
+	# print(rel_ses)
+	
+	# for metapage in meta_pages:
+	for se in meta.get_specific_enablers():
+		# logging.debug("Start processing of meta page %s" % metapage)
 		entry = None
 
-		se = fidoc.get_specific_enabler(metapage)
+		# se = fidoc.get_specific_enabler(metapage)
 		if not se.is_valid():
-			debug_invalid_se(metapage, se)
+			debug_invalid_se(se.get_metapage(), se)
 			continue
 		
 		nc = se.get_naming_conventions()
 		se_name = nc.fullname()
 		
-		if se_name not in fidoc.get_ses_of_current_release(nc.roadmap()):
+		if se not in rel_ses:
 			logging.info("Skip meta page of %s SE, because it is not known as part of the current release." % se_name)
 			continue
 		
@@ -185,7 +192,13 @@ def generate_catalog(dw, template_filename, meta_pages = None):
 		bgcolor = appearance.select_bgcolor(se_name)
 		
 		thgen.generate_thumb(entry_filename + '.png', bgcolor, se_name)
-		
+
+
+	# logging.info("Dump invalid SE meta pages")
+	# for se in meta.get_invalid_specific_enablers():
+		# debug_invalid_se(se.get_metapage(), se)
+	
+	
 
 if __name__ == '__main__':
 	import wikiconfig

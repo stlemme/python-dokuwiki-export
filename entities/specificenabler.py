@@ -34,6 +34,9 @@ class SpecificEnabler(NamedEntity):
 		
 	def get_name(self):
 		return self.get_naming_conventions().fullname()
+
+	def get_metapage(self):
+		return self.metapage
 		
 	def fill_license(self, licenses):
 		lic = self.get('/spec/license')

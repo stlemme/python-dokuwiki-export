@@ -4,7 +4,8 @@ import json
 import wikiutils
 import logging
 import mirror
-import releases
+# import releases
+import date
 from publisher import *
 from licenses import Licenses
 from partners import Partners
@@ -24,8 +25,17 @@ class FIdoc(object):
 		self.dw = dw
 		self.partners = Partners(self.load_json_from_wiki(self.get_meta_page('partners')))
 		self.licenses = Licenses(self.load_json_from_wiki(self.get_meta_page('licenses')))
+
 		pub_pages = mirror.public_pages(self.dw)
+
 		self.pub = wikipublisher(self.dw, pub_pages, mirror.rx_exceptions, mirror.export_ns)
+		self.meta = MetaStructure.load(
+			self.dw,
+			self.get_meta_page('structure'),
+			self.partners,
+			self.licenses,
+			self.pub
+		)
 		self.ses = {}
 	
 	def get_wiki(self):
@@ -37,11 +47,7 @@ class FIdoc(object):
 	def get_licenses(self):
 		return self.licenses
 	
-	def get_ses_of_current_release(self, roadmap):
-		if roadmap not in releases.current:
-			return None
-		return releases.current[roadmap]
-		
+	
 	def get_publisher(self):
 		return self.pub
 		
@@ -51,13 +57,7 @@ class FIdoc(object):
 		return self.ses[metapage]
 
 	def get_meta_structure(self):
-		return MetaStructure.load(
-			self.dw,
-			self.get_meta_page('structure'),
-			self.partners,
-			self.licenses,
-			self.pub
-		)
+		return self.meta
 		
 	def list_all_se_meta_pages(self):
 		all_pages_info = self.dw.allpages()

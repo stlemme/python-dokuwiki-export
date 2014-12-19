@@ -82,13 +82,12 @@ class MetaStructure(Entity):
 		return None
 		
 	def find_current_release(self):
-		# TODO: double check
-		return None
 		rel_dates = [rel.get_date() for rel in self.get_releases()]
 		next_upcoming = min([d for d in rel_dates if date.today() < d])
-		releases = [rel for rel in self.get_releases() if rel.get_date() == next]
-		# print(releases)
-		return releases
+		for rel in self.get_releases():
+			if rel.get_date() == next_upcoming:
+				return rel
+		return None
 	
 	def get_experiments(self, site = None):
 		if site is None:
@@ -100,6 +99,9 @@ class MetaStructure(Entity):
 
 	def get_specific_enablers(self):
 		return self.ses
+
+	def get_invalid_specific_enablers(self):
+		return [e for e in self.invalid if e.get_keyword() == 'SE']
 
 	def get_releases(self):
 		return self.releases

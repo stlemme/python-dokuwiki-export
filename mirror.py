@@ -6,8 +6,9 @@ import logging
 from wiki import *
 from publisher import *
 import re
-import releases
+# import releases
 from namingconventions import *
+import fidoc
 
 
 # rx_public_pages = [
@@ -29,7 +30,7 @@ rx_exceptions = [
 
 export_ns = []
 
-def public_pages(dw):
+def public_pages(rel_ses):
 	rx_public_pages = [
 		re.compile(r'^:ficontent:(fiware:ge_usage|architecture)$', re.IGNORECASE),
 		re.compile(r'^:ficontent:(socialtv|smartcity|gaming|common):(architecture|roadmap:(start|release[0-9_]+|upcoming_releases)|deployment)$', re.IGNORECASE),
@@ -38,19 +39,24 @@ def public_pages(dw):
 		re.compile(r'^:ficontent:(socialtv|smartcity|gaming|common):([\w:]+:)?([^:]+\.(png|jpg))$', re.IGNORECASE),
 		re.compile(r'^:ficontent:([^:]+\.(png|jpg))$', re.IGNORECASE)
 	]
+
+	for se in rel_ses:
+		nc = se.get_naming_conventions()
+		rx = re.compile(r'^' + nc.wikinamespace() + '([\w]+)$', re.IGNORECASE)
+		rx_public_pages.append(rx)
 	
-	for platform in releases.current:
-		enablers = releases.current[platform]
-		for se in enablers:
-			se_spec = {
-				'name': se,
+	# for platform in releases.current:
+		# enablers = releases.current[platform]
+		# for se in enablers:
+			# se_spec = {
+				# 'name': se,
 				# TODO: workaround to fake common SE's platforms
-				'platforms': [platform] if platform != 'common' else ['socialtv', 'smartcity', 'gaming']
-			}
+				# 'platforms': [platform] if platform != 'common' else ['socialtv', 'smartcity', 'gaming']
+			# }
 			
-			nc = NamingConventions(dw, se_spec)
-			rx = re.compile(r'^' + nc.wikinamespace() + '([\w]+)$', re.IGNORECASE)
-			rx_public_pages.append(rx)
+			# nc = NamingConventions(dw, se_spec)
+			# rx = re.compile(r'^' + nc.wikinamespace() + '([\w]+)$', re.IGNORECASE)
+			# rx_public_pages.append(rx)
 	
 	return rx_public_pages
 
@@ -98,6 +104,8 @@ if __name__ == "__main__":
 
 	dw = DokuWikiRemote(wikiconfig.url, wikiconfig.user, wikiconfig.passwd)
 	logging.info("Connected to remote DokuWiki at %s" % wikiconfig.url)
+
+	fidoc = FIdoc(dw)
 
 	all_pages = list_all_public_pages(dw)
 	all_pages.sort()
