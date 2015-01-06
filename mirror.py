@@ -8,7 +8,6 @@ from publisher import *
 import re
 # import releases
 from namingconventions import *
-import fidoc
 
 
 # rx_public_pages = [
@@ -45,25 +44,10 @@ def public_pages(rel_ses):
 		rx = re.compile(r'^' + nc.wikinamespace() + '([\w]+)$', re.IGNORECASE)
 		rx_public_pages.append(rx)
 	
-	# for platform in releases.current:
-		# enablers = releases.current[platform]
-		# for se in enablers:
-			# se_spec = {
-				# 'name': se,
-				# TODO: workaround to fake common SE's platforms
-				# 'platforms': [platform] if platform != 'common' else ['socialtv', 'smartcity', 'gaming']
-			# }
-			
-			# nc = NamingConventions(dw, se_spec)
-			# rx = re.compile(r'^' + nc.wikinamespace() + '([\w]+)$', re.IGNORECASE)
-			# rx_public_pages.append(rx)
-	
 	return rx_public_pages
 
 
-def publish_pages(dw, pages, export_ns = []):
-	pub = wikipublisher(dw, public_pages(dw), rx_exceptions, export_ns)
-	
+def publish_pages(dw, pub, pages, export_ns = []):
 	for p in pages:
 		fullname = dw.resolve(p)
 		newname = pub.public_page(fullname)
@@ -80,9 +64,8 @@ def publish_pages(dw, pages, export_ns = []):
 		# print("DONE!")
 		pub.publish(fullname, newname)
 
-def list_all_public_pages(dw):
-	pub = wikipublisher(dw, public_pages(dw), rx_exceptions, export_ns)
 
+def list_all_public_pages(dw, pub):
 	all_pages_info = dw.allpages()
 	all_pages = []
 	
@@ -101,13 +84,20 @@ def list_all_public_pages(dw):
 
 	
 if __name__ == "__main__":
+	from fidoc import FIdoc
 
 	dw = DokuWikiRemote(wikiconfig.url, wikiconfig.user, wikiconfig.passwd)
 	logging.info("Connected to remote DokuWiki at %s" % wikiconfig.url)
 
 	fidoc = FIdoc(dw)
 
-	all_pages = list_all_public_pages(dw)
+	meta = fidoc.get_meta_structure()
+	rel = meta.find_current_release()
+	rel_ses = rel.get_specific_enablers()
+
+	restpub = restrictedwikipublisher(dw, public_pages(rel_ses), rx_exceptions, export_ns)
+
+	all_pages = list_all_public_pages(dw, restpub)
 	all_pages.sort()
 
 	if len(sys.argv) > 1:
@@ -121,10 +111,11 @@ if __name__ == "__main__":
 	
 	else:
 		pages = all_pages
-		
-	# print(pages)
 	
-	publish_pages(dw, pages, export_ns)
+	# for p in pages:
+		# print(p)
+	
+	publish_pages(dw, restpub, pages, export_ns)
 
 	logging.info("Finished!")
 	

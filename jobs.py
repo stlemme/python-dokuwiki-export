@@ -182,58 +182,58 @@ class WordGeneration(Job):
 		return self.editor
 
 		
-class Publish(Job):
-	def __init__(self, pages = None, export_ns = '', publisher = None):
-		Job.__init__(self)
-		self.pages = pages
-		self.export_ns = export_ns
-		self.publisher = publisher
+# class Publish(Job):
+	# def __init__(self, pages = None, export_ns = '', publisher = None):
+		# Job.__init__(self)
+		# self.pages = pages
+		# self.export_ns = export_ns
+		# self.publisher = publisher
 	
-	def summary(self):
-		return "Publishing pages %s" % self.pages
+	# def summary(self):
+		# return "Publishing pages %s" % self.pages
 	
-	def required(self):
-		return True
+	# def required(self):
+		# return True
 
-	def perform(self, dw):
-		pages = []
+	# def perform(self, dw):
+		# pages = []
 
-		if self.pages is not None:
-			all_pages_info = dw.allpages()
+		# if self.pages is not None:
+			# all_pages_info = dw.allpages()
 
-			rx_pages = [re.compile(p) for p in self.pages]
+			# rx_pages = [re.compile(p) for p in self.pages]
 
-			for info in all_pages_info:
-				p = dw.resolve(info['id'])
-				if p is None:
-					continue
+			# for info in all_pages_info:
+				# p = dw.resolve(info['id'])
+				# if p is None:
+					# continue
 			
-				for rx in rx_pages:
-					if rx.match(p) is not None:
-						pages.append(p)
-						break
-		else:
-			# rx_pages = mirror.public_pages()
-			pages = mirror.list_all_public_pages(dw)
+				# for rx in rx_pages:
+					# if rx.match(p) is not None:
+						# pages.append(p)
+						# break
+		# else:
+			## rx_pages = mirror.public_pages()
+			# pages = mirror.list_all_public_pages(dw)
 
-		# print(pages)
+		## print(pages)
 		
-		export_ns = []
+		# export_ns = []
 		
-		dw.resolve(self.export_ns, [], export_ns)
-		logging.info("Export to namespace %s" % export_ns)
-		# print(export_ns)
-		# sys.exit()
+		# dw.resolve(self.export_ns, [], export_ns)
+		# logging.info("Export to namespace %s" % export_ns)
+		## print(export_ns)
+		## sys.exit()
 		
-		pages.sort()
+		# pages.sort()
 		
-		mirror.publish_pages(dw, pages, export_ns)
+		# mirror.publish_pages(dw, pages, export_ns)
 
-		logging.info("Finished!")
-		return True
+		# logging.info("Finished!")
+		# return True
 		
-	def responsible(self, dw):
-		return self.publisher
+	# def responsible(self, dw):
+		# return self.publisher
 
 
 class UpdateCatalog(Job):
@@ -430,7 +430,7 @@ if __name__ == "__main__":
 	JobFactory.register_job(MetaProcessing)
 	JobFactory.register_job(UpdateActionItems)
 	JobFactory.register_job(WordGeneration)
-	JobFactory.register_job(Publish)
+	# JobFactory.register_job(Publish)
 	JobFactory.register_job(UpdateCatalog)
 	
 	if len(sys.argv) > 1:

@@ -26,9 +26,10 @@ class FIdoc(object):
 		self.partners = Partners(self.load_json_from_wiki(self.get_meta_page('partners')))
 		self.licenses = Licenses(self.load_json_from_wiki(self.get_meta_page('licenses')))
 
-		pub_pages = mirror.public_pages(self.dw)
+		# pub_pages = mirror.public_pages(self.dw)
 
-		self.pub = wikipublisher(self.dw, pub_pages, mirror.rx_exceptions, mirror.export_ns)
+		self.pub = wikipublisher(self.dw, mirror.export_ns)
+		
 		self.meta = MetaStructure.load(
 			self.dw,
 			self.get_meta_page('structure'),
@@ -36,6 +37,7 @@ class FIdoc(object):
 			self.licenses,
 			self.pub
 		)
+		
 		self.ses = {}
 	
 	def get_wiki(self):
@@ -49,6 +51,7 @@ class FIdoc(object):
 	
 	
 	def get_publisher(self):
+		logging.debug("FIdoc publisher in use!")
 		return self.pub
 		
 	def get_specific_enabler(self, metapage):

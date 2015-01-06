@@ -6,28 +6,13 @@ import logging
 
 class wikipublisher(object):
 
-	def __init__(self, dw, public_pages, exceptions = [], export_ns = []):
+	def __init__(self, dw, export_ns = []):
 		self.dw = dw
-		self.public_pages = public_pages
-		self.exceptions = exceptions
 		self.export_ns = export_ns
 	
-		
+	
 	def public_page(self, page, rel_ns = []):
 		fullname = self.dw.resolve(page, rel_ns)
-		
-		public = False
-		for rx in self.public_pages:
-			if rx.match(fullname) is not None:
-				public = True
-				break
-		
-		if not public:
-			return None
-		
-		for rx in self.exceptions:
-			if rx.match(fullname) is not None:
-				return None
 		
 		fullname = fullname.replace(':', '.').strip('.')
 		
@@ -36,7 +21,8 @@ class wikipublisher(object):
 		
 		fullname = self.dw.resolve(fullname, self.export_ns)
 		return fullname
-		
+	
+	
 	def public_file(self, file, rel_ns = []):
 		return self.public_page(file, rel_ns)
 
@@ -134,3 +120,31 @@ class wikipublisher(object):
 		image = self.dw.image(newname, caption, params)
 		# print(image)
 		return image
+
+
+class restrictedwikipublisher(wikipublisher):
+
+	def __init__(self, dw, public_pages, exceptions = [], export_ns = []):
+		wikipublisher.__init__(self, dw, export_ns)
+		self.public_pages = public_pages
+		self.exceptions = exceptions
+
+	
+	def public_page(self, page, rel_ns = []):
+		fullname = self.dw.resolve(page, rel_ns)
+		
+		public = False
+		for rx in self.public_pages:
+			if rx.match(fullname) is not None:
+				public = True
+				break
+		
+		if not public:
+			return None
+		
+		for rx in self.exceptions:
+			if rx.match(fullname) is not None:
+				return None
+		
+		return wikipublisher.public_page(self, fullname)
+	

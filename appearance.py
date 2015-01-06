@@ -6,11 +6,12 @@ se_colors = {
 	'Second Screen Framework':						'#B67272',
 	'Audio Mining':									'#F23A3A',
 	'Content Optimisation':							'#00B0F0',
-	'Content Similarity':							'#FF91C4',
+	'HbbTV Application Toolkit':					'#FF91C4',
 	
 	'Open City Database':							'#61DDFF',
 	'POIProxy':										'#C8F763',
 	'App Generator':								'#1EC499',
+	'Fusion Engine':								'#ECA2F5',
 	'OpenDataSoft':									'#366092',
 	'Recommendation as a Service':					'#FFC600',
 	'Context Aware Recommendation':					'#037DA0',
