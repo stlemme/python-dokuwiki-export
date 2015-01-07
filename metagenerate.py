@@ -158,10 +158,8 @@ def generate_page(dw, outpage, meta):
 
 
 
-def generate_meta_information(dw, generatedpage):
-	fidoc = FIdoc(dw)
-	
-	logging.info("Loading page of meta structure ...")
+def generate_meta_information(fidoc, generatedpage):
+	dw = fidoc.get_wiki()
 	meta = fidoc.get_meta_structure()
 	# pub = fidoc.get_publisher()
 	
@@ -188,8 +186,11 @@ if __name__ == "__main__":
 		logging.info("Connecting to remote DokuWiki at %s" % wikiconfig.url)
 		# dw = wiki.DokuWikiLocal(url, 'pages', 'media')
 		dw = wiki.DokuWikiRemote(wikiconfig.url, wikiconfig.user, wikiconfig.passwd)
+
+		logging.info("Loading FIdoc object ...")
+		fidoc = FIdoc(dw)
 		
-		generate_meta_information(dw, generatedpage)
+		generate_meta_information(fidoc, generatedpage)
 		
 		logging.info("Finished")
 	

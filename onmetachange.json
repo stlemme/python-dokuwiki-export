@@ -2,7 +2,7 @@
 	"log": ":ficontent:private:wiki:jobs.onmetachange",
 	"jobs": {
 		"meta": {
-			"job": "metaprocessing",
+			"job": "MetaProcessing",
 			"params": {
 				"metapage": ":ficontent:private:meta:",
 				"outpage":  ":ficontent:private:meta:generated"

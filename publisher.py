@@ -51,7 +51,8 @@ class wikipublisher(object):
 			re2line = wiki.rx_image.sub(lambda m: self.resolve_image(srcns, destns, m), re1line)
 			newdoc.append(re2line)
 
-		self.dw.putpage(newdoc, dest, summary='publish page')
+		# DEBUG:
+		# self.dw.putpage(newdoc, dest, summary='publish page')
 	
 	
 	def resolve_link(self, srcns, destns, match):
@@ -107,9 +108,10 @@ class wikipublisher(object):
 			
 			if (srcinfo['size'] != destinfo['size']) or (srcinfo['lastModified'] > destinfo['lastModified']):
 				logging.info("Copy image ...")
-				data = self.dw.getfile(fullname)
-				if not self.dw.putfile(mappedname, data):
-					logging.warning("Copy failed!")
+				# DEBUG:
+				# data = self.dw.getfile(fullname)
+				# if not self.dw.putfile(mappedname, data):
+					# logging.warning("Copy failed!")
 			
 			newname = self.dw.resolverel(mappedname, destns)
 			

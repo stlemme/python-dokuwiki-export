@@ -3,7 +3,7 @@
 	"jobs": {
 	
 		"public": {
-			"job": "publish",
+			"job": "Publish",
 			"params": {
 				"pages": null,
 				"export_ns": "",

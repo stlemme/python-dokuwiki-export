@@ -3,7 +3,7 @@
 	"jobs": {
 	
 		"d61-docx": {
-			"job": "wordgeneration",
+			"job": "WordGeneration",
 			"params": {
 				"tocpage": ":ficontent:private:deliverables:d61:toc",
 				"templatefile": ":ficontent:private:deliverables:templates:d61-template.docx",
@@ -14,7 +14,7 @@
 		},
 
 		"d241-docx": {
-			"job": "wordgeneration",
+			"job": "WordGeneration",
 			"params": {
 				"tocpage": ":ficontent:private:deliverables:d241:toc",
 				"templatefile": ":ficontent:private:deliverables:templates:d241-template.docx",
@@ -24,7 +24,7 @@
 			}
 		},
 		"d34-docx": {
-			"job": "wordgeneration",
+			"job": "WordGeneration",
 			"params": {
 				"tocpage": ":ficontent:private:deliverables:d34:toc",
 				"templatefile": ":ficontent:private:deliverables:templates:d34-template.docx",
@@ -34,7 +34,7 @@
 			}
 		},
 		"d44-docx": {
-			"job": "wordgeneration",
+			"job": "WordGeneration",
 			"params": {
 				"tocpage": ":ficontent:private:deliverables:d44:toc",
 				"templatefile": ":ficontent:private:deliverables:templates:d44-template.docx",
@@ -45,7 +45,7 @@
 		},
 
 		"d632-docx": {
-			"job": "wordgeneration",
+			"job": "WordGeneration",
 			"params": {
 				"tocpage": ":ficontent:private:deliverables:d632:toc",
 				"templatefile": ":ficontent:private:deliverables:templates:d632-template.docx",

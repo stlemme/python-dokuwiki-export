@@ -1,7 +1,7 @@
 
 import sys
 import wikiconfig
-# import logging
+import logging
 from wiki import *
 from publisher import *
 import mirror
@@ -28,6 +28,7 @@ def list_all_public_pages(dw):
 
 	
 if __name__ == "__main__":
+	logging.error("TODO: adapt source code")
 
 	dw = DokuWikiRemote(wikiconfig.url, wikiconfig.user, wikiconfig.passwd)
 	print("Connected to remote DokuWiki at %s" % wikiconfig.url)

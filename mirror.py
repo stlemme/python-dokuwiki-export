@@ -82,6 +82,14 @@ def list_all_public_pages(dw, pub):
 		
 	return all_pages
 
+
+def create_restrictedwikipublisher(fidoc, export_ns):
+	dw = fidoc.get_wiki()
+	meta = fidoc.get_meta_structure()
+	rel = meta.find_current_release()
+	rel_ses = rel.get_specific_enablers()
+	return restrictedwikipublisher(dw, public_pages(rel_ses), rx_exceptions, export_ns)
+
 	
 if __name__ == "__main__":
 	from fidoc import FIdoc
@@ -91,11 +99,7 @@ if __name__ == "__main__":
 
 	fidoc = FIdoc(dw)
 
-	meta = fidoc.get_meta_structure()
-	rel = meta.find_current_release()
-	rel_ses = rel.get_specific_enablers()
-
-	restpub = restrictedwikipublisher(dw, public_pages(rel_ses), rx_exceptions, export_ns)
+	restpub = create_restrictedwikipublisher(fidoc, export_ns)
 
 	all_pages = list_all_public_pages(dw, restpub)
 	all_pages.sort()

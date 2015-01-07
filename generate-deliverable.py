@@ -2,6 +2,7 @@
 
 
 from docxgenerate import *
+from fidoc import FIdoc
 
 
 if __name__ == '__main__':
@@ -26,11 +27,13 @@ if __name__ == '__main__':
 	# dw = wiki.DokuWikiLocal(url, 'pages', 'media')
 	dw = DokuWikiRemote(wikiconfig.url, wikiconfig.user, wikiconfig.passwd)
 	
+	fidoc = FIdoc(dw)
+
 	logging.info("Generating docx file %s ..." % generatefile)
 	generatedoc(
 		templatefile,
 		generatefile,
-		dw, tocpage,
+		fidoc, tocpage,
 		aggregatefile=aggregatefile,
 		chapterfile=chapterfile,
 		ignorepagelinks=[

@@ -9,6 +9,8 @@ projectend = datetime.date(2015, 3, 31)
 
 
 def today():
+	# DEBUG:
+	return datetime.date(2014, 12, 16)
 	return datetime.date.today()
 
 

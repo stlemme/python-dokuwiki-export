@@ -3,9 +3,9 @@
 	"jobs": {
 	
 		"public": {
-			"job": "updatecatalog",
+			"job": "UpdateCatalog",
 			"params": {
-				"template_filename": "ficontent:private:meta:catalog-entry-template.txt",
+				"template_filename": ":ficontent:private:meta:catalog-entry-template.txt",
 				"responsible": "stefan"
 			}
 		}

@@ -139,9 +139,8 @@ def debug_invalid_se(metapage, se):
 		meta_file.write(metajson)
 
 		
-def generate_catalog(dw, template_filename, meta_pages = None):
-	fidoc = FIdoc(dw)
-
+def generate_catalog(fidoc, template_filename, meta_pages = None):
+	dw = fidoc.get_wiki()
 	# with open(template_filename, 'r') as tmplfile:
 		# template = tmplfile.read()
 	templatefile = dw.getfile(template_filename)
@@ -206,6 +205,8 @@ if __name__ == '__main__':
 	
 	logging.info("Connecting to remote DokuWiki at %s" % wikiconfig.url)
 	dw = DokuWikiRemote(wikiconfig.url, wikiconfig.user, wikiconfig.passwd)
+
+	fidoc = FIdoc(dw)
 	
 	template_filename = 'ficontent:private:meta:catalog-entry-template.txt'
 	# template_filename = 'catalog-entry-template.txt'
@@ -214,5 +215,5 @@ if __name__ == '__main__':
 	if len(sys.argv) > 1:
 		meta_pages = sys.argv[1:]
 	
-	generate_catalog(dw, template_filename, meta_pages)
+	generate_catalog(fidoc, template_filename, meta_pages)
 	logging.info("Finished")

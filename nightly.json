@@ -3,7 +3,7 @@
 	"jobs": {
 	
 		"action-items": {
-			"job": "updateactionitems",
+			"job": "UpdateActionItems",
 			"params": {
 				"outpage": ":ficontent:private:action_items",
 				"namespace": ":ficontent:",
@@ -14,7 +14,7 @@
 		},
 
 		"d61": {
-			"job": "aggregation",
+			"job": "Aggregation",
 			"params": {
 				"tocpage": ":ficontent:private:deliverables:d61:toc",
 				"outpage": ":ficontent:private:deliverables:nightly:d61",
@@ -24,7 +24,7 @@
 		},
 		
 		"d65": {
-			"job": "aggregation",
+			"job": "Aggregation",
 			"params": {
 				"tocpage": ":ficontent:private:deliverables:d65:toc",
 				"outpage": ":ficontent:private:deliverables:nightly:d65",
@@ -34,7 +34,7 @@
 		},
 
 		"d632": {
-			"job": "aggregation",
+			"job": "Aggregation",
 			"params": {
 				"tocpage": ":ficontent:private:deliverables:d632:toc",
 				"outpage": ":ficontent:private:deliverables:nightly:d632",
@@ -43,8 +43,11 @@
 			}
 		},
 		
+		
+		"inactive": {
+
 		"d241": {
-			"job": "aggregation",
+			"job": "Aggregation",
 			"params": {
 				"tocpage": ":ficontent:private:deliverables:d241:toc",
 				"outpage": ":ficontent:private:deliverables:nightly:d241",
@@ -53,7 +56,7 @@
 			}
 		},
 		"d34": {
-			"job": "aggregation",
+			"job": "Aggregation",
 			"params": {
 				"tocpage": ":ficontent:private:deliverables:d34:toc",
 				"outpage": ":ficontent:private:deliverables:nightly:d34",
@@ -62,7 +65,7 @@
 			}
 		},
 		"d44": {
-			"job": "aggregation",
+			"job": "Aggregation",
 			"params": {
 				"tocpage": ":ficontent:private:deliverables:d44:toc",
 				"outpage": ":ficontent:private:deliverables:nightly:d44",
@@ -71,8 +74,6 @@
 			}
 		},
 
-		
-		"inactive": {
 		
 		"d331": {
 			"job": "aggregation",

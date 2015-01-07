@@ -473,9 +473,8 @@ class wikiprocessor(object):
 			print
 		
 
-def generatedoc(templatefile, generatefile, dw, tocpage, aggregatefile=None, chapterfile=None, injectrefs=False, ignorepagelinks=[], imagepath = "_media/"):
-
-	fidoc = FIdoc(dw)
+def generatedoc(templatefile, generatefile, fidoc, tocpage, aggregatefile=None, chapterfile=None, injectrefs=False, ignorepagelinks=[], imagepath = "_media/"):
+	dw = fidoc.get_wiki()
 	
 	document = docxwrapper(templatefile, imagepath)
 
