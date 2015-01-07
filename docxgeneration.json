@@ -2,6 +2,19 @@
 	"log": ":ficontent:private:wiki:jobs.docxgeneration",
 	"jobs": {
 	
+		"inactive": {
+
+		"d242-docx": {
+			"job": "WordGeneration",
+			"params": {
+				"tocpage": ":ficontent:private:deliverables:d242:toc",
+				"templatefile": ":ficontent:private:deliverables:templates:d242-template.docx",
+				"generatedfile": ":ficontent:private:deliverables:nightly:d242-generated.docx",
+				"editor": "mzwicklbauer",
+				"injectrefs": false
+			}
+		},
+		
 		"d61-docx": {
 			"job": "WordGeneration",
 			"params": {
@@ -55,8 +68,7 @@
 			}
 		},
 
-		
-		"inactive": {
+
 		
 		"d22-docx": {
 			"job": "wordgeneration",

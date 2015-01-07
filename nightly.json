@@ -12,6 +12,14 @@
 				]
 			}
 		},
+		
+		"meta": {
+			"job": "MetaProcessing",
+			"params": {
+				"metapage": ":ficontent:private:meta:",
+				"outpage":  ":ficontent:private:meta:generated"
+			}
+		},
 
 		"d61": {
 			"job": "Aggregation",
