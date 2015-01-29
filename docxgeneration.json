@@ -2,6 +2,17 @@
 	"log": ":ficontent:private:wiki:jobs.docxgeneration",
 	"jobs": {
 	
+		"d732-docx": {
+			"job": "WordGeneration",
+			"params": {
+				"tocpage": ":ficontent:private:deliverables:d732:toc",
+				"templatefile": ":ficontent:private:deliverables:templates:d732-template.docx",
+				"generatedfile": ":ficontent:private:deliverables:nightly:d732-generated.docx",
+				"editor": "mzwicklbauer",
+				"injectrefs": false
+			}
+		},
+
 		"inactive": {
 
 		"d242-docx": {

@@ -17,15 +17,25 @@ class docxwrapper:
 		
 		self.doc, self.relationships = docx.opendocx(self.template)
 
-		result = self.doc.xpath("/w:document/w:body/w:p[w:r/w:t[starts-with(.,'Replace Me')]]", namespaces=docx.nsprefixes)
-		self.par = result[0]
+		self.par = self.find_paragraph("Replace Me")		
+		if self.par is None:
+			logging.fatal("No content section! [MANDATORY]")
 
-		result = self.doc.xpath("/w:document/w:body/w:p[w:r/w:t[starts-with(.,'Replace Me2')]]", namespaces=docx.nsprefixes)
-		if result is not None:
-			self.refpar = result[0]
-		else:
-			logging.info("No references section")
+		self.refpar = self.find_paragraph("Replace Me2")		
+		if self.refpar is None:
+			logging.warning("No references section in template")
 
+	def find_paragraph(self, title):
+		result = self.doc.xpath(
+			"/w:document/w:body/w:p[w:r/w:t[starts-with(.,'" + title + "')]]",
+			namespaces=docx.nsprefixes
+		)
+		if result is None:
+			return None
+		if len(result) == 0:
+			return None
+		return result[0]
+	
 	def insert(self, elem):
 		if elem is None:
 			return
@@ -82,9 +92,12 @@ class docxwrapper:
 		# self.insert(docx.paragraph(caption, style='EUCaption'))
 		
 	def lookupref(self, ref, target):
-		if ref not in self.references.keys():
+		if ref in self.references.keys():
+			return self.references[ref]
+			
+		if self.refpar is not None:
 			self.refpar.addprevious(docx.paragraph(target, style='EUReference'))
-			self.references[ref] = len(self.references) + 1
+		self.references[ref] = len(self.references) + 1
 		return self.references[ref]
 		
 	def pagecontentsize(self):
@@ -96,7 +109,8 @@ class docxwrapper:
 			return
 		body = result[0]
 		body.remove(self.par)
-		body.remove(self.refpar)
+		if self.refpar is not None:
+			body.remove(self.refpar)
 		self.par = None
 
 	def generate(self, outfile):
