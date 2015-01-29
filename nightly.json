@@ -50,7 +50,17 @@
 				"embedwikilinks": true
 			}
 		},
-		
+
+                "d732": {
+                        "job": "Aggregation",
+                        "params": {
+                                "tocpage": ":ficontent:private:deliverables:d732:toc",
+                                "outpage": ":ficontent:private:deliverables:nightly:d732",
+                                "editor": "mzwicklbauer",
+                                "embedwikilinks": true
+                        }
+                },
+
 		
 		"inactive": {
 
