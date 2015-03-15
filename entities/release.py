@@ -26,3 +26,7 @@ class Release(Entity):
 
 	def get_specific_enablers(self):
 		return self.enablers
+
+	def contains_se(self, se):
+		return se in self.enablers
+	

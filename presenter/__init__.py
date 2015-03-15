@@ -7,3 +7,4 @@ from .list import ListPresenter
 from .uptake import UptakePresenter
 from .cockpit import CockpitPresenter
 from .roadmap import RoadmapPresenter
+from .summary import SummaryPresenter

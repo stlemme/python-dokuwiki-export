@@ -1,5 +1,5 @@
 
-from presenter import ExperimentTimelinePresenter, ListPresenter, UptakePresenter, CockpitPresenter, RoadmapPresenter
+from presenter import ExperimentTimelinePresenter, ListPresenter, UptakePresenter, CockpitPresenter, RoadmapPresenter, SummaryPresenter
 # , DependencyPresenter, GESurveyPresenter
 import wiki
 import wikiconfig
@@ -111,6 +111,12 @@ def generate_page(dw, outpage, meta):
 		("FI-PPP SEis Usage and General Information", CockpitPresenter())
 	]
 
+	# SE Discovery Summary
+	#######################################
+
+	generated_content += [
+		("SE Discovery Summary", SummaryPresenter())
+	]
 
 	# Incomplete/invalid SEis
 	#######################################
