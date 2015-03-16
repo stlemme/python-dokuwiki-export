@@ -41,55 +41,64 @@
 			}
 		},
 
-		"d632": {
+		"d633": {
 			"job": "Aggregation",
 			"params": {
-				"tocpage": ":ficontent:private:deliverables:d632:toc",
-				"outpage": ":ficontent:private:deliverables:nightly:d632",
+				"tocpage": ":ficontent:private:deliverables:d633:toc",
+				"outpage": ":ficontent:private:deliverables:nightly:d633",
 				"editor": "kmitchell",
 				"embedwikilinks": true
 			}
 		},
 
-                "d732": {
-                        "job": "Aggregation",
-                        "params": {
-                                "tocpage": ":ficontent:private:deliverables:d732:toc",
-                                "outpage": ":ficontent:private:deliverables:nightly:d732",
-                                "editor": "mzwicklbauer",
-                                "embedwikilinks": true
-                        }
-                },
-
-		
-		"inactive": {
-
-		"d241": {
+		"d25": {
 			"job": "Aggregation",
 			"params": {
-				"tocpage": ":ficontent:private:deliverables:d241:toc",
-				"outpage": ":ficontent:private:deliverables:nightly:d241",
-				"editor": "robert.seeliger",
+				"tocpage": ":ficontent:private:deliverables:d25:toc",
+				"outpage": ":ficontent:private:deliverables:nightly:d25",
+				"editor": "irt_christoph",
 				"embedwikilinks": true
 			}
 		},
-		"d34": {
+		"d35": {
 			"job": "Aggregation",
 			"params": {
-				"tocpage": ":ficontent:private:deliverables:d34:toc",
-				"outpage": ":ficontent:private:deliverables:nightly:d34",
+				"tocpage": ":ficontent:private:deliverables:d35:toc",
+				"outpage": ":ficontent:private:deliverables:nightly:d35",
 				"editor": "olivier.duvoid",
 				"embedwikilinks": true
 			}
 		},
-		"d44": {
+		"d45": {
 			"job": "Aggregation",
 			"params": {
-				"tocpage": ":ficontent:private:deliverables:d44:toc",
-				"outpage": ":ficontent:private:deliverables:nightly:d44",
+				"tocpage": ":ficontent:private:deliverables:d45:toc",
+				"outpage": ":ficontent:private:deliverables:nightly:d45",
 				"editor": "marcel-ethz",
 				"embedwikilinks": true
 			}
+		},
+
+		"d232": {
+				"job": "Aggregation",
+				"params": {
+						"tocpage": ":ficontent:private:deliverables:d232:toc",
+						"outpage": ":ficontent:private:deliverables:nightly:d232",
+						"editor": "mzwicklbauer",
+						"embedwikilinks": true
+				}
+		},
+		
+		"inactive": {
+
+		"d732": {
+				"job": "Aggregation",
+				"params": {
+						"tocpage": ":ficontent:private:deliverables:d732:toc",
+						"outpage": ":ficontent:private:deliverables:nightly:d732",
+						"editor": "mzwicklbauer",
+						"embedwikilinks": true
+				}
 		},
 
 		

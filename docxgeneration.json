@@ -2,6 +2,52 @@
 	"log": ":ficontent:private:wiki:jobs.docxgeneration",
 	"jobs": {
 	
+		"d25-docx": {
+			"job": "WordGeneration",
+			"params": {
+				"tocpage": ":ficontent:private:deliverables:d25:toc",
+				"templatefile": ":ficontent:private:deliverables:templates:d25-template.docx",
+				"generatedfile": ":ficontent:private:deliverables:nightly:d25-generated.docx",
+				"editor": "irt_christoph",
+				"injectrefs": false
+			}
+		},
+		"d35-docx": {
+			"job": "WordGeneration",
+			"params": {
+				"tocpage": ":ficontent:private:deliverables:d35:toc",
+				"templatefile": ":ficontent:private:deliverables:templates:d35-template.docx",
+				"generatedfile": ":ficontent:private:deliverables:nightly:d35-generated.docx",
+				"editor": "olivier.duvoid",
+				"injectrefs": false
+			}
+		},
+		"d45-docx": {
+			"job": "WordGeneration",
+			"params": {
+				"tocpage": ":ficontent:private:deliverables:d45:toc",
+				"templatefile": ":ficontent:private:deliverables:templates:d45-template.docx",
+				"generatedfile": ":ficontent:private:deliverables:nightly:d45-generated.docx",
+				"editor": "marcel-ethz",
+				"injectrefs": false
+			}
+		},
+
+		"d232-docx": {
+			"job": "WordGeneration",
+			"params": {
+				"tocpage": ":ficontent:private:deliverables:d232:toc",
+				"templatefile": ":ficontent:private:deliverables:templates:d232-template.docx",
+				"generatedfile": ":ficontent:private:deliverables:nightly:d232-generated.docx",
+				"editor": "mzwicklbauer",
+				"injectrefs": false
+			}
+		},
+
+		
+		"inactive": {
+
+
 		"d732-docx": {
 			"job": "WordGeneration",
 			"params": {
@@ -12,8 +58,6 @@
 				"injectrefs": false
 			}
 		},
-
-		"inactive": {
 
 		"d242-docx": {
 			"job": "WordGeneration",
