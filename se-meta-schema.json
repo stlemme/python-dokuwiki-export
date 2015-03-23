@@ -149,7 +149,7 @@
 			"properties": {
 				"template": {
 					"type": "string",
-					"enum": ["MIT", "Apache2.0"]
+					"enum": ["MIT", "Apache2.0", "LGPL"]
 				},
 				"type": {
 					"enum": ["open", "prop", "eval"]
