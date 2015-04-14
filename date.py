@@ -5,12 +5,10 @@ import dateutil.parser
 some_date_in_far_future = datetime.date(2997, 9, 12)
 
 projectbegin = datetime.date(2013, 4, 1)
-projectend = datetime.date(2015, 3, 31)
+projectend = datetime.date(2015, 10, 31)
 
 
 def today():
-	# DEBUG:
-	return datetime.date(2014, 12, 16)
 	return datetime.date.today()
 
 
