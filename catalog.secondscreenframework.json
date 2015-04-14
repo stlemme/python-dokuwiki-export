@@ -1,0 +1,119 @@
+{
+    "se": {
+        "spec": {
+            "requirements": {
+                "Cookies": {
+                    "description": "Browsers need to support 3rd-party cookies.", 
+                    "title": "Cookies"
+                }
+            }, 
+            "name": "Second Screen Framework", 
+            "license": {
+                "features": {
+                    "modifications-allowed": "No", 
+                    "include-original": "Not applicable", 
+                    "include-copyright": "Required", 
+                    "distribution-allowed": "No", 
+                    "state-changes": "Not applicable", 
+                    "disclose": "Not required", 
+                    "commercial-use": "Yes"
+                }, 
+                "copyright": "Copyright (c) 2013 Institut fuer Rundfunktechnik GmbH", 
+                "summary": "Front-end libraries for integration into an TV application: provided free of charge, \"as is\", without warranty of any kind; instance of the SSF back-end for tests, evaluation and demo of apps: freely available on FIWARE LAB. These components are sufficient in the far majority of cases where developers are marketing their product to/through broadcasters, service providers, portal owners. Nevertheless, if an interested party develops a concept requiring a business relationship with an SSF back-end provider, IRT will actively support to find a viable cost-efficient solution (marketing@irt.de).", 
+                "full": "http://www.irt.de/IRT/SSF_full_licence_agreement.txt", 
+                "type": "eval", 
+                "fee": "Libraries: Free for application developers for integration (libraries not to be modified); Back-end for evaluation: Free access to instance running on FI-WARE infrastructure for testing and non-commercial use; Back-end for commercial deployments: Tailored offerings through third-party service provider"
+            }, 
+            "contacts": {
+                "IRT-Christoph": "legal"
+            }, 
+            "delivery": {
+                "description": "The Second-Screen Framework is implemented as a web service. It's JavaScript-API abstracts the communication between clients (i.e. TVs and second-screen devices) and the web service. In order to make use of the API you need to link the respective JavaScript-Libraries to your code, cf. 'instances'.", 
+                "languages": [
+                    "JavaScript"
+                ], 
+                "instances": {
+                    "fi-ppp": {
+                        "endpoint": "http://130.206.80.213:8080/"
+                    }
+                }
+            }, 
+            "platforms": [
+                "socialtv"
+            ], 
+            "owners": [
+                "IRT"
+            ], 
+            "examples": {
+                "rbbtext": {
+                    "link": "http://wiki.mediafi.org/lib/exe/fetch.php/ficontent.socialtv.rbbtext.png", 
+                    "description": "rbbtext is a next generation teletext app based on HbbTV. In the SSF-enabled version users can mirror the app to their tablet to remotely control the TV app. Moreover links to additional content can be pushed from the TV to the tablet.", 
+                    "title": "rbbtext"
+                }, 
+                "ard-epg": {
+                    "link": "http://wiki.mediafi.org/lib/exe/fetch.php/ficontent.socialtv.ard-epg.png", 
+                    "description": "The ARD-EPG is an HbbTV-based EPG app. Besides info on upcoming shows users have access catch-up content. The SSF-enabled companion app allows users switching between channels of the ARD network and start the playback VoD content on the TV screen.", 
+                    "title": "ARD-EPG"
+                }
+            }, 
+            "media": {
+                "videos": {
+                    "pitch": "http://www.youtube.com/watch?v=4x7kDRx5ZTY"
+                }
+            }, 
+            "documentation": {
+                "why-you-need-it": "All functionality is provided via a slim JavaScript API and can thus be easily integrated into any web application. Since the solution is fully compliant with the HbbTV standard, it enables content providers to create fully interactive applications with direct programme relation potentially targeting millions of already deployed devices on the market. Thus, the concept can be implemented without modifications to hardware and only minimal extensions to existing applications.", 
+                "how-it-works": "The SSF provides the following features to applications: Discovery, Connection, App-to-app communication, App launch. Communication between a TV application and its companion application on the second screen is handled by a web server. Discovery between the devices is accomplished by means of a QR code. Users need to execute the discovery process only once, since the connection is persitent. Moreover the same connection can be used in any service that uses the SSF.", 
+                "what-it-does": "The Second Screen Framework (SSF) provides web applications that are running on a TV with all the crucial functionalities to establish a persistent bi-directional communication path to a web application running  in the browser of any second-screen device. This includes the possibility to launch applications from one a TV to a second screen."
+            }
+        }, 
+        "metajson": "\n{\n\n\n\"name\" : \"Second Screen Framework\",\n\"owners\" : [ \"IRT\" ],\n\"platforms\" : [ \"socialtv\" ],\n\"contacts\" : {\n\"IRT-Christoph\" : \"technical\",\n\"IRT-Christoph\" : \"legal\"\n},\n\n\n\"documentation\": {\n\n\"what-it-does\": \"The Second Screen Framework (SSF) provides web applications that are running on a TV with all the crucial functionalities to establish a persistent bi-directional communication path to a web application running  in the browser of any second-screen device. This includes the possibility to launch applications from one a TV to a second screen.\",\n\n\"how-it-works\": \"The SSF provides the following features to applications: Discovery, Connection, App-to-app communication, App launch. Communication between a TV application and its companion application on the second screen is handled by a web server. Discovery between the devices is accomplished by means of a QR code. Users need to execute the discovery process only once, since the connection is persitent. Moreover the same connection can be used in any service that uses the SSF.\",\n\n\"why-you-need-it\": \"All functionality is provided via a slim JavaScript API and can thus be easily integrated into any web application. Since the solution is fully compliant with the HbbTV standard, it enables content providers to create fully interactive applications with direct programme relation potentially targeting millions of already deployed devices on the market. Thus, the concept can be implemented without modifications to hardware and only minimal extensions to existing applications.\"\n\n},\n\n\n\n\"media\": {\n\n\"videos\": {\n\"pitch\": \"http://www.youtube.com/watch?v=4x7kDRx5ZTY\"\n}\n\n},\n\n\n\"examples\": {\n\n\"rbbtext\": {\n\"title\": \"rbbtext\",\n\"description\": \"rbbtext is a next generation teletext app based on HbbTV. In the SSF-enabled version users can mirror the app to their tablet to remotely control the TV app. Moreover links to additional content can be pushed from the TV to the tablet.\",\n\"link\": \":ficontent:socialtv:rbbtext.png\"\n},\n\n\"ard-epg\": {\n\"title\": \"ARD-EPG\",\n\"description\": \"The ARD-EPG is an HbbTV-based EPG app. Besides info on upcoming shows users have access catch-up content. The SSF-enabled companion app allows users switching between channels of the ARD network and start the playback VoD content on the TV screen.\",\n\"link\": \":ficontent:socialtv:ard-epg.png\"\n}\n},\n\n\n\n\n\"license\": {\n\"type\": \"eval\",\n\n\"features\": {\n\"commercial-use\": \"Yes\",\n\"modifications-allowed\": \"No\",\n\"distribution-allowed\": \"No\",\n\"include-copyright\": \"Required\",\n\"include-original\": \"Not applicable\",\n\"state-changes\": \"Not applicable\",\n\"disclose\": \"Not required\"\n},\n\"fee\": \"Libraries: Free for application developers for integration (libraries not to be modified); Back-end for evaluation: Free access to instance running on FI-WARE infrastructure for testing and non-commercial use; Back-end for commercial deployments: Tailored offerings through third-party service provider\",\n\"summary\": \"Front-end libraries for integration into an TV application: provided free of charge, \\\"as is\\\", without warranty of any kind; instance of the SSF back-end for tests, evaluation and demo of apps: freely available on FIWARE LAB. These components are sufficient in the far majority of cases where developers are marketing their product to/through broadcasters, service providers, portal owners. Nevertheless, if an interested party develops a concept requiring a business relationship with an SSF back-end provider, IRT will actively support to find a viable cost-efficient solution (marketing@irt.de).\",\n\"full\": \"http://www.irt.de/IRT/SSF_full_licence_agreement.txt\",\n\"copyright\": \"Copyright (c) 2013 Institut fuer Rundfunktechnik GmbH\"\n},\n\n\n\n\"delivery\": {\n\n\n\"languages\": [\n\"JavaScript\"\n],\n\n\"description\": \"The Second-Screen Framework is implemented as a web service. It's JavaScript-API abstracts the communication between clients (i.e. TVs and second-screen devices) and the web service. In order to make use of the API you need to link the respective JavaScript-Libraries to your code, cf. 'instances'.\",\n\n\n\n\"instances\": {\n\"fi-ppp\": {\n\"endpoint\": \"http://130.206.80.213:8080/\"\n}\n}\n},\n\n\n\"requirements\": {\n\"Cookies\": {\n\"title\": \"Cookies\",\n\"description\": \"Browsers need to support 3rd-party cookies.\"\n}\n}\n\n\n}\n", 
+        "auto": {
+            "license": {
+                "is-proprietary": "No", 
+                "has-evaluation": "Yes", 
+                "is-open-source": "No"
+            }, 
+            "contacts": {
+                "legal": {
+                    "IRT-Christoph": {
+                        "name": "Christoph Ziegler", 
+                        "company": {
+                            "primary": "Christoph", 
+                            "fullname": "Institut fuer Rundfunktechnik GmbH", 
+                            "shortname": "IRT"
+                        }, 
+                        "email": "ziegler@irt.de"
+                    }
+                }, 
+                "technical": null, 
+                "IRT-Christoph": {
+                    "name": "Christoph Ziegler", 
+                    "company": {
+                        "primary": "Christoph", 
+                        "fullname": "Institut fuer Rundfunktechnik GmbH", 
+                        "shortname": "IRT"
+                    }, 
+                    "email": "ziegler@irt.de"
+                }
+            }, 
+            "delivery": {
+                "source-code": "No", 
+                "hosted-service": "Yes", 
+                "repository": {
+                    "url": null
+                }, 
+                "package": "No"
+            }, 
+            "documentation": {
+                "wiki-url": "http://wiki.mediafi.org/doku.php/ficontent.socialtv.enabler.secondscreenframework", 
+                "devguide-url": "http://wiki.mediafi.org/doku.php/ficontent.socialtv.enabler.secondscreenframework.developerguide"
+            }, 
+            "timestamp": "2015-04-14 15:33:35.585347", 
+            "media": {
+                "youtube-pitch": "4x7kDRx5ZTY"
+            }, 
+            "nice-owners": "IRT"
+        }
+    }
+}

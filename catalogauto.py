@@ -20,9 +20,13 @@ class AutoValues(object):
 		auto_values = {
 			'documentation': {
 				'wiki-url': self.pub_se_wiki_url,
-				'devguide-url': self.pub_se_devguide_url
+				'devguide-url': self.pub_se_devguide_url,
+				'installguide-url': self.pub_se_installguide_url,
+				'faq-url': self.pub_se_faq_url,
+				'api-url': self.pub_se_api_url
 			},
 			'delivery': {
+				'model': self.delivery_model,
 				'hosted-service': self.delivers_hosted_service,
 				'source-code': self.delivers_source_code,
 				'package': self.delivers_package,
@@ -34,8 +38,14 @@ class AutoValues(object):
 				'has-evaluation': self.has_evaluation
 			},
 			'media': {
-				'youtube-pitch': self.pitch_id
+				'youtube-pitch': self.pitch_id,
+				'thumbnail': self.thumbnail
 			},
+			'usage': {
+				'online-demo': self.online_demo,
+				'playground': self.playground
+			},
+			'nice-platforms': self.nice_platforms,
 			'timestamp': self.timestamp
 		}
 		
@@ -57,16 +67,47 @@ class AutoValues(object):
 		pub_page = self.pub.public_page(page)
 		return self.dw.pageurl(pub_page)
 
-	def pub_se_devguide_url(self):
-		page = self.nc.devguide()
+	def wiki_page_exists(self, page):
 		info = self.dw.pageinfo(page)
 		# print(page, info)
-		if info is None:
-			return None
+		return info is not None
+		
+	def wiki_pub_url(self, page):
 		pub_page = self.pub.public_page(page)
-		url = self.dw.pageurl(pub_page)
-		# print(page, pub_page, url)
-		return url
+		if pub_page is None:
+			return None
+		if not self.wiki_page_exists(pub_page):
+			logging.warning("Referring to non-existent public wiki page %s" % pub_page)
+			return None
+		return self.dw.pageurl(pub_page)
+	
+	def pub_se_devguide_url(self):
+		# TODO: overwrite in SE spec with url
+		page = self.nc.devguide()
+		if not self.wiki_page_exists(page):
+			return None
+		return self.wiki_pub_url(page)
+
+	def pub_se_installguide_url(self):
+		# TODO: overwrite in SE spec with url
+		page = self.nc.installguide()
+		if not self.wiki_page_exists(page):
+			return None
+		return self.wiki_pub_url(page)
+		
+	def pub_se_api_url(self):
+		# TODO: overwrite in SE spec with url
+		page = self.nc.wikipage()
+		if not self.wiki_page_exists(page):
+			return None
+		return self.wiki_pub_url(page)
+		
+	def pub_se_faq_url(self):
+		# TODO: overwrite in SE spec with url
+		page = self.nc.faq()
+		if not self.wiki_page_exists(page):
+			return None
+		return self.wiki_pub_url(page)
 
 	def is_open_source(self):
 		return self.YesNo(self.se.get('/spec/license/type') == 'open')
@@ -77,20 +118,45 @@ class AutoValues(object):
 	def has_evaluation(self):
 		return self.YesNo(self.se.get('/spec/license/type') == 'eval')
 
-	def delivers_hosted_service(self):
+	def hosted_service_available(self, global_service=False):
 		instances = self.se.get('/spec/delivery/instances')
-		return self.YesNo((instances is not None) and (len(instances) > 0))
+		if instances is None:
+			return False
+		if not global_service:
+			return len(instances) > 0
+		return instances.get('/global/endpoint') is not None
+	
+	def delivers_hosted_service(self):
+		return self.YesNo(self.hosted_service_available())
 		
-	def delivers_source_code(self):
+	def source_code_available(self):
 		sources = self.se.get('/spec/delivery/source-code') is not None
 		repo = self.se.get('/spec/delivery/repository') is not None
-		return self.YesNo(sources or repo)
+		return sources or repo
+		
+	def delivers_source_code(self):
+		return self.YesNo(self.source_code_available())
+	
+	def binary_package_available(self):
+		binary = self.se.get('/spec/delivery/binary')
+		if binary is None:
+			return False
+		return len(binary) > 0
 	
 	def delivers_package(self):
 		sources = self.se.get('/spec/delivery/sources') is not None
-		binary = self.se.get('/spec/delivery/binary') is not None
+		binary = self.binary_package_available()
 		return self.YesNo(sources or binary)
 	
+	def delivery_model(self):
+		if self.source_code_available():
+			return 'Source'
+		if self.binary_package_available():
+			return 'Binary'
+		if self.hosted_service_available(global_service=True):
+			return 'SaaS'
+		logging.warning("Unknown delivery model for %s SE" % self.se.get_name())
+		return 'Unknown'
 	
 	# rx_yt_link = re.compile(r'(?:youtube(?:-nocookie)?\.com/(?:[^/]+/.+/|(?:v|e(?:mbed)?)/|.*[?&]v=)|youtu\.be/)([^"&?/ ]{11})', re.IGNORECASE)
 	
@@ -111,7 +177,17 @@ class AutoValues(object):
 			if parts.path[:3] == '/v/':
 				return parts.path.split('/')[2]
 		return None
-		
+	
+	def thumbnail(self):
+		types = ['png', 'jpg']
+		for t in types:
+			file = self.nc.thumbnail(t)
+			info = self.dw.fileinfo(file)
+			if info is not None:
+				return file
+		# print(page, info)
+		return None
+	
 	def repository(self):
 		cmds = {
 			'github': 'git clone --recursive {{/auto/delivery/repository/url}}.git',
@@ -130,6 +206,23 @@ class AutoValues(object):
 				}
 		return {'url': None}
 		
+	def online_demo(self):
+		return self.se.get('/spec/examples/live-demo')
+
+	def playground(self):
+		return self.se.get('/spec/examples/playground')
+		
+	def nice_platforms(self):
+		plnames = []
+		platforms = self.nc.platforms()
+		if 'socialtv' in platforms:
+			plnames.append('Social Connected TV')
+		if 'smartcity' in platforms:
+			plnames.append('Smart City Services')
+		if 'gaming' in platforms:
+			plnames.append('Pervasive Games')
+		return plnames
+	
 	def timestamp(self):
 		return str(datetime.now())
 		

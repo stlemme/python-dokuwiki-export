@@ -5,7 +5,7 @@ import logging
 from wiki import *
 from jsonutils import Values
 from fidoc import FIdoc
-from catalog import ThumbnailGenerator, TemplatedGenerator
+from catalog import ThumbnailGenerator, TemplatedGenerator, JsonGenerator
 import appearance
 from entities import SpecificEnabler
 import htmlutils
@@ -31,6 +31,7 @@ def generate_catalog(fidoc, template_filename, meta_pages = None):
 	escaping = htmlutils.html_named_entity_escaping
 	
 	cgen = TemplatedGenerator(template, escaping)
+	dgen = JsonGenerator(escaping)
 	thgen = ThumbnailGenerator()
 
 	# if meta_pages is None:
@@ -59,18 +60,22 @@ def generate_catalog(fidoc, template_filename, meta_pages = None):
 			logging.info("Skip meta page of %s SE, because it is not known as part of the current release." % se_name)
 			continue
 		
+		entry_filename = '_catalog/catalog.' + nc.normalizedname()
+
 		logging.info("Generating catalog entry for %s ..." % se_name)
-		entry = cgen.generate_entry(se)
-		
-		np = nc.nameparts()
-		
-		entry_filename = '_catalog/catalog.' + '.'.join(np)
-		
+
+		# catalog file
+		centry = cgen.generate_entry(se)
 		with open(entry_filename + '.txt', encoding='utf-8', mode='w') as entry_file:
-			entry_file.write(entry)
-		
+			entry_file.write(centry)
+			
+		# catalog file
+		dentry = dgen.generate_entry(se)
+		with open(entry_filename + '.json', encoding='utf-8', mode='w') as entry_file:
+			entry_file.write(dentry)
+
+		# thumbnail file
 		bgcolor = appearance.select_bgcolor(se_name)
-		
 		thgen.generate_thumb(entry_filename + '.png', bgcolor, se_name)
 
 

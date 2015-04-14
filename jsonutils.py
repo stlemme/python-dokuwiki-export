@@ -1,5 +1,31 @@
 
 from collections import deque
+import logging
+import json
+
+
+class ValuesEncoder(json.JSONEncoder):
+    def default(self, obj):
+        if isinstance(obj, Values):
+            # build dict using comprehension
+            return {prop: value for (prop, value) in obj.items()}
+
+        return json.JSONEncoder.default(self, obj)
+
+def json_serialize(data, cls=None):
+	try:
+		text = json.dumps(data, indent=4, cls=cls)
+	except Exception as e:
+		logging.warning("Exception occured: %s" % e)
+		text = None
+	return text
+
+def json_deserialize(text):
+	try:
+		data = json.loads(text)
+	except Exception as e:
+		data = None
+	return data
 
 
 def split_path(path):
@@ -73,3 +99,5 @@ class Values(object):
 	# def __str__(self):
 		# return str(self.values)
 	
+	def serialize(self):
+		return json_serialize(self, cls=ValuesEncoder)

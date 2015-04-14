@@ -120,27 +120,41 @@
 		
 		"examples": {
 			"type": "object",
-			"additionalProperties": {
-				"type": "object",
-				"properties": {
-					"title": {
-						"type": "string",
-						"maxLength": 45
-					},
-					"description": {
-						"type": "string",
-						"minLength": 60,
-						"maxLength": 250
-					},
-					"link": {
-						"oneOf": [
-							{ "$ref": "#/defs/wikimedia" },
-							{ "$ref": "#/defs/uri" }
-						]
-					}
+			"properties": {
+				"live-demo": {
+					"type": "object",
+					"allOf": [
+						{ "$ref": "#/defs/DescribedReference" },
+						{
+							"type": "object",
+							"properties": {
+								"link": { "$ref": "#/defs/uri" }
+							}
+						}
+					],
+					"required": ["title", "description", "link"],
+					"additionalProperties": false
+
 				},
-				"required": ["title", "description", "link"],
-				"additionalProperties": false
+				"playground": {
+					"allOf": [
+						{ "$ref": "#/defs/DescribedReference" },
+						{
+							"type": "object",
+							"properties": {
+								"link": {
+									"type": "string"
+								}
+							}
+						}
+					],
+					"required": ["title", "description", "link"],
+					"additionalProperties": false
+				}
+			},
+			"additionalProperties": {
+				"$ref": "#/defs/LinkedReference"
+
 			}
 		},
 		
@@ -323,6 +337,41 @@
 		
 		"null": {
 			"type": "null"
+		},
+		
+		"DescribedReference": {
+			"type": "object",
+			"properties": {
+				"title": {
+					"type": "string",
+					"maxLength": 45
+				},
+				"description": {
+					"type": "string",
+					"minLength": 60,
+					"maxLength": 250
+				}
+			}
+		},
+		
+		"LinkedReference": {
+			"type": "object",
+			"allOf": [
+				{ "$ref": "#/defs/DescribedReference" },
+				{
+					"type": "object",
+					"properties": {
+						"link": {
+							"oneOf": [
+								{ "$ref": "#/defs/wikimedia" },
+								{ "$ref": "#/defs/uri" }
+							]
+						}
+					}
+				}
+			],
+			"required": ["title", "description", "link"],
+			"additionalProperties": false
 		},
 		
 		"instance": {

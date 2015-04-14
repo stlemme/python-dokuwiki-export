@@ -1,0 +1,127 @@
+{
+    "se": {
+        "spec": {
+            "requirements": {
+                "mod_php5": {
+                    "description": "The implementation requires PHP 5.4.", 
+                    "title": "PHP5"
+                }, 
+                "apache": {
+                    "link": null, 
+                    "description": "The php-based implementation runs on an apache web server.", 
+                    "title": "Apache"
+                }, 
+                "mod_rewrite": {
+                    "description": "The URL routing requires apache's module mod_rewrite to be enabled.", 
+                    "title": "mod_rewrite"
+                }
+            }, 
+            "name": "3D-Map Tiles", 
+            "license": {
+                "features": {
+                    "modifications-allowed": "Yes", 
+                    "include-original": "Not required", 
+                    "include-copyright": "Required", 
+                    "distribution-allowed": "Yes", 
+                    "state-changes": "Not required", 
+                    "disclose": "Not required", 
+                    "commercial-use": "Yes"
+                }, 
+                "copyright": "Copyright &copy; 2014 {{/auto/nice-owners}}", 
+                "full": "{{/spec/license/copyright}}\n\nPermission is hereby granted, free of charge, to any person obtaining a copy\nof this software and associated documentation files (the \"Software\"), to deal\nin the Software without restriction, including without limitation the rights\nto use, copy, modify, merge, publish, distribute, sublicense, and/or sell\ncopies of the Software, and to permit persons to whom the Software is\nfurnished to do so, subject to the following conditions:\n\nThe above copyright notice and this permission notice shall be included in\nall copies or substantial portions of the Software.\n\nTHE SOFTWARE IS PROVIDED \"AS IS\", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR\nIMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,\nFITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE\nAUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER\nLIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,\nOUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN\nTHE SOFTWARE.", 
+                "fee": "Free", 
+                "type": "open", 
+                "summary": "The {{/spec/name}} SE is available under MIT licensing", 
+                "template": "MIT"
+            }, 
+            "contacts": {
+                "primary": "DFKI-Stefan"
+            }, 
+            "delivery": {
+                "description": "The implementation includes a PHP-based webservice that can be easily deployed on an Apache webserver.", 
+                "repository": {
+                    "github": "https://github.com/stlemme/3d-map-tiles"
+                }, 
+                "languages": [
+                    "JavaScript", 
+                    "PHP"
+                ], 
+                "sources": "https://github.com/stlemme/3d-map-tiles/archive/master.zip", 
+                "instances": {
+                    "fi-ppp": {
+                        "access": {
+                            "manually": "This instance is deployed to FIWARE testbed and can be accessed without any credentials."
+                        }, 
+                        "endpoint": "http://130.206.80.175/api/3d-map-tiles"
+                    }
+                }
+            }, 
+            "platforms": [
+                "smartcity", 
+                "gaming"
+            ], 
+            "owners": [
+                "DFKI"
+            ], 
+            "examples": {
+                "tile-places-hamburg": {
+                    "link": "http://130.206.80.175/poi-client/single-tile-hh.html", 
+                    "description": "This is one tile (containing the \"Places\" in Hamburg, Germany) provided by the 3D-Map Tiles SE using the Overpass API backend.", 
+                    "title": "Single tile"
+                }, 
+                "oulu": {
+                    "link": "http://130.206.80.175/poi-client/buildings-oulu.html", 
+                    "description": "Small part of Oulu (Finland) using the GIS-DP GE for aerial imaging and building footprints.", 
+                    "title": "Oulu"
+                }
+            }, 
+            "media": {
+                "videos": {
+                    "pitch": null
+                }, 
+                "images": {}
+            }, 
+            "documentation": {
+                "why-you-need-it": "When moving from traditional 2D-map applications towards geo-referenced interactive 3D-applications, a representation of the environmental ground (i.e. terrain) is needed. The 3D-Map Tiles SE addresses this requirement in a flexible approach and easy-to-use way for web-based application. It seamlessly incorporates with the 3D-UI GE from FI-WARE and thereby preserves full control over rendering to the client application.", 
+                "how-it-works": "The 3D-Map Tiles SE queries one of its backends for the given bounds of the requested map tile, retrieves and processes the data from the query result, and finally delivers the map tile as XML3D resource to the client application. Optionally, the resulting XML3D resource will be cached.", 
+                "what-it-does": "The 3D-Map Tiles SE supplies in an OpenStreetMap-like manner map tiles of the ground. These tiles are a 3D representation of the scene ground in contrast to usual image tiles of OSM. Moreover, the 3D-Map Tiles SE supports different backend data providers to offer different kinds of tiles, such as projected OSM-tiles and laser-scanned elevation data with textures. Therefore, the 3D-Map Tiles SE incorporates the GIS-DP GE from FIWARE."
+            }
+        }, 
+        "metajson": "\n{\n\n\n\"name\": \"3D-Map Tiles\",\n\n\"owners\": [\"DFKI\"],\n\n\"platforms\": [\"smartcity\", \"gaming\"],\n\n\"contacts\": {\n\"primary\": \"DFKI-Stefan\"\n},\n\n\n\n\"documentation\": {\n\n\"what-it-does\": \"The 3D-Map Tiles SE supplies in an OpenStreetMap-like manner map tiles of the ground. These tiles are a 3D representation of the scene ground in contrast to usual image tiles of OSM. Moreover, the 3D-Map Tiles SE supports different backend data providers to offer different kinds of tiles, such as projected OSM-tiles and laser-scanned elevation data with textures. Therefore, the 3D-Map Tiles SE incorporates the GIS-DP GE from FIWARE.\",\n\n\"how-it-works\": \"The 3D-Map Tiles SE queries one of its backends for the given bounds of the requested map tile, retrieves and processes the data from the query result, and finally delivers the map tile as XML3D resource to the client application. Optionally, the resulting XML3D resource will be cached.\",\n\n\"why-you-need-it\": \"When moving from traditional 2D-map applications towards geo-referenced interactive 3D-applications, a representation of the environmental ground (i.e. terrain) is needed. The 3D-Map Tiles SE addresses this requirement in a flexible approach and easy-to-use way for web-based application. It seamlessly incorporates with the 3D-UI GE from FI-WARE and thereby preserves full control over rendering to the client application.\"\n\n\n},\n\n\n\n\"media\": {\n\n\"videos\": {\n\"pitch\": null\n},\n\n\"images\": {\n}\n\n},\n\n\n\"examples\": {\n\n\"tile-places-hamburg\": {\n\"title\": \"Single tile\",\n\"description\": \"This is one tile (containing the \\\"Places\\\" in Hamburg, Germany) provided by the 3D-Map Tiles SE using the Overpass API backend.\",\n\"link\": \"http://130.206.80.175/poi-client/single-tile-hh.html\"\n},\n\n\"oulu\": {\n\"title\": \"Oulu\",\n\"description\": \"Small part of Oulu (Finland) using the GIS-DP GE for aerial imaging and building footprints.\",\n\"link\": \"http://130.206.80.175/poi-client/buildings-oulu.html\"\n}\n\n\n},\n\n\n\n\n\"license\": {\n\"template\": \"MIT\"\n},\n\n\n\n\n\"delivery\": {\n\n\n\"languages\": [\n\"JavaScript\",\n\"PHP\"\n],\n\n\"description\": \"The implementation includes a PHP-based webservice that can be easily deployed on an Apache webserver.\",\n\n\n\n\"repository\": {\n\"github\": \"https://github.com/stlemme/3d-map-tiles\"\n},\n\n\n\"sources\": \"https://github.com/stlemme/3d-map-tiles/archive/master.zip\",\n\n\n\"instances\": {\n\"fi-ppp\": {\n\"endpoint\": \"http://130.206.80.175/api/3d-map-tiles\",\n\"access\": {\n\"manually\": \"This instance is deployed to FIWARE testbed and can be accessed without any credentials.\"\n}\n}\n}\n\n\n},\n\n\n\"requirements\": {\n\"apache\": {\n\"title\": \"Apache\",\n\"description\": \"The php-based implementation runs on an apache web server.\",\n\"link\": null\n},\n\"mod_php5\": {\n\"title\": \"PHP5\",\n\"description\": \"The implementation requires PHP 5.4.\"\n},\n\"mod_rewrite\": {\n\"title\": \"mod_rewrite\",\n\"description\": \"The URL routing requires apache's module mod_rewrite to be enabled.\"\n}\n}\n\n\n}\n", 
+        "auto": {
+            "license": {
+                "is-proprietary": "No", 
+                "has-evaluation": "No", 
+                "is-open-source": "Yes"
+            }, 
+            "contacts": {
+                "primary": {
+                    "name": "Stefan Lemme", 
+                    "company": {
+                        "fullname": "German Research Center for Artificial Intelligence", 
+                        "shortname": "DFKI GmbH"
+                    }, 
+                    "email": "stefan.lemme@dfki.de"
+                }
+            }, 
+            "delivery": {
+                "source-code": "Yes", 
+                "hosted-service": "Yes", 
+                "repository": {
+                    "checkout-cmd": "git clone --recursive {{/auto/delivery/repository/url}}.git", 
+                    "url": "https://github.com/stlemme/3d-map-tiles"
+                }, 
+                "package": "Yes"
+            }, 
+            "documentation": {
+                "wiki-url": "http://wiki.mediafi.org/doku.php/ficontent.common.enabler.3dmaptiles", 
+                "devguide-url": null
+            }, 
+            "timestamp": "2015-04-14 15:36:58.916765", 
+            "media": {
+                "youtube-pitch": null
+            }, 
+            "nice-owners": "DFKI GmbH"
+        }
+    }
+}
