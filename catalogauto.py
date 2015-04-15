@@ -22,8 +22,11 @@ class AutoValues(object):
 				'wiki-url': self.pub_se_wiki_url,
 				'devguide-url': self.pub_se_devguide_url,
 				'installguide-url': self.pub_se_installguide_url,
-				'faq-url': self.pub_se_faq_url,
 				'api-url': self.pub_se_api_url
+			},
+			'support': {
+				'faq-url': self.pub_se_faq_url,
+				'bugtracker': self.bugtracker_url
 			},
 			'delivery': {
 				'model': self.delivery_model,
@@ -43,7 +46,8 @@ class AutoValues(object):
 			},
 			'usage': {
 				'online-demo': self.online_demo,
-				'playground': self.playground
+				'playground': self.playground,
+				'tutorials': self.pub_se_tutorials_url
 			},
 			'nice-platforms': self.nice_platforms,
 			'timestamp': self.timestamp
@@ -97,14 +101,26 @@ class AutoValues(object):
 		
 	def pub_se_api_url(self):
 		# TODO: overwrite in SE spec with url
-		page = self.nc.wikipage()
+		return 'http://fic2.github.io/swaggerfiles/%s/swagger.json' % self.nc.normalizedname()
+		# page = self.nc.wikipage()
+		# if not self.wiki_page_exists(page):
+			# return None
+		# return self.wiki_pub_url(page)
+		
+	def pub_se_faq_url(self):
+		faq = self.se.get('/spec/support/faq')
+		if faq is not None:
+			return faq
+		page = self.nc.faq()
 		if not self.wiki_page_exists(page):
 			return None
 		return self.wiki_pub_url(page)
-		
-	def pub_se_faq_url(self):
-		# TODO: overwrite in SE spec with url
-		page = self.nc.faq()
+
+	def pub_se_tutorials_url(self):
+		tut = self.se.get('/spec/examples/tutorials')
+		if tut is not None:
+			return tut
+		page = self.nc.tutorials()
 		if not self.wiki_page_exists(page):
 			return None
 		return self.wiki_pub_url(page)
@@ -124,7 +140,7 @@ class AutoValues(object):
 			return False
 		if not global_service:
 			return len(instances) > 0
-		return instances.get('/global/endpoint') is not None
+		return instances.get('/public/endpoint') is not None
 	
 	def delivers_hosted_service(self):
 		return self.YesNo(self.hosted_service_available())
@@ -210,7 +226,12 @@ class AutoValues(object):
 		return self.se.get('/spec/examples/live-demo')
 
 	def playground(self):
-		return self.se.get('/spec/examples/playground')
+		plexamples = self.se.get('/spec/examples/playground')
+		if plexamples is None:
+			return None
+		if len(plexamples) > 0:
+			return plexamples[0]
+		return None
 		
 	def nice_platforms(self):
 		plnames = []
@@ -222,7 +243,16 @@ class AutoValues(object):
 		if 'gaming' in platforms:
 			plnames.append('Pervasive Games')
 		return plnames
-	
+		
+	def bugtracker_url(self):
+		tracker = self.se.get('/spec/support/bugtracker')
+		if tracker is not None:
+			return tracker
+		repo = self.se.get('/spec/delivery/repository/github')
+		if repo is not None:
+			return repo + '/issues'
+		return None
+		
 	def timestamp(self):
 		return str(datetime.now())
 		

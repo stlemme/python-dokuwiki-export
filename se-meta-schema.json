@@ -56,6 +56,11 @@
 			"type": "object",
 			
 			"properties": {
+				"tag-line": {
+					"type": "string",
+					"maxLength": 150
+				},
+				
 				"what-it-does": {
 					"type": "string",
 					"maxLength": 600,
@@ -121,40 +126,16 @@
 		"examples": {
 			"type": "object",
 			"properties": {
-				"live-demo": {
-					"type": "object",
-					"allOf": [
-						{ "$ref": "#/defs/DescribedReference" },
-						{
-							"type": "object",
-							"properties": {
-								"link": { "$ref": "#/defs/uri" }
-							}
-						}
-					],
-					"required": ["title", "description", "link"],
-					"additionalProperties": false
-
-				},
+				"live-demo": { "$ref": "#/defs/UriReference" },
 				"playground": {
-					"allOf": [
-						{ "$ref": "#/defs/DescribedReference" },
-						{
-							"type": "object",
-							"properties": {
-								"link": {
-									"type": "string"
-								}
-							}
-						}
-					],
-					"required": ["title", "description", "link"],
-					"additionalProperties": false
+					"type": "array",
+					"items": { "$ref": "#/defs/UriReference" },
+					"minItems": 0,
+					"maxItems": 1
 				}
 			},
 			"additionalProperties": {
 				"$ref": "#/defs/LinkedReference"
-
 			}
 		},
 		
@@ -330,6 +311,11 @@
 			"pattern": "^https?://(.+)/(.+)?$"
 		},
 		
+		"wikipage": {
+			"type": "string",
+			"pattern": "^(:[a-zA-Z0-9_\\-\\.]+)+$"
+		},
+
 		"wikimedia": {
 			"type": "string",
 			"pattern": "^(:[a-zA-Z0-9_\\-\\.]+)+\\.(png|jpg|gif)$"
@@ -339,37 +325,40 @@
 			"type": "null"
 		},
 		
-		"DescribedReference": {
-			"type": "object",
-			"properties": {
-				"title": {
-					"type": "string",
-					"maxLength": 45
-				},
-				"description": {
-					"type": "string",
-					"minLength": 60,
-					"maxLength": 250
-				}
-			}
+		"exampleTitle": {
+			"type": "string",
+			"maxLength": 45
+		},
+		
+		"exampleDescription": {
+			"type": "string",
+			"minLength": 0,
+			"maxLength": 250
 		},
 		
 		"LinkedReference": {
 			"type": "object",
-			"allOf": [
-				{ "$ref": "#/defs/DescribedReference" },
-				{
-					"type": "object",
-					"properties": {
-						"link": {
-							"oneOf": [
-								{ "$ref": "#/defs/wikimedia" },
-								{ "$ref": "#/defs/uri" }
-							]
-						}
-					}
+			"properties": {
+				"title": { "$ref": "#/defs/exampleTitle" },
+				"description": { "$ref": "#/defs/exampleDescription" },
+				"link": {
+					"oneOf": [
+						{ "$ref": "#/defs/wikimedia" },
+						{ "$ref": "#/defs/uri" }
+					]
 				}
-			],
+			},
+			"required": ["title", "description", "link"],
+			"additionalProperties": false
+		},
+		
+		"UriReference": {
+			"type": "object",
+			"properties": {
+				"title": { "$ref": "#/defs/exampleTitle" },
+				"description": { "$ref": "#/defs/exampleDescription" },
+				"link": { "$ref": "#/defs/uri" }
+			},
 			"required": ["title", "description", "link"],
 			"additionalProperties": false
 		},

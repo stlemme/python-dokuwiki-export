@@ -42,7 +42,7 @@ class NamingConventions(object):
 	def wikipage(self):
 		page = self.wikinamespace() + 'start'
 		return page
-	
+
 	def devguide(self):
 		page = self.wikinamespace() + 'developerguide'
 		return page
@@ -53,6 +53,10 @@ class NamingConventions(object):
 
 	def faq(self):
 		page = self.wikinamespace() + 'faq'
+		return page
+
+	def tutorials(self):
+		page = self.wikinamespace() + 'tutorials'
 		return page
 
 	def thumbnail(self, type):

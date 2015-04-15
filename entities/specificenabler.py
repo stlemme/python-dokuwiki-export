@@ -141,6 +141,8 @@ class SpecificEnabler(NamedEntity):
 		examples = self.get('/spec/examples')
 		if examples is not None:
 			for k in examples:
+				if k in ['live', 'playground']:
+					continue
 				examples[k]['link'] = self.resolve(examples[k]['link'], dw, pub)
 		
 		images = self.get('/spec/media/images')

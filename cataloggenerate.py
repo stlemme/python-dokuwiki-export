@@ -38,6 +38,9 @@ def generate_catalog(fidoc, template_filename, meta_pages = None):
 		# meta_pages = fidoc.list_all_se_meta_pages()
 		
 	meta = fidoc.get_meta_structure()
+	if meta is None:
+		logging.error("Unable to access meta structure");
+		return
 	
 	rel = meta.find_current_release()
 	rel_ses = rel.get_specific_enablers()
