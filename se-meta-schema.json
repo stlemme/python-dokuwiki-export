@@ -175,11 +175,7 @@
 			"type": "object",
 			"properties": {
 			
-				"description": {
-					"type": "string",
-					"minLength": 50,
-					"maxLength": 300
-				},
+				"description": { "type": "string" },
 				
 				"languages": {
 					"type": "array",

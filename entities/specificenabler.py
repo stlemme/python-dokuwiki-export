@@ -205,11 +205,25 @@ class SpecificEnabler(NamedEntity):
 	@staticmethod
 	def perform_sanity_checks(se):
 		r = True
+		
+		# ID
+		# Name (M)
 		r &= val_value(se, '/spec/name', val_length, (1, 50))
+		# Short-description (M)
 		r &= val_value(se, '/spec/documentation/tag-line', val_length, (0, 150))
+		# Categories (M)
+		#  -> platforms
+		# Tags (M)
+		
+		# Additional-tags (O)
+
 		r &= val_value(se, '/spec/documentation/what-it-does', val_length, (200, 600))
 		r &= val_value(se, '/spec/documentation/how-it-works', val_length, (200, 800))
 		r &= val_value(se, '/spec/documentation/why-you-need-it', val_length, (150, 600))
+		
+		# Delivery-artifact (M)
+		
+		
 		return r
 
 def val_value(se, path, val, args = None):
