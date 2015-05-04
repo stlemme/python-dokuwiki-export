@@ -83,9 +83,14 @@ class MetaStructure(Entity):
 		
 	def find_current_release(self):
 		rel_dates = [rel.get_date() for rel in self.get_releases()]
-		next_upcoming = min([d for d in rel_dates if date.today() < d])
+		rel_date_upcoming = [d for d in rel_dates if date.today() <= d]
+		if len(rel_date_upcoming) > 0:
+			latest = min(rel_date_upcoming)
+		else:
+			latest = max(rel_dates)
+		
 		for rel in self.get_releases():
-			if rel.get_date() == next_upcoming:
+			if rel.get_date() == latest:
 				return rel
 		return None
 	
