@@ -20,6 +20,7 @@
 		},
 		
 		"platforms": {
+			"title": "The list of relevant platforms to this SE.",
 			"type": "array",
 			"items": {
 				"enum": ["socialtv", "smartcity", "gaming"]
@@ -56,26 +57,10 @@
 			"type": "object",
 			
 			"properties": {
-				"tag-line": {
-					"type": "string",
-					"maxLength": 150
-				},
-				
-				"what-it-does": {
-					"type": "string",
-					"maxLength": 600,
-					"minLength": 200
-				},
-				"how-it-works": {
-					"type": "string",
-					"maxLength": 800,
-					"minLength": 200
-				},
-				"why-you-need-it": {
-					"type": "string",
-					"maxLength": 600,
-					"minLength": 150
-				},
+				"tag-line": { "type": "string" },
+				"what-it-does": { "type": "string" },
+				"how-it-works": { "type": "string" },
+				"why-you-need-it": { "type": "string" },
 				"additional": {
 					"type": "object",
 					"additionalProperties": {

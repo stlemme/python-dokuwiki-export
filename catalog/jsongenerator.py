@@ -1,41 +1,43 @@
 
 import logging
-import re
 from jsonutils import Values
+from . import ProcessingGenerator
 
 
-class JsonGenerator(object):
+class JsonGenerator(ProcessingGenerator):
+	terms_template = '''
+		<div class="terms-text">
+		<h2>Licence type</h2>
+		<ul>
+			<li>Open source: {{/auto/license/is-open-source}}</li>
+			<li>Proprietary: {{/auto/license/is-proprietary}}</li>
+			<li>Evaluation licence: {{/auto/license/has-evaluation}}</li>
+		</ul>
+		<h2>Licence features</h2>
+		<ul>
+			<li>Commercial use: {{/spec/license/features/commercial-use}}</li>
+			<li>Modifications allowed: {{/spec/license/features/modifications-allowed}}</li>
+			<li>Distribution allowed: {{/spec/license/features/distribution-allowed}}</li>
+			<li>Include copyright: {{/spec/license/features/include-copyright}}</li>
+			<li>Include original: {{/spec/license/features/include-original}}</li>
+			<li>State changes: {{/spec/license/features/state-changes}}</li>
+			<li>Disclose source code: {{/spec/license/features/disclose}}</li>
+		</ul>
+		<h2>Licence fee</h2>
+		<p>{{/spec/license/fee}}</p>
+		<h2>Licence summary</h2>
+		<p>{{/spec/license/summary}}</p>
+		<h2>Copyright statement</h2>
+		<p>{{/spec/license/copyright}}</p>
+		<h2>Full licence</h2>
+		<p>{{/spec/license/full}}</p>
+		</div>'''
+			
+	playground_url = 'http://playground.simple-url.com:8000/'
 
 	def __init__(self, escaping = lambda t : t):
-		self.se = None
-		self.escape = escaping
-		self.terms_template = '''
-			<div class="terms-text">
-			<h2>Licence type</h2>
-			<ul>
-				<li>Open source: {{/auto/license/is-open-source}}</li>
-				<li>Proprietary: {{/auto/license/is-proprietary}}</li>
-				<li>Evaluation licence: {{/auto/license/has-evaluation}}</li>
-			</ul>
-			<h2>Licence features</h2>
-			<ul>
-				<li>Commercial use: {{/spec/license/features/commercial-use}}</li>
-				<li>Modifications allowed: {{/spec/license/features/modifications-allowed}}</li>
-				<li>Distribution allowed: {{/spec/license/features/distribution-allowed}}</li>
-				<li>Include copyright: {{/spec/license/features/include-copyright}}</li>
-				<li>Include original: {{/spec/license/features/include-original}}</li>
-				<li>State changes: {{/spec/license/features/state-changes}}</li>
-				<li>Disclose source code: {{/spec/license/features/disclose}}</li>
-			</ul>
-			<h2>Licence fee</h2>
-			<p>{{/spec/license/fee}}</p>
-			<h2>Licence summary</h2>
-			<p>{{/spec/license/summary}}</p>
-			<h2>Copyright statement</h2>
-			<p>{{/spec/license/copyright}}</p>
-			<h2>Full licence</h2>
-			<p>{{/spec/license/full}}</p>
-			</div>'''
+		ProcessingGenerator.__init__(self, escaping)
+
 	
 	def generate_entry(self, se):
 		self.se = se
@@ -61,7 +63,7 @@ class JsonGenerator(object):
 	
 	def genDiscover(self, entry):
 		entry.set('/name', self.se.get_name())
-		entry.set('/supplier', self.se.get('/auto/nice-owners'))
+		entry.set('/supplier', self.process_value('/auto/nice-owners'))
 
 		self.genDescription(entry)
 		self.genCategory(entry)
@@ -76,7 +78,7 @@ class JsonGenerator(object):
 	def genTermsAndConditions(self, entry):
 		entry.set('/terms/fi-ppp/type', self.se.get('/auto/license'))
 		entry.set('/terms/fi-ppp/license', self.se.get('/spec/license'))
-		entry.set('/terms/fi-ppp/text', self.terms_template)
+		entry.set('/terms/fi-ppp/text', self.process_text_snippet(JsonGenerator.terms_template))
 		
 		if self.se.get('/spec/license/beyond') is None:
 			entry.set('/terms/beyond-fi-ppp', None)
@@ -85,16 +87,18 @@ class JsonGenerator(object):
 		# TODO: handle beyond FI-PPP license information
 		
 	def genDescription(self, entry):
-		entry.set('/description/short', self.se.get('/spec/documentation/tag-line'))
-		entry.set('/description/what-it-does', self.se.get('/spec/documentation/what-it-does'))
-		entry.set('/description/how-it-works', self.se.get('/spec/documentation/how-it-works'))
-		entry.set('/description/why-you-need-it', self.se.get('/spec/documentation/why-you-need-it'))
+		entry.set('/description/short', self.process_value('/spec/documentation/tag-line'))
+		entry.set('/description/what-it-does', self.process_value('/spec/documentation/what-it-does'))
+		entry.set('/description/how-it-works', self.process_value('/spec/documentation/how-it-works'))
+		entry.set('/description/why-you-need-it', self.process_value('/spec/documentation/why-you-need-it'))
 
 	def genCategory(self, entry):
 		entry.set('/category/platforms', self.se.get('/spec/platforms'))
 		entry.set('/category/nice-platforms', self.se.get('/auto/nice-platforms'))
+		# TODO: handle and validate tags
 		tags = []
 		entry.set('/category/tags', tags)
+		# TODO: handle and validate additional tags
 		addtags = []
 		entry.set('/category/additional-tags', addtags)
 		
@@ -122,7 +126,9 @@ class JsonGenerator(object):
 	def genMedia(self, entry):
 		filename = self.se.get('/auto/media/thumbnail')
 		fileparts = filename.rpartition(':')
-		entry.set('/media/thumbnail', 'catalog.%s' % fileparts[2])
+		nc = self.se.get_naming_conventions()
+		id = nc.normalizedname()
+		entry.set('/media/thumbnail', 'catalog.%s.%s' % (id, fileparts[2]))
 		
 		self.genYoutubeVideo(entry, '/media/teaser', self.se.get('/auto/media/youtube-pitch'))
 		self.genYoutubeVideo(entry, '/media/tutorial', self.se.get('/auto/media/youtube-tutorial'))
@@ -132,11 +138,10 @@ class JsonGenerator(object):
 		entry.set('/usage/try', online_demo)
 
 	def genTweak(self, entry):
-		playground_url = 'http://playground.simple-url.com:8000/'
 		repo = self.se.get('/auto/usage/playground/link')
 		if repo is not None:
 			repoparts = repo.rpartition('/')
-			tweak = playground_url + repoparts[2]
+			tweak = JsonGenerator.playground_url + repoparts[2]
 		else:
 			tweak = None
 		entry.set('/usage/tweak', tweak)
@@ -144,10 +149,11 @@ class JsonGenerator(object):
 
 	def genDelivery(self, entry):
 		entry.set('/delivery/model', self.se.get('/auto/delivery/model'))
-		entry.set('/delivery/artifact', self.se.get('/spec/delivery/description'))
+		entry.set('/delivery/artifact', self.process_value('/spec/delivery/description'))
 		entry.set('/delivery/docker', self.se.get('/auto/delivery/docker'))
 		entry.set('/delivery/saas-instance', self.se.get('/spec/delivery/instances/public/endpoint'))
-		entry.set('/delivery/repository', self.se.get('/auto/delivery/repository'))
+		entry.set('/delivery/repository/url', self.se.get('/auto/delivery/repository/url'))
+		entry.set('/delivery/repository/checkout-cmd', self.process_value('/auto/delivery/repository/checkout-cmd'))
 		entry.set('/delivery/source-code', self.se.get('/spec/delivery/sources'))
 	
 	

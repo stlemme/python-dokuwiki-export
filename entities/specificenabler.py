@@ -149,8 +149,8 @@ class SpecificEnabler(NamedEntity):
 		if images is not None:
 			for k in images:
 				images[k] = self.resolve(images[k], dw, pub)
-
-				
+	
+	
 	@staticmethod
 	def load(dw, se_meta_page, licenses, partners, pub):
 		se = SpecificEnabler(se_meta_page)
@@ -200,3 +200,38 @@ class SpecificEnabler(NamedEntity):
 		se.set_valid()
 		
 		return se
+
+		
+	@staticmethod
+	def perform_sanity_checks(se):
+		r = True
+		r &= val_value(se, '/spec/name', val_length, (1, 50))
+		r &= val_value(se, '/spec/documentation/tag-line', val_length, (0, 150))
+		r &= val_value(se, '/spec/documentation/what-it-does', val_length, (200, 600))
+		r &= val_value(se, '/spec/documentation/how-it-works', val_length, (200, 800))
+		r &= val_value(se, '/spec/documentation/why-you-need-it', val_length, (150, 600))
+		return r
+
+def val_value(se, path, val, args = None):
+	s = se.get(path)
+	issue = val(s, args)
+	if issue is None:
+		return True
+	logging.warning(issue % path)
+	return False
+
+def val_exists(s, args):
+	return "%s is not specified" if s is None else None
+
+
+def val_length(s, args):
+	issue = val_exists(s, None)
+	if issue is not None:
+		return issue
+	l = len(s)
+	if l < args[0]:
+		return "%s is too short"
+	if l > args[1]:
+		return "%s is too long"
+	return None
+

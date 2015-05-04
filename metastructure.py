@@ -133,7 +133,7 @@ class MetaStructure(Entity):
 		stmts = self.ast.find_all(SpecificEnablerStmt)
 		for sestmt in stmts:
 			id = sestmt.get_identifier()
-			logging.debug('Processing %s %s' % (sestmt.get_keyword(), id))
+			logging.info('Processing %s %s' % (sestmt.get_keyword(), id))
 			
 			se_meta_page = sestmt.get_meta_page()
 
@@ -153,6 +153,12 @@ class MetaStructure(Entity):
 			self.adapter.map(sestmt, se)
 			
 			self.add_dependencies(se, sestmt.get_dependencies())
+
+			if not SpecificEnabler.perform_sanity_checks(se):
+				logging.warning('SE %s failed the sanity checks!' % id)
+				continue
+
+			logging.info('Sucessfully finished %s %s' % (sestmt.get_keyword(), id))
 
 	def extract_apps(self, partners):
 		stmts = self.ast.find_all(ApplicationStmt)
