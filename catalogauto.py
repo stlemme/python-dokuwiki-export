@@ -100,12 +100,10 @@ class AutoValues(object):
 		return self.wiki_pub_url(page)
 		
 	def pub_se_api_url(self):
-		# TODO: overwrite in SE spec with url
+		swagger = self.se.get('/spec/documentation/swagger')
+		if swagger is not None:
+			return swagger
 		return 'http://fic2.github.io/swaggerfiles/%s/swagger.json' % self.nc.normalizedname()
-		# page = self.nc.wikipage()
-		# if not self.wiki_page_exists(page):
-			# return None
-		# return self.wiki_pub_url(page)
 		
 	def pub_se_faq_url(self):
 		faq = self.se.get('/spec/support/faq')

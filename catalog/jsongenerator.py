@@ -152,9 +152,12 @@ class JsonGenerator(ProcessingGenerator):
 		entry.set('/delivery/artifact', self.process_value('/spec/delivery/description'))
 		entry.set('/delivery/docker', self.se.get('/auto/delivery/docker'))
 		entry.set('/delivery/saas-instance', self.se.get('/spec/delivery/instances/public/endpoint'))
-		entry.set('/delivery/repository/url', self.se.get('/auto/delivery/repository/url'))
-		entry.set('/delivery/repository/checkout-cmd', self.process_value('/auto/delivery/repository/checkout-cmd'))
 		entry.set('/delivery/source-code', self.se.get('/spec/delivery/sources'))
+		if self.se.get('/auto/delivery/repository') is None:
+			entry.set('/delivery/repository', None)
+		else:
+			entry.set('/delivery/repository/url', self.se.get('/auto/delivery/repository/url'))
+			entry.set('/delivery/repository/checkout-cmd', self.process_value('/auto/delivery/repository/checkout-cmd'))
 	
 	
 		

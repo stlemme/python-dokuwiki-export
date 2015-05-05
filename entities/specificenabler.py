@@ -138,12 +138,9 @@ class SpecificEnabler(NamedEntity):
 
 	
 	def resolve_wiki_references(self, dw, pub):
-		examples = self.get('/spec/examples')
+		examples = self.get('/spec/examples/additional')
 		if examples is not None:
-			for k in examples:
-				if k in ['live', 'playground']:
-					continue
-				examples[k]['link'] = self.resolve(examples[k]['link'], dw, pub)
+			examples[k]['link'] = self.resolve(examples[k]['link'], dw, pub)
 		
 		images = self.get('/spec/media/images')
 		if images is not None:
@@ -207,6 +204,7 @@ class SpecificEnabler(NamedEntity):
 		r = True
 		
 		# ID
+		#  -> normalized name
 		# Name (M)
 		r &= val_value(se, '/spec/name', val_length, (1, 50))
 		# Short-description (M)
@@ -216,13 +214,66 @@ class SpecificEnabler(NamedEntity):
 		# Tags (M)
 		
 		# Additional-tags (O)
-
+		
+		# Supplier (M)
+		#  -> nice owners
+		# Thumbnail (M)
+		
+		# What-it-does (M)
 		r &= val_value(se, '/spec/documentation/what-it-does', val_length, (200, 600))
+		# How-it-works (M)
 		r &= val_value(se, '/spec/documentation/how-it-works', val_length, (200, 800))
+		# Why-you-need-it (M)
 		r &= val_value(se, '/spec/documentation/why-you-need-it', val_length, (150, 600))
 		
+		# Terms-and-conditions within FI-PPP (M)
+		r &= val_value(se, '/spec/license/summary', val_length, (50, 600))
+		r &= val_value(se, '/spec/license/copyright', val_length, (0, 300))
+		# Terms-and-conditions beyond FI-PPP (M)
+
+		# Delivery-mode (M)
+		r &= val_value(se, '/auto/delivery/model', val_inlist, ['Source', 'Binary', 'SaaS'])
+		model = se.get('/auto/delivery/model')
 		# Delivery-artifact (M)
+		r &= val_value(se, '/spec/delivery/description', val_length, (50, 300))
 		
+		# Docker-Image (M for Source and Binary)
+		# SaaS-production-instance (M for SaaS)
+		if model == 'SaaS':
+			r &= val_value(se, '/spec/delivery/instances/public/endpoint', val_url)
+		# Github repository (M for Source)
+		if model == 'Source':
+			r &= val_value(se, '/spec/delivery/repository/github', val_url)
+		# ? Binaries?
+		# Downloadable-source-code (M for Source)
+		r &= val_value(se, '/auto/delivery/source', val_url)
+		# SE specification
+		r &= val_value(se, '/auto/documentation/wiki-url', val_url)
+		# Programming-Guide (M)
+		r &= val_value(se, '/auto/documentation/devguide-url', val_url)
+		# Installation-guide (M)
+		r &= val_value(se, '/auto/documentation/installguide-url', val_url)
+		# API (M)
+		r &= val_value(se, '/auto/documentation/api-url', val_url)
+		# Online-demo (M)
+		r &= val_value(se, '/auto/usage/online-demo/link', val_url)
+		# ? Example-scripts (M)
+		# Tutorial (O)
+		if val_value(se, '/auto/usage/tutorials', val_url):
+			logging.info("Tutorials recognized.")
+		# Video-Teaser (O) - should be mandatory
+		# Video-Tutorial (O)
+		# Playground-Image (O)
+		if val_value(se, '/auto/usage/playground/link', val_url):
+			logging.info("Playground examples recognized.")
+		# FAQ (O)
+		if val_value(se, '/auto/support/faq-url', val_url):
+			logging.info("FAQ recognized.")
+		# Contact (M)
+		#  -> contact persons from partners page
+		# Bug-report (M)
+		r &= val_value(se, '/auto/support/bugtracker', val_url)
+		# ? Support-request (M)
 		
 		return r
 
@@ -231,11 +282,11 @@ def val_value(se, path, val, args = None):
 	issue = val(s, args)
 	if issue is None:
 		return True
-	logging.warning(issue % path)
+	logging.warning(issue.format(var=path))
 	return False
 
 def val_exists(s, args):
-	return "%s is not specified" if s is None else None
+	return "{var} is not specified" if s is None else None
 
 
 def val_length(s, args):
@@ -244,8 +295,25 @@ def val_length(s, args):
 		return issue
 	l = len(s)
 	if l < args[0]:
-		return "%s is too short"
+		return "{{var}} is too short (min {d} chars)".format(d=args[0])
 	if l > args[1]:
-		return "%s is too long"
+		return "{{var}} is too long (max {d} chars)".format(d=args[1])
 	return None
 
+def val_url(s, args):
+	issue = val_exists(s, None)
+	if issue is not None:
+		return issue
+
+	# TODO: check url response code regarding valid resource for deep sanity checks
+	
+	return None
+	
+def val_inlist(s, args):
+	issue = val_exists(s, None)
+	if issue is not None:
+		return issue
+	if s in args:
+		return None
+		
+	return "{{var}} is none out of [{val}]".format(val=', '.join(args))

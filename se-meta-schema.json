@@ -117,10 +117,17 @@
 					"items": { "$ref": "#/defs/UriReference" },
 					"minItems": 0,
 					"maxItems": 1
+				},
+				"tutorials": { "$ref": "#/defs/UriReference" },
+				"additional": {
+					"type": "object",
+					"additionalProperties": {
+						"$ref": "#/defs/LinkedReference"
+					}
 				}
 			},
 			"additionalProperties": {
-				"$ref": "#/defs/LinkedReference"
+				"type": "object"
 			}
 		},
 		
@@ -148,21 +155,10 @@
 					"additionalProperties": false,
 					"required": ["commercial-use", "modifications-allowed", "distribution-allowed", "include-copyright", "include-original", "state-changes", "disclose"]
 				},
-				"fee": {
-					"type": "string"
-				},
-				"summary": {
-					"type": "string",
-					"minLength": 50,
-					"maxLength": 600
-				},
-				"copyright": {
-					"type": "string",
-					"maxLength": 300
-				},
-				"full": {
-					"type": "string"
-				}
+				"fee": { "type": "string" },
+				"summary": { "type": "string" },
+				"copyright": { "type": "string" },
+				"full": { "type": "string" }
 			},
 			"additionalProperties": false,
 			"anyOf": [
@@ -250,15 +246,8 @@
 			"additionalProperties": {
 				"type": "object",
 				"properties": {
-					"title": {
-						"type": "string",
-						"maxLength": 45
-					},
-					"description": {
-						"type": "string",
-						"minLength": 25,
-						"maxLength": 200
-					},
+					"title": { "type": "string" },
+					"description": { "type": "string" },
 					"link": {
 						"oneOf": [
 							{ "$ref": "#/defs/wikimedia" },
