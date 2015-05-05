@@ -246,7 +246,8 @@ class SpecificEnabler(NamedEntity):
 			r &= val_value(se, '/spec/delivery/repository/github', val_url)
 		# ? Binaries?
 		# Downloadable-source-code (M for Source)
-		r &= val_value(se, '/auto/delivery/source', val_url)
+		if model == 'Source':
+			r &= val_value(se, '/auto/delivery/source', val_url)
 		# SE specification
 		r &= val_value(se, '/auto/documentation/wiki-url', val_url)
 		# Programming-Guide (M)
@@ -259,15 +260,15 @@ class SpecificEnabler(NamedEntity):
 		r &= val_value(se, '/auto/usage/online-demo/link', val_url)
 		# ? Example-scripts (M)
 		# Tutorial (O)
-		if val_value(se, '/auto/usage/tutorials', val_url):
+		if val_value(se, '/auto/usage/tutorials', val_url, warning=False):
 			logging.info("Tutorials recognized.")
 		# Video-Teaser (O) - should be mandatory
 		# Video-Tutorial (O)
 		# Playground-Image (O)
-		if val_value(se, '/auto/usage/playground/link', val_url):
+		if val_value(se, '/auto/usage/playground/link', val_url, warning=False):
 			logging.info("Playground examples recognized.")
 		# FAQ (O)
-		if val_value(se, '/auto/support/faq-url', val_url):
+		if val_value(se, '/auto/support/faq-url', val_url, warning=False):
 			logging.info("FAQ recognized.")
 		# Contact (M)
 		#  -> contact persons from partners page
@@ -277,12 +278,13 @@ class SpecificEnabler(NamedEntity):
 		
 		return r
 
-def val_value(se, path, val, args = None):
+def val_value(se, path, val, args = None, warning=True):
 	s = se.get(path)
 	issue = val(s, args)
 	if issue is None:
 		return True
-	logging.warning(issue.format(var=path))
+	if warning:
+		logging.warning(issue.format(var=path))
 	return False
 
 def val_exists(s, args):
