@@ -30,9 +30,9 @@ def generate_catalog(fidoc, template_filename, meta_pages = None):
 	
 	escaping = htmlutils.html_named_entity_escaping
 	
-	cgen = TemplatedGenerator(template, escaping)
+	# cgen = TemplatedGenerator(template, escaping)
 	dgen = JsonGenerator(escaping)
-	thgen = ThumbnailGenerator()
+	# thgen = ThumbnailGenerator()
 
 	# if meta_pages is None:
 		# meta_pages = fidoc.list_all_se_meta_pages()
@@ -68,9 +68,9 @@ def generate_catalog(fidoc, template_filename, meta_pages = None):
 		logging.info("Generating catalog entry for %s ..." % se_name)
 
 		# catalog file
-		centry = cgen.generate_entry(se)
-		with open(entry_filename + '.txt', encoding='utf-8', mode='w') as entry_file:
-			entry_file.write(centry)
+		# centry = cgen.generate_entry(se)
+		# with open(entry_filename + '.txt', encoding='utf-8', mode='w') as entry_file:
+			# entry_file.write(centry)
 			
 		# catalog file
 		dentry = dgen.generate_entry(se)
@@ -78,8 +78,8 @@ def generate_catalog(fidoc, template_filename, meta_pages = None):
 			entry_file.write(dentry)
 
 		# thumbnail file
-		bgcolor = appearance.select_bgcolor(se_name)
-		thgen.generate_thumb(entry_filename + '.png', bgcolor, se_name)
+		# bgcolor = appearance.select_bgcolor(se_name)
+		# thgen.generate_thumb(entry_filename + '.png', bgcolor, se_name)
 
 
 	# logging.info("Dump invalid SE meta pages")

@@ -249,7 +249,7 @@ class SpecificEnabler(NamedEntity):
 		# ? Binaries?
 		# Downloadable-source-code (M for Source)
 		if model == 'Source':
-			r &= val_value(se, '/auto/delivery/source', val_url)
+			r &= val_value(se, '/spec/delivery/sources', val_url)
 		# SE specification
 		r &= val_value(se, '/auto/documentation/wiki-url', val_url)
 		# Programming-Guide (M)
