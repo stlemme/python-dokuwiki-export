@@ -29,6 +29,22 @@
             "uniqueItems": true
 		},
 		
+		"tags": {
+			"type": "array",
+			"items": {
+				"type": "string"
+			},
+            "uniqueItems": true
+		},
+
+		"additional-tags": {
+			"type": "array",
+			"items": {
+				"type": "string"
+			},
+            "uniqueItems": true
+		},
+		
 		"contacts": {
 			"title": "The support contacts for this SE",
 			"type": "object",
@@ -53,6 +69,15 @@
 			]
 		},
 		
+		"support": {
+			"type": "object",
+			"properties": {
+				"bugtracker": { "$ref": "#/defs/uri" },
+				"faq": { "$ref": "#/defs/uri" }
+			},
+			"additionalProperties": false
+		},
+		
 		"documentation": {
 			"type": "object",
 			
@@ -61,6 +86,9 @@
 				"what-it-does": { "type": "string" },
 				"how-it-works": { "type": "string" },
 				"why-you-need-it": { "type": "string" },
+				"devguide": { "$ref": "#/defs/uri" },
+				"installguide": { "$ref": "#/defs/uri" },
+				"swagger": { "$ref": "#/defs/uri" },
 				"additional": {
 					"type": "object",
 					"additionalProperties": {
@@ -82,6 +110,12 @@
 					"type": "object",
 					"properties": {
 						"pitch": {
+							"anyOf": [
+								{ "type": "null" },
+								{ "$ref": "#/defs/uri" }
+							]
+						},
+						"tutorial": {
 							"anyOf": [
 								{ "type": "null" },
 								{ "$ref": "#/defs/uri" }
@@ -131,41 +165,7 @@
 			}
 		},
 		
-		"license": {
-			"type": "object",
-			"properties": {
-				"template": {
-					"type": "string",
-					"enum": ["MIT", "Apache2.0", "LGPL"]
-				},
-				"type": {
-					"enum": ["open", "prop", "eval"]
-				},
-				"features": {
-					"type": "object",
-					"properties": {
-						"commercial-use": { "$ref": "#/defs/YesNo" },
-						"modifications-allowed": { "$ref": "#/defs/YesNo" },
-						"distribution-allowed": { "$ref": "#/defs/YesNo" },
-						"include-copyright": { "$ref": "#/defs/Required" },
-						"include-original": { "$ref": "#/defs/Required" },
-						"state-changes": { "$ref": "#/defs/Required" },
-						"disclose": { "$ref": "#/defs/Required" }
-					},
-					"additionalProperties": false,
-					"required": ["commercial-use", "modifications-allowed", "distribution-allowed", "include-copyright", "include-original", "state-changes", "disclose"]
-				},
-				"fee": { "type": "string" },
-				"summary": { "type": "string" },
-				"copyright": { "type": "string" },
-				"full": { "type": "string" }
-			},
-			"additionalProperties": false,
-			"anyOf": [
-				{ "required": ["template"] },
-				{ "required": ["type", "features", "fee", "summary", "copyright", "full"] }
-			]
-		},
+		"license": { "$ref": "#/defs/License" },
 		
 		"delivery": {
 			"type": "object",
@@ -224,6 +224,11 @@
 						{ "required": ["fi-ppp"] }
 					]
 				},
+				
+				"docker": {
+					"type": "string",
+					"pattern": "^(.+)/(.+)$"
+				},
 
 				"manually": {
 					"type": "string",
@@ -278,7 +283,7 @@
 		"uri": {
 			"type": "string",
 			"format": "uri",
-			"pattern": "^https?://(.+)/(.+)?$"
+			"pattern": "^https?://(.+)$"
 		},
 		
 		"wikipage": {
@@ -372,6 +377,43 @@
 			},
 			"required": ["manually"],
 			"additionalProperties": false
+		},
+		
+		"License": {
+			"type": "object",
+			"properties": {
+				"template": {
+					"type": "string",
+					"enum": ["MIT", "Apache2.0", "LGPL"]
+				},
+				"type": {
+					"enum": ["open", "prop", "eval"]
+				},
+				"features": {
+					"type": "object",
+					"properties": {
+						"commercial-use": { "$ref": "#/defs/YesNo" },
+						"modifications-allowed": { "$ref": "#/defs/YesNo" },
+						"distribution-allowed": { "$ref": "#/defs/YesNo" },
+						"include-copyright": { "$ref": "#/defs/Required" },
+						"include-original": { "$ref": "#/defs/Required" },
+						"state-changes": { "$ref": "#/defs/Required" },
+						"disclose": { "$ref": "#/defs/Required" }
+					},
+					"additionalProperties": false,
+					"required": ["commercial-use", "modifications-allowed", "distribution-allowed", "include-copyright", "include-original", "state-changes", "disclose"]
+				},
+				"fee": { "type": "string" },
+				"summary": { "type": "string" },
+				"copyright": { "type": "string" },
+				"full": { "type": "string" },
+				"beyond": { "$ref": "#/defs/License" }
+			},
+			"additionalProperties": false,
+			"anyOf": [
+				{ "required": ["template"] },
+				{ "required": ["type", "features", "fee", "summary", "copyright", "full"] }
+			]
 		}
 						
 	}

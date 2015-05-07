@@ -140,7 +140,8 @@ class SpecificEnabler(NamedEntity):
 	def resolve_wiki_references(self, dw, pub):
 		examples = self.get('/spec/examples/additional')
 		if examples is not None:
-			examples[k]['link'] = self.resolve(examples[k]['link'], dw, pub)
+			for k in examples:
+				examples[k]['link'] = self.resolve(examples[k]['link'], dw, pub)
 		
 		images = self.get('/spec/media/images')
 		if images is not None:
@@ -218,6 +219,7 @@ class SpecificEnabler(NamedEntity):
 		# Supplier (M)
 		#  -> nice owners
 		# Thumbnail (M)
+		r &= val_value(se, '/auto/media/thumbnail', val_exists)
 		
 		# What-it-does (M)
 		r &= val_value(se, '/spec/documentation/what-it-does', val_length, (200, 600))

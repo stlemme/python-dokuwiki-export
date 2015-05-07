@@ -419,7 +419,11 @@ class DokuWikiRemote(DokuWiki):
 
 	def fileinfo(self, file, ns = []):
 		fullname = self.resolve(file, ns)
-		return self.client.file_info(fullname[1:])
+		try:
+			info = self.client.file_info(fullname[1:])
+			return info if info['size'] > 0 else None
+		except dokuwikixmlrpc.DokuWikiXMLRPCError:
+			return None
 
 	def allpages(self):
 		return self.client.all_pages()

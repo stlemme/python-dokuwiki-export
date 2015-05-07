@@ -125,11 +125,13 @@ class JsonGenerator(ProcessingGenerator):
 	
 	def genMedia(self, entry):
 		filename = self.se.get('/auto/media/thumbnail')
-		fileparts = filename.rpartition(':')
-		nc = self.se.get_naming_conventions()
-		id = nc.normalizedname()
-		entry.set('/media/thumbnail', 'catalog.%s.%s' % (id, fileparts[2]))
-		
+		if filename is not None:
+			fileparts = filename.rpartition(':')
+			nc = self.se.get_naming_conventions()
+			id = nc.normalizedname()
+			entry.set('/media/thumbnail', 'catalog.%s.%s' % (id, fileparts[2]))
+		else:
+			entry.set('/media/thumbnail', None)
 		self.genYoutubeVideo(entry, '/media/teaser', self.se.get('/auto/media/youtube-pitch'))
 		self.genYoutubeVideo(entry, '/media/tutorial', self.se.get('/auto/media/youtube-tutorial'))
 

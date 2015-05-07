@@ -42,6 +42,7 @@ class AutoValues(object):
 			},
 			'media': {
 				'youtube-pitch': self.pitch_id,
+				'youtube-tutorial': self.tutorial_id,
 				'thumbnail': self.thumbnail
 			},
 			'usage': {
@@ -86,14 +87,18 @@ class AutoValues(object):
 		return self.dw.pageurl(pub_page)
 	
 	def pub_se_devguide_url(self):
-		# TODO: overwrite in SE spec with url
+		devguide = self.se.get('/spec/documentation/devguide')
+		if devguide is not None:
+			return devguide
 		page = self.nc.devguide()
 		if not self.wiki_page_exists(page):
 			return None
 		return self.wiki_pub_url(page)
 
 	def pub_se_installguide_url(self):
-		# TODO: overwrite in SE spec with url
+		installguide = self.se.get('/spec/documentation/installguide')
+		if installguide is not None:
+			return installguide
 		page = self.nc.installguide()
 		if not self.wiki_page_exists(page):
 			return None
@@ -174,12 +179,11 @@ class AutoValues(object):
 	
 	# rx_yt_link = re.compile(r'(?:youtube(?:-nocookie)?\.com/(?:[^/]+/.+/|(?:v|e(?:mbed)?)/|.*[?&]v=)|youtu\.be/)([^"&?/ ]{11})', re.IGNORECASE)
 	
-	def pitch_id(self):
-		pitch = self.se.get('/spec/media/videos/pitch')
-		if pitch is None:
+	def youtube_id(self, value):
+		if value is None:
 			return None
 
-		parts = urlparse(pitch)
+		parts = urlparse(value)
 		if parts.hostname == 'youtu.be':
 			return parts.path[1:]
 		if parts.hostname in ('www.youtube.com', 'youtube.com'):
@@ -191,12 +195,22 @@ class AutoValues(object):
 			if parts.path[:3] == '/v/':
 				return parts.path.split('/')[2]
 		return None
+		
+	def pitch_id(self):
+		pitch = self.se.get('/spec/media/videos/pitch')
+		return self.youtube_id(pitch)
+	
+	def tutorial_id(self):
+		tutorial = self.se.get('/spec/media/videos/tutorial')
+		return self.youtube_id(tutorial)
 	
 	def thumbnail(self):
 		types = ['png', 'jpg']
 		for t in types:
 			file = self.nc.thumbnail(t)
 			info = self.dw.fileinfo(file)
+			# print(file)
+			# print(info)
 			if info is not None:
 				return file
 		# print(page, info)
