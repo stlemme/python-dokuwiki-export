@@ -158,7 +158,7 @@ class MetaStructure(Entity):
 				logging.warning('SE %s failed the sanity checks!' % id)
 				continue
 
-			logging.info('Sucessfully finished %s %s' % (sestmt.get_keyword(), id))
+			logging.info('Successfully finished %s %s' % (sestmt.get_keyword(), id))
 
 	def extract_apps(self, partners):
 		stmts = self.ast.find_all(ApplicationStmt)
