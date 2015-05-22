@@ -33,6 +33,46 @@ class JsonGenerator(ProcessingGenerator):
 		<p>{{/spec/license/full}}</p>
 		</div>'''
 			
+	contacts_template = '''
+		<div class="contacts-text">
+			<h2>Owner/developer</h2>
+			<p>{{/auto/nice-owners}}</p>
+			<h2>Contact person(s)</h2>
+			{{if /auto/contacts/primary != ""}}
+			<div class="contacts-primary">
+				<span class="contact-name">{{/auto/contacts/primary/name}}</span>
+				<span class="contact-company">{{/auto/contacts/primary/company/fullname}}</span>
+				<span class="contact-email">{{/auto/contacts/primary/email}}</span>
+			</div>
+			{{endif}}
+
+			{{if /auto/contacts/technical != ""}}
+			<h3>For technical information:</h3>
+
+			{{for /auto/contacts/technical}}
+			<div class="contacts-technical">
+				<span class="contact-name">%value/name%</span>
+				<span class="contact-company">%value/company/fullname%</span>
+				<span class="contact-email">%value/email%</span>
+			</div>
+
+			{{endfor}}
+			{{endif}}
+
+			{{if /auto/contacts/legal != ""}}
+			<h3>For licensing information:</h3>
+
+			{{for /auto/contacts/legal}}
+			<div class="contacts-legal">
+				<span class="contact-name">%value/name%</span>
+				<span class="contact-company">%value/company/fullname%</span>
+				<span class="contact-email">%value/email%</span>
+			</div>
+
+			{{endfor}}
+			{{endif}}
+		</div>'''
+			
 	playground_url = 'http://playground.simple-url.com:8000/'
 
 	def __init__(self, escaping = lambda t : t):
@@ -53,7 +93,7 @@ class JsonGenerator(ProcessingGenerator):
 		self.genTermsAndConditions(entry)
 		self.genDelivery(entry)
 		
-		entry.set('/debug', self.se)
+		# entry.set('/debug', self.se)
 
 		self.se = None
 		result = entry.serialize()
@@ -96,10 +136,14 @@ class JsonGenerator(ProcessingGenerator):
 		entry.set('/category/platforms', self.se.get('/spec/platforms'))
 		entry.set('/category/nice-platforms', self.se.get('/auto/nice-platforms'))
 		# TODO: handle and validate tags
-		tags = []
+		tags = self.se.get('/spec/tags')
+		if tags is None:
+			tags = []
 		entry.set('/category/tags', tags)
 		# TODO: handle and validate additional tags
-		addtags = []
+		addtags = self.se.get('/spec/additional-tags')
+		if addtags is None:
+			addtags = []
 		entry.set('/category/additional-tags', addtags)
 		
 	def genDocumentation(self, entry):
@@ -112,7 +156,7 @@ class JsonGenerator(ProcessingGenerator):
 		entry.set('/support/faq', self.se.get('/auto/support/faq-url'))
 		entry.set('/support/bugtracker', self.se.get('/auto/support/bugtracker'))
 		entry.set('/support/requests', None)
-		entry.set('/support/contacts', self.se.get('/auto/contacts'))
+		entry.set('/support/contacts/text', self.process_text_snippet(JsonGenerator.contacts_template))
 		
 
 
@@ -152,7 +196,7 @@ class JsonGenerator(ProcessingGenerator):
 	def genDelivery(self, entry):
 		entry.set('/delivery/model', self.se.get('/auto/delivery/model'))
 		entry.set('/delivery/artifact', self.process_value('/spec/delivery/description'))
-		entry.set('/delivery/docker', self.se.get('/auto/delivery/docker'))
+		entry.set('/delivery/docker', self.se.get('/spec/delivery/docker'))
 		entry.set('/delivery/saas-instance', self.se.get('/spec/delivery/instances/public/endpoint'))
 		entry.set('/delivery/source-code', self.se.get('/spec/delivery/sources'))
 		if self.se.get('/auto/delivery/repository') is None:

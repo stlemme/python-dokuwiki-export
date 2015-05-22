@@ -88,7 +88,14 @@
 				"why-you-need-it": { "type": "string" },
 				"devguide": { "$ref": "#/defs/uri" },
 				"installguide": { "$ref": "#/defs/uri" },
-				"swagger": { "$ref": "#/defs/uri" },
+				"api": {
+					"type": "object",
+					"properties": {
+						"swagger": { "$ref": "#/defs/uri" },
+						"doxygen": { "$ref": "#/defs/uri" }
+					},
+					"additionalProperties": false
+				},
 				"additional": {
 					"type": "object",
 					"additionalProperties": {
@@ -178,8 +185,7 @@
 					"uniqueItems": true,
 					"minItems": 1,
 					"items": {
-						"type": "string",
-						"enum": ["JavaScript", "UnityScript", "C#", "PHP", "Python", "CSS", "C/C++", "Java", "Scala", "Go", "JSON"]
+						"type": "string"
 					}
 				},
 			

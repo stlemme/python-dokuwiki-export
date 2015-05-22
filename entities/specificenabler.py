@@ -269,6 +269,7 @@ class SpecificEnabler(NamedEntity):
 		# Playground-Image (O)
 		if val_value(se, '/auto/usage/playground/link', val_url, warning=False):
 			logging.info("Playground examples recognized.")
+			r &= val_value(se, '/auto/usage/playground/link', val_pattern, "^https://github.com/(.+)/(.+)")
 		# FAQ (O)
 		if val_value(se, '/auto/support/faq-url', val_url, warning=False):
 			logging.info("FAQ recognized.")
@@ -321,3 +322,13 @@ def val_inlist(s, args):
 		return None
 		
 	return "{{var}} is none out of [{val}]".format(val=', '.join(args))
+
+def val_pattern(s, args):
+	issue = val_exists(s, None)
+	if issue is not None:
+		return issue
+
+	if re.match(args, s) is None:
+		return "{{var}} does not match pattern {val}".format(val=args)
+	
+	return None
