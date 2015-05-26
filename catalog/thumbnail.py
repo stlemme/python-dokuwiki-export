@@ -28,12 +28,13 @@ class ThumbnailGenerator(object):
 		buffer = BytesIO(file)
 		img = Image.open(buffer)
 
-		# img.save('org_' + filename)
-
 		s = img.size
 		if floor(100 * s[1] / s[0]) != 75:
 			logging.warning("Thumbnail dimensions do not match 4:3")
 			return False
+			
+		if s[0] < self.size[0]:
+			logging.warning("The input image has a smaller resolution than the desired output thumbnail.")
 		
 		img.thumbnail(self.size)
 		
