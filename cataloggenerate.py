@@ -34,7 +34,7 @@ def generate_catalog(fidoc, template_filename, meta_pages = None):
 	
 	# cgen = TemplatedGenerator(template, escaping)
 	dgen = JsonGenerator(escaping)
-	# thgen = ThumbnailGenerator()
+	thgen = ThumbnailGenerator(dw)
 
 	# if meta_pages is None:
 		# meta_pages = fidoc.list_all_se_meta_pages()
@@ -78,14 +78,25 @@ def generate_catalog(fidoc, template_filename, meta_pages = None):
 		# with open(entry_filename + '.txt', encoding='utf-8', mode='w') as entry_file:
 			# entry_file.write(centry)
 			
-		# catalog file
+		# catalog output
 		dentry = dgen.generate_entry(se)
+		
+		# thumbnail output
+		thumbname = se.get('/auto/media/thumbnail')
+		filename = output_prefix + dentry.get('/media/thumbnail')
+		if not thgen.generate_thumb(thumbname, filename):
+			logging.warning("Unable to create thumbnail for %s SE" % se_name)
+			continue
+		
+		# write json file
+		result = dentry.serialize()
+		if result is None:
+			logging.warning("Unable to serialize catalog entry for %s SE" % se_name)
+			continue
+	
 		with open(entry_filename + '.json', encoding='utf-8', mode='w') as entry_file:
-			entry_file.write(dentry)
-
-		# thumbnail file
-		# bgcolor = appearance.select_bgcolor(se_name)
-		# thgen.generate_thumb(entry_filename + '.png', bgcolor, se_name)
+			entry_file.write(result)
+		
 
 	idx_playground = dgen.get_index('playground')
 	with open(output_prefix + 'playground.json', encoding='utf-8', mode='w') as idx_file:

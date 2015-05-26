@@ -98,10 +98,7 @@ class JsonGenerator(ProcessingGenerator):
 		# entry.set('/debug', self.se)
 
 		self.se = None
-		result = entry.serialize()
-		if result is None:
-			result = ""
-		return result
+		return entry
 	
 
 	def genDiscover(self, entry):
