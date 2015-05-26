@@ -5,6 +5,7 @@ import wikiutils
 import json
 from catalogauto import *
 from jsonschema.jsonschema import validate, ValidationError, SchemaError
+import sanitychecks
 
 
 class SpecificEnabler(NamedEntity):
@@ -212,8 +213,20 @@ class SpecificEnabler(NamedEntity):
 		r &= val_value(se, '/spec/documentation/tag-line', val_length, (0, 150))
 		# Categories (M)
 		#  -> platforms
-		# Tags (M)
 		
+		# Tags (M)
+		if val_value(se, '/spec/tags', val_length, (1, None)):
+			tags = se.get('/spec/tags')
+			invalidtags = set([t for t in tags if t not in sanitychecks.tags])
+			if len(invalidtags) > 0:
+				logging.warning('Invalid tags [%s] used! They are moved to additional tags.' % ', '.join(invalidtags))
+			tags = set(tags) - invalidtags
+			se.set('/spec/tags', list(tags))
+			addtags = se.get('/spec/additional-tags')
+			tags = set(addtags) if addtags is not None else set()
+			se.set('/spec/additional-tags', list(tags & invalidtags))
+		else:
+			r = False
 		# Additional-tags (O)
 		
 		# Supplier (M)
@@ -240,6 +253,8 @@ class SpecificEnabler(NamedEntity):
 		r &= val_value(se, '/spec/delivery/description', val_length, (50, 300))
 		
 		# Docker-Image (M for Source and Binary)
+		if model == 'Binary': # in ['Source', 'Binary']:
+			r &= val_value(se, '/spec/delivery/docker', val_pattern, '^(fic2|fraunhoferiais|.+)/(.+)')
 		# SaaS-production-instance (M for SaaS)
 		if model == 'SaaS':
 			r &= val_value(se, '/spec/delivery/instances/public/endpoint', val_url)
@@ -264,7 +279,9 @@ class SpecificEnabler(NamedEntity):
 		# Tutorial (O)
 		if val_value(se, '/auto/usage/tutorials', val_url, warning=False):
 			logging.info("Tutorials recognized.")
-		# Video-Teaser (O) - should be mandatory
+		# Video-Teaser (M)
+		r &= val_value(se, '/auto/media/youtube-pitch', val_exists)
+		
 		# Video-Tutorial (O)
 		# Playground-Image (O)
 		if val_value(se, '/auto/usage/playground/link', val_url, warning=False):
@@ -300,9 +317,11 @@ def val_length(s, args):
 		return issue
 	l = len(s)
 	if l < args[0]:
-		return "{{var}} is too short (min {d} chars)".format(d=args[0])
+		return "{{var}} is too short (min {d})".format(d=args[0])
+	if args[1] is None:
+		return None
 	if l > args[1]:
-		return "{{var}} is too long (max {d} chars)".format(d=args[1])
+		return "{{var}} is too long (max {d})".format(d=args[1])
 	return None
 
 def val_url(s, args):

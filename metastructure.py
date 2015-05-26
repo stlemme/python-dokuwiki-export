@@ -156,8 +156,10 @@ class MetaStructure(Entity):
 
 			if not SpecificEnabler.perform_sanity_checks(se):
 				logging.warning('SE %s failed the sanity checks!' % id)
+				se.set('/sanity-check', 'failed')
 				continue
 
+			se.set('/sanity-check', 'succeeded')
 			logging.info('Successfully finished %s %s' % (sestmt.get_keyword(), id))
 
 	def extract_apps(self, partners):

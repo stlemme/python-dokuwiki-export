@@ -77,6 +77,7 @@ class JsonGenerator(ProcessingGenerator):
 
 	def __init__(self, escaping = lambda t : t):
 		ProcessingGenerator.__init__(self, escaping)
+		self.idx = Values()
 
 	
 	def generate_entry(self, se):
@@ -85,8 +86,9 @@ class JsonGenerator(ProcessingGenerator):
 		entry = Values()
 		
 		nc = self.se.get_naming_conventions()
+		self.se_id = nc.normalizedname()
 
-		entry.set('/id', nc.normalizedname())
+		entry.set('/id', self.se_id)
 		self.genDiscover(entry)
 		self.genMedia(entry)
 		self.genUsage(entry)
@@ -101,6 +103,7 @@ class JsonGenerator(ProcessingGenerator):
 			result = ""
 		return result
 	
+
 	def genDiscover(self, entry):
 		entry.set('/name', self.se.get_name())
 		entry.set('/supplier', self.process_value('/auto/nice-owners'))
@@ -135,16 +138,20 @@ class JsonGenerator(ProcessingGenerator):
 	def genCategory(self, entry):
 		entry.set('/category/platforms', self.se.get('/spec/platforms'))
 		entry.set('/category/nice-platforms', self.se.get('/auto/nice-platforms'))
-		# TODO: handle and validate tags
+
 		tags = self.se.get('/spec/tags')
 		if tags is None:
 			tags = []
 		entry.set('/category/tags', tags)
-		# TODO: handle and validate additional tags
+		for t in tags:
+			self.index('additional-tags', t, self.se_id)
+
 		addtags = self.se.get('/spec/additional-tags')
 		if addtags is None:
 			addtags = []
 		entry.set('/category/additional-tags', addtags)
+		for t in addtags:
+			self.index('additional-tags', t, self.se_id)
 		
 	def genDocumentation(self, entry):
 		entry.set('/documentation/specification', self.se.get('/auto/documentation/wiki-url'))
@@ -187,7 +194,9 @@ class JsonGenerator(ProcessingGenerator):
 		repo = self.se.get('/auto/usage/playground/link')
 		if repo is not None:
 			repoparts = repo.rpartition('/')
-			tweak = JsonGenerator.playground_url + repoparts[2]
+			suffix = repoparts[2]
+			tweak = JsonGenerator.playground_url + suffix
+			self.index('playground', suffix, {'url': repo, 'se': self.se.get_name()})
 		else:
 			tweak = None
 		entry.set('/usage/tweak', tweak)
@@ -199,14 +208,25 @@ class JsonGenerator(ProcessingGenerator):
 		entry.set('/delivery/docker', self.se.get('/spec/delivery/docker'))
 		entry.set('/delivery/saas-instance', self.se.get('/spec/delivery/instances/public/endpoint'))
 		entry.set('/delivery/source-code', self.se.get('/spec/delivery/sources'))
-		if self.se.get('/auto/delivery/repository') is None:
+		if self.se.get('/auto/delivery/repository/url') is None:
 			entry.set('/delivery/repository', None)
 		else:
 			entry.set('/delivery/repository/url', self.se.get('/auto/delivery/repository/url'))
 			entry.set('/delivery/repository/checkout-cmd', self.process_value('/auto/delivery/repository/checkout-cmd'))
 	
+	def index(self, idxname, key, val):
+		path = '/' + idxname + '/' + key
+		l = self.idx.get(path);
+		if l is None:
+			l = []
+		l.append(val)
+		self.idx.set(path, l)
 	
-		
-		
-		
-		
+	def get_index(self, idxname):
+		idx = self.idx.get('/' + idxname)
+		if idx is None:
+			return ""
+		result = idx.serialize()
+		if result is None:
+			return ""
+		return result

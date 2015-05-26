@@ -10,13 +10,15 @@ import appearance
 from entities import SpecificEnabler
 import htmlutils
 
+output_prefix = '_catalog/'
+
 
 def debug_invalid_se(metapage, se):
 	logging.warning("Skip meta page of %s, because it describes no valid SE." % metapage)
 	metajson = se.get('/metajson')
 	if metajson is None:
 		return
-	with open('_catalog/failed.meta' + re.sub(':', '.', metapage) + '.txt', 'w') as meta_file:
+	with open(output_prefix + 'failed.meta' + re.sub(':', '.', metapage) + '.txt', 'w') as meta_file:
 		meta_file.write(metajson)
 
 		
@@ -63,7 +65,11 @@ def generate_catalog(fidoc, template_filename, meta_pages = None):
 			logging.info("Skip meta page of %s SE, because it is not known as part of the current release." % se_name)
 			continue
 		
-		entry_filename = '_catalog/catalog.' + nc.normalizedname()
+		if se.get('/sanity-check') != 'succeeded':
+			logging.info("Skip meta page of %s SE, because it did not succeed the sanity checks." % se_name)
+			continue
+
+		entry_filename = output_prefix + 'catalog.' + nc.normalizedname()
 
 		logging.info("Generating catalog entry for %s ..." % se_name)
 
@@ -81,6 +87,9 @@ def generate_catalog(fidoc, template_filename, meta_pages = None):
 		# bgcolor = appearance.select_bgcolor(se_name)
 		# thgen.generate_thumb(entry_filename + '.png', bgcolor, se_name)
 
+	idx_playground = dgen.get_index('playground')
+	with open(output_prefix + 'playground.json', encoding='utf-8', mode='w') as idx_file:
+		idx_file.write(idx_playground)
 
 	# logging.info("Dump invalid SE meta pages")
 	# for se in meta.get_invalid_specific_enablers():
