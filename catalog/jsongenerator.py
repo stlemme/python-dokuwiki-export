@@ -137,20 +137,16 @@ class JsonGenerator(ProcessingGenerator):
 
 	def genCategory(self, entry):
 		entry.set('/category/platforms', self.se.get('/spec/platforms'))
-		entry.set('/category/nice-platforms', self.se.get('/auto/nice-platforms'))
+		entry.set('/category/nice-platforms', self.se.get('/auto/category/nice-platforms'))
 
-		tags = self.se.get('/spec/tags')
-		if tags is None:
-			tags = []
+		tags = self.se.get('/auto/category/tags')
 		entry.set('/category/tags', tags)
 		for t in tags:
-			self.index('additional-tags', t, self.se_id)
+			self.index('tags', t, self.se_id)
 
-		addtags = self.se.get('/spec/additional-tags')
-		if addtags is None:
-			addtags = []
-		entry.set('/category/additional-tags', addtags)
-		for t in addtags:
+		tags = self.se.get('/auto/category/additional-tags')
+		entry.set('/category/additional-tags', tags)
+		for t in tags:
 			self.index('additional-tags', t, self.se_id)
 		
 	def genDocumentation(self, entry):

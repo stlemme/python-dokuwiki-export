@@ -91,6 +91,10 @@ def generate_catalog(fidoc, template_filename, meta_pages = None):
 	with open(output_prefix + 'playground.json', encoding='utf-8', mode='w') as idx_file:
 		idx_file.write(idx_playground)
 
+	idx_tags = dgen.get_index('tags')
+	with open(output_prefix + 'tags.json', encoding='utf-8', mode='w') as idx_file:
+		idx_file.write(idx_tags)
+
 	# logging.info("Dump invalid SE meta pages")
 	# for se in meta.get_invalid_specific_enablers():
 		# debug_invalid_se(se.get_metapage(), se)

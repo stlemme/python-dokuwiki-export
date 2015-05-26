@@ -7,6 +7,7 @@ from publisher import *
 import re
 from datetime import datetime
 from urllib.parse import urlparse, parse_qs
+import sanitychecks
 
 
 class AutoValues(object):
@@ -50,7 +51,11 @@ class AutoValues(object):
 				'playground': self.playground,
 				'tutorials': self.pub_se_tutorials_url
 			},
-			'nice-platforms': self.nice_platforms,
+			'category': {
+				'tags': self.tags,
+				'additional-tags': self.addtags,
+				'nice-platforms': self.nice_platforms,
+			},
 			'timestamp': self.timestamp
 		}
 		
@@ -258,6 +263,31 @@ class AutoValues(object):
 		if 'gaming' in platforms:
 			plnames.append('Pervasive Games')
 		return plnames
+		
+	def tags(self):
+		tags = self.se.get('/spec/tags')
+		if tags is None:
+			return []
+		# invalidtags = set([t for t in tags if t not in sanitychecks.tags])
+		# if len(invalidtags) > 0:
+			# logging.warning('Invalid tags [%s] used! They are moved to additional tags.' % ', '.join(invalidtags))
+		valtags = set(tags) & sanitychecks.tags
+		if len(valtags) < len(tags):
+			logging.warning('Invalid tags in use.')
+		return list(valtags)
+	
+	def addtags(self):
+		addtags = self.se.get('/spec/additional-tags')
+		if addtags is None:
+			addtags = []
+		tags = self.se.get('/spec/tags')
+		if tags is None:
+			return addtags
+		invalidtags = set(tags) - sanitychecks.tags
+		if len(invalidtags) > 0:
+			logging.warning('Invalid tags [%s] used! They are moved to additional tags.' % ', '.join(list(invalidtags)))
+			addtags = list(set(addtags) | invalidtags)
+		return addtags
 		
 	def bugtracker_url(self):
 		tracker = self.se.get('/spec/support/bugtracker')

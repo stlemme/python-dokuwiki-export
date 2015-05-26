@@ -215,18 +215,7 @@ class SpecificEnabler(NamedEntity):
 		#  -> platforms
 		
 		# Tags (M)
-		if val_value(se, '/spec/tags', val_length, (1, None)):
-			tags = se.get('/spec/tags')
-			invalidtags = set([t for t in tags if t not in sanitychecks.tags])
-			if len(invalidtags) > 0:
-				logging.warning('Invalid tags [%s] used! They are moved to additional tags.' % ', '.join(invalidtags))
-			tags = set(tags) - invalidtags
-			se.set('/spec/tags', list(tags))
-			addtags = se.get('/spec/additional-tags')
-			tags = set(addtags) if addtags is not None else set()
-			se.set('/spec/additional-tags', list(tags & invalidtags))
-		else:
-			r = False
+		r &= val_value(se, '/auto/category/tags', val_length, (1, None))
 		# Additional-tags (O)
 		
 		# Supplier (M)
