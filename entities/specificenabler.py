@@ -269,7 +269,10 @@ class SpecificEnabler(NamedEntity):
 		if val_value(se, '/auto/usage/tutorials', val_url, warning=False):
 			logging.info("Tutorials recognized.")
 		# Video-Teaser (M)
-		r &= val_value(se, '/auto/media/youtube-pitch', val_exists)
+		# requirement relaxed until June 15th
+		# r &= val_value(se, '/auto/media/youtube-pitch', val_exists)
+		if val_value(se, '/auto/media/youtube-pitch', val_exists, warning=False):
+			logging.info("Video-Teaser recognized.")
 		
 		# Video-Tutorial (O)
 		# Playground-Image (O)
