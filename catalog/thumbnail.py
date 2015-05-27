@@ -5,7 +5,6 @@ from PIL import ImageFont
 from PIL import ImageDraw
 # from collections import deque
 from io import BytesIO
-from math import floor
 
 default_size = 460, 345
 
@@ -29,7 +28,7 @@ class ThumbnailGenerator(object):
 		img = Image.open(buffer)
 
 		s = img.size
-		if floor(100 * s[1] / s[0]) != 75:
+		if int(round(100 * s[1] / s[0])) != 75:
 			logging.warning("Thumbnail dimensions do not match 4:3")
 			return False
 			

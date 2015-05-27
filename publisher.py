@@ -105,7 +105,7 @@ class wikipublisher(object):
 			# print(srcinfo)
 			# print(destinfo)
 			
-			if (srcinfo['size'] != destinfo['size']) or (srcinfo['lastModified'] > destinfo['lastModified']):
+			if (destinfo is None) or (srcinfo['size'] != destinfo['size']) or (srcinfo['lastModified'] > destinfo['lastModified']):
 				logging.info("Copy image ...")
 				data = self.dw.getfile(fullname)
 				if not self.dw.putfile(mappedname, data):
