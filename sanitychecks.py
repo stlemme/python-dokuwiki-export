@@ -8,3 +8,26 @@ tags = set([
 	
 	'Open software', 'SaaS service', 'Client side', 'Server side'
 ])
+
+
+import logging
+import urllib.request
+
+
+def get_url_status(url):
+	if url is None:
+		return False
+	try:
+		r = urllib.request.urlopen(url)
+		return r.status == 200
+	except urllib.error.HTTPError as e:
+		logging.info('Error: %s' % e)
+	return False
+
+def check_remote_resource(url, msg = None):
+	logging.info('Checking remote resource at %s' % url)
+	if get_url_status(url):
+		return True
+	if msg is not None:
+		logging.warning(msg)
+	return False

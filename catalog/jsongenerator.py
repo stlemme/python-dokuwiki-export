@@ -2,6 +2,7 @@
 import logging
 from jsonutils import Values
 from . import ProcessingGenerator
+import sanitychecks
 
 
 class JsonGenerator(ProcessingGenerator):
@@ -73,7 +74,7 @@ class JsonGenerator(ProcessingGenerator):
 			{{endif}}
 		</div>'''
 			
-	playground_url = 'http://playground.simple-url.com:8000/'
+	playground_url = 'http://playground.mediafi.org:8000/'
 
 	def __init__(self, escaping = lambda t : t):
 		ProcessingGenerator.__init__(self, escaping)
@@ -182,6 +183,8 @@ class JsonGenerator(ProcessingGenerator):
 	def genTry(self, entry):
 		online_demo = self.se.get('/auto/usage/online-demo')
 		entry.set('/usage/try', online_demo)
+		if online_demo is not None:
+			sanitychecks.check_remote_resource(online_demo.get('/link'), 'Probably invalid try link!')
 
 	def genTweak(self, entry):
 		repo = self.se.get('/auto/usage/playground/link')
@@ -189,7 +192,8 @@ class JsonGenerator(ProcessingGenerator):
 			repoparts = repo.rpartition('/')
 			suffix = repoparts[2]
 			tweak = JsonGenerator.playground_url + suffix
-			self.index('playground', suffix, {'url': repo, 'se': self.se.get_name()})
+			check = sanitychecks.check_remote_resource(repo + '/blob/master/playground.json', 'Probably invalid tweak link since no "playground.json" was found!')
+			self.index('playground', suffix, {'url': repo, 'se': self.se.get_name(), 'valid': check})
 		else:
 			tweak = None
 		entry.set('/usage/tweak', tweak)
@@ -223,3 +227,4 @@ class JsonGenerator(ProcessingGenerator):
 		if result is None:
 			return ""
 		return result
+

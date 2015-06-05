@@ -110,13 +110,15 @@ class AutoValues(object):
 		return self.wiki_pub_url(page)
 		
 	def pub_se_api_url(self):
-		swagger = self.se.get('/spec/documentation/api/swagger')
-		if swagger is not None:
-			return swagger
 		doxygen = self.se.get('/spec/documentation/api/doxygen')
 		if doxygen is not None:
 			return doxygen
-		return '___SWAGGER___http://fic2.github.io/swaggerfiles/%s/swagger.json' % self.nc.normalizedname()
+		swagger = self.se.get('/spec/documentation/api/swagger')
+		if swagger is None:
+			swagger = 'http://fic2.github.io/swaggerfiles/%s/swagger.json' % self.nc.normalizedname()
+		if sanitychecks.check_remote_resource(swagger, 'No swagger.json found!'):
+			return '___SWAGGER___' + swagger
+		return None
 		
 	def pub_se_faq_url(self):
 		faq = self.se.get('/spec/support/faq')
