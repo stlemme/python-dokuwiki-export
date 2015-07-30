@@ -378,7 +378,7 @@
 			"properties": {
 				"manually": {
 					"type": "string",
-					"maxLength": 100
+					"maxLength": 300
 				}
 			},
 			"required": ["manually"],
