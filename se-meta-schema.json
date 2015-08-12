@@ -92,6 +92,7 @@
 					"type": "object",
 					"properties": {
 						"swagger": { "$ref": "#/defs/uri" },
+						"jsdoc": { "$ref": "#/defs/uri" },
 						"doxygen": { "$ref": "#/defs/uri" }
 					},
 					"additionalProperties": false

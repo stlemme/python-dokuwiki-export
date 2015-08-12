@@ -271,8 +271,8 @@ class SpecificEnabler(NamedEntity):
 		# Video-Teaser (M)
 		# requirement relaxed until June 15th
 		# r &= val_value(se, '/auto/media/youtube-pitch', val_exists)
-		if val_value(se, '/auto/media/youtube-pitch', val_exists, warning=False):
-			logging.info("Video-Teaser recognized.")
+		val_value(se, '/auto/media/youtube-pitch', val_exists)
+			# logging.info("Video-Teaser recognized.")
 		
 		# Video-Tutorial (O)
 		# Playground-Image (O)

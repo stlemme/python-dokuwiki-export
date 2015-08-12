@@ -113,6 +113,9 @@ class AutoValues(object):
 		doxygen = self.se.get('/spec/documentation/api/doxygen')
 		if doxygen is not None:
 			return doxygen
+		jsdoc = self.se.get('/spec/documentation/api/jsdoc')
+		if jsdoc is not None:
+			return jsdoc
 		swagger = self.se.get('/spec/documentation/api/swagger')
 		if swagger is None:
 			swagger = 'http://fic2.github.io/swaggerfiles/%s/swagger.json' % self.nc.normalizedname()
