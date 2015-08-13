@@ -10,5 +10,6 @@ from .experiment import Experiment
 from .release import Release
 from .location import Location
 from .specificenabler import SpecificEnabler
+from .deprecated import DeprecatedSpecificEnabler
 
 from .prettyprinter import PrettyPrinter

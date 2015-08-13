@@ -14,7 +14,15 @@ class InvalidEntitiesVisitor(Visitor):
 				return
 		
 		self.result.append(invalid)
-	
+
+	def visit_SpecificEnabler(self, se):
+		if se.is_valid():
+			return
+		self.result.append(se)
+
+	def visit_DeprecatedSpecificEnabler(self, se):
+		self.visit_SpecificEnabler(se)
+		
 	def get_result(self):
 		return self.result
 

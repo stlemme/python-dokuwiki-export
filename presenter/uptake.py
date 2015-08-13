@@ -1,15 +1,16 @@
 
 from . import PresenterBase
 from visitor import UsedByVisitor
-from metastructure import SpecificEnabler, Application
+from entities import SpecificEnabler, DeprecatedSpecificEnabler, Application
 
 
 class UptakePresenter(PresenterBase):
-	def __init__(self, hideunused = False):
+	def __init__(self, nice = lambda item: item, hideunused = False):
 		PresenterBase.__init__(self)
 		# self.v = GEVisitor()
+		self.nice = nice
 		self.hideunused = hideunused
-		self.collect_entities = [SpecificEnabler, Application]
+		self.collect_entities = [SpecificEnabler, DeprecatedSpecificEnabler, Application]
 
 	def present_ge(self, ge, meta):
 		uv1 = UsedByVisitor(ge, ['USES'], self.collect_entities)
@@ -39,11 +40,11 @@ class UptakePresenter(PresenterBase):
 	def dump(self, out):
 		out.write('^ GE  ^  Uptake  ^ SEs / Applications  ^')
 		for ge, uses, will, may in self.uptake:
-			ses = ['%s SE' % e.get_name() for e in uses if isinstance(e, SpecificEnabler)]
-			apps = ['%s' % e.get_name() for e in uses if isinstance(e, Application)]
+			ses = [self.nice(e) for e in uses if isinstance(e, SpecificEnabler)]
+			apps = [self.nice(e) for e in uses if isinstance(e, Application)]
 
-			wses = ['//%s SE//' % e.get_name() for e in will + may if isinstance(e, SpecificEnabler)]
-			wapps = ['//%s//' % e.get_name() for e in will + may if isinstance(e, Application)]
+			wses = [self.nice(e) for e in will + may if isinstance(e, SpecificEnabler)]
+			wapps = [self.nice(e) for e in will + may if isinstance(e, Application)]
 
 			se_uptake = ' \\\\ '.join(ses + wses)
 			app_uptake = ' \\\\ '.join(apps + wapps)

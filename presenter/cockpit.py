@@ -1,6 +1,6 @@
 
 from . import PresenterBase
-import releases
+# import releases
 # from entities import InvalidEntity
 
 
@@ -24,29 +24,48 @@ class CockpitPresenter(PresenterBase):
 		
 	def lookup_roadmap(self, se):
 		nc = se.get_naming_conventions()
+		if nc is None:
+			return None
 		roadmap = nc.roadmap()
 		return roadmap
 		
-	def lookup_availability(self, se):
-		roadmap = self.lookup_roadmap(se)
-		if roadmap is None:
-			return False
-		return se.get_name() in releases.current[roadmap]
+	# def lookup_availability(self, se):
+		# return self.currentrelease.contains_se(se)
 		
 	def lookup_owners(self, se):
-		return ', '.join(se.get('/spec/owners'))
+		owners = se.get('/spec/owners')
+		if owners is None:
+			return '[[UNKNOWN OWNER]]'
+		return ', '.join(owners)
+	
+	def lookup_status(self, se):
+		if self.currentrelease.contains_se(se):
+			return 'available'
+		status = se.get('/status')
+		if status is None:
+			return self.placeholder
+		return status
 	
 	def lookup_wikipage(self, se):
-		if not self.lookup_availability(se):
-			return 'not (yet) available'
-		return se.get('/auto/documentation/wiki-url')
+		wiki = se.get('/auto/documentation/wiki-url')
+		if wiki is None:
+			return self.placeholder
+		return wiki
 	
 	def lookup_catalog(self, se):
-		if not self.lookup_availability(se):
-			return 'not (yet) available'
+		# if not self.lookup_availability(se):
+			# return 'not (yet) available'
 		nc = se.get_naming_conventions()
+		if nc is None:
+			return self.placeholder
 		return nc.catalogurl()
 	
+	def lookup_opensource(self, se):
+		open = se.get('/auto/license/is-open-source')
+		if open is None:
+			return self.placeholder
+		return open
+		
 	def lookup_mode(self, se):
 		mode = []
 		
@@ -95,7 +114,7 @@ class CockpitPresenter(PresenterBase):
 			se.get_name(),           # name
 			self.lookup_product(se), # product
 			self.lookup_owners(se),  # owner
-			se.get('/auto/license/is-open-source'), # Open Source?
+			self.lookup_opensource(se), # Open Source?
 			self.lookup_mode(se), # FI-PPP mode
 			'', # FI-PPP date
 			'', # FI-PPP date
@@ -109,6 +128,7 @@ class CockpitPresenter(PresenterBase):
 		)
 	
 	def present(self, meta):
+		self.currentrelease = meta.find_current_release()
 		self.exploitation = []
 		
 		for se in meta.get_specific_enablers():

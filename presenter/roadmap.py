@@ -27,6 +27,8 @@ class RoadmapPresenter(PresenterBase):
 	
 	def lookup_roadmap(self, se):
 		nc = se.get_naming_conventions()
+		if nc is None:
+			return None
 		roadmap = nc.roadmap()
 		return roadmap
 		
@@ -64,8 +66,12 @@ class RoadmapPresenter(PresenterBase):
 			se_what = self.lookup_what(se)
 			se_why = self.lookup_why(se)
 
-			se_wiki = nc.wikipage()
-			se_devguide = nc.devguide()
+			if nc is not None:
+				se_wiki = nc.wikipage()
+				se_devguide = nc.devguide()
+			else:
+				se_wiki = ':unknown:page'
+				se_devguide = ':unknown:page'
 			
 			se_new = se not in prev_ses
 			

@@ -1,6 +1,6 @@
 
 from . import MetaVisitor
-from metastructure import SpecificEnabler, Application, Experiment
+from entities import SpecificEnabler, DeprecatedSpecificEnabler, Application, Experiment
 
 
 class UsedByVisitor(MetaVisitor):
@@ -8,7 +8,7 @@ class UsedByVisitor(MetaVisitor):
 		self,
 		enabler,
 		follow_relations = ['USES'],
-		collect_entities = [SpecificEnabler, Application, Experiment]
+		collect_entities = [SpecificEnabler, DeprecatedSpecificEnabler, Application, Experiment]
 		# transitive = True
 	):
 		MetaVisitor.__init__(self)
@@ -52,6 +52,10 @@ class UsedByVisitor(MetaVisitor):
 	def visit_GenericEnabler(self, entity):
 		# print('visit_GenericEnabler %s' % entity)
 		return self.get_relations(entity)
+	
+	def visit_DeprecatedSpecificEnabler(self, entity):
+		if DeprecatedSpecificEnabler in self.collect_entities:
+			return self.visit_SpecificEnabler(entity)
 	
 	def visit_SpecificEnabler(self, entity):
 		# print('visit_SpecificEnabler %s' % entity)

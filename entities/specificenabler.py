@@ -10,10 +10,14 @@ import sanitychecks
 
 class SpecificEnabler(NamedEntity):
 
-	def __init__(self, metapage):
+	def __init__(self, identifier, metapage, originator):
 		NamedEntity.__init__(self, 'SE at %s' % metapage)
 		self.valid = False
+		self.identifier = identifier
 		self.metapage = metapage
+		self.nc = None
+		self.set('/status', 'invalid')
+		self.set('/spec/owners', [originator])
 
 	def set_metajson(self, metajson):
 		self.set('/metajson', metajson)
@@ -29,12 +33,18 @@ class SpecificEnabler(NamedEntity):
 		
 	def is_valid(self):
 		return self.valid
-	
+		
 	def get_naming_conventions(self):
 		return self.nc
 		
 	def get_name(self):
-		return self.get_naming_conventions().fullname()
+		nc = self.get_naming_conventions()
+		if nc is None:
+			return self.identifier
+		name = nc.fullname()
+		if name is None:
+			return self.identifier
+		return name
 
 	def get_metapage(self):
 		return self.metapage
@@ -151,23 +161,30 @@ class SpecificEnabler(NamedEntity):
 	
 	
 	@staticmethod
-	def load(dw, se_meta_page, licenses, partners, pub):
-		se = SpecificEnabler(se_meta_page)
-
-		meta = dw.getpage(se_meta_page)
+	def load(dw, identifier, se_meta_page, originator, licenses, partners, pub):
+		se = SpecificEnabler(identifier, se_meta_page, originator)
+		se.initialize(dw, licenses, partners, pub)
+		return se
+	
+	def initialize(self, dw, licenses, partners, pub):
+		if self.metapage is None:
+			logging.info("No meta page available for SE %s" % self.get_name())
+			return
+		
+		meta = dw.getpage(self.metapage)
 		if meta is None:
-			return se
+			return
 		
 		metadata = wikiutils.strip_code_sections(meta)
 		metajson = '\n'.join(metadata)
 		
-		se.set_metajson(metajson)
+		self.set_metajson(metajson)
 
 		try:
 			se_spec = json.loads(metajson)
 		except ValueError as e:
-			logging.warning("Unable to read meta data from page %s. No valid JSON!\n%s" % (se_meta_page, e))
-			return se
+			logging.warning("Unable to read meta data from page %s. No valid JSON!\n%s" % (self.metapage, e))
+			return
 
 		schema = None
 		with open('se-meta-schema.json', 'r') as schema_file:
@@ -175,31 +192,29 @@ class SpecificEnabler(NamedEntity):
 		
 		if schema is None:
 			logging.warning("Could not validate json schema due to missing schema file")
-			return se
+			return
 		
 		try:
 			validate(se_spec, schema)
 		except ValidationError as e:
-			logging.warning("Invalid meta data for SE at %s.\n%s" % (se_meta_page, e))
-			return se
+			logging.warning("Invalid meta data for SE at %s.\n%s" % (self.metapage, e))
+			return
 		except SchemaError as e:
 			logging.warning("Could not validate json schema due to an invalid json schema.\n%s" % e)
-			return se
-				
-		se.set_metaspec(se_spec)
+			return
 		
-		se.setup_naming_conventions(dw)
+		self.set_metaspec(se_spec)
+		
+		self.setup_naming_conventions(dw)
 
-		se.fill_license(licenses)
-		se.fill_contacts(partners)
-		se.fill_auto_values(dw, pub)
-		se.fill_nice_owners(partners)
-		se.resolve_wiki_references(dw, pub)
+		self.fill_license(licenses)
+		self.fill_contacts(partners)
+		self.fill_auto_values(dw, pub)
+		self.fill_nice_owners(partners)
+		self.resolve_wiki_references(dw, pub)
 		
-		se.set_valid()
+		self.set_valid()
 		
-		return se
-
 		
 	@staticmethod
 	def perform_sanity_checks(se):
@@ -343,3 +358,5 @@ def val_pattern(s, args):
 		return "{{var}} does not match pattern {val}".format(val=args)
 	
 	return None
+
+	

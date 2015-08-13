@@ -1,12 +1,11 @@
 
-from presenter import ExperimentTimelinePresenter, ListPresenter, UptakePresenter, CockpitPresenter, RoadmapPresenter, SummaryPresenter
+from presenter import ExperimentTimelinePresenter, ListPresenter, UptakePresenter, CockpitPresenter, RoadmapPresenter, SummaryPresenter, SEGraphPresenter
 # , DependencyPresenter, GESurveyPresenter
 import wiki
-import wikiconfig
 import sys
 from outbuffer import *
 from visitor import *
-from entities import SpecificEnabler, Application, PrettyPrinter
+from entities import SpecificEnabler, DeprecatedSpecificEnabler, Application, PrettyPrinter
 import logging
 from fidoc import FIdoc
 
@@ -47,6 +46,15 @@ def generate_page(dw, outpage, meta):
 		("All Tested Scenarios", ListPresenter(TestedScenariosVisitor(), pp.print_Scenario)),
 	]
 	
+
+	# All SEs and their relations
+	#######################################
+	
+	generated_content += [(
+			"Relations of %s SE" % se.get_name(),
+			SEGraphPresenter(se, pp.dispatch)
+		) for se in meta.get_specific_enablers()
+	]
 	
 	# Dependencies per scenario
 	#######################################
@@ -90,7 +98,7 @@ def generate_page(dw, outpage, meta):
 			ListPresenter(UsedByVisitor(
 				ge,
 				follow_relations = ['USES'],
-				collect_entities = [SpecificEnabler, Application]
+				collect_entities = [SpecificEnabler, DeprecatedSpecificEnabler, Application]
 			), pp.dispatch)
 		) for ge in meta.get_generic_enablers()
 	]
@@ -100,7 +108,7 @@ def generate_page(dw, outpage, meta):
 	#######################################
 	
 	generated_content += [
-		("Overall Uptake of Generic Enablers", UptakePresenter(hideunused=True))
+		("Overall Uptake of Generic Enablers", UptakePresenter(pp.dispatch, hideunused=True))
 	]
 	
 	
@@ -173,12 +181,14 @@ def generate_meta_information(fidoc, generatedpage):
 		logging.fatal("Invalid meta structure.")
 	
 	generate_page(dw, generatedpage, meta)
-
+	
 	
 	
 	
 if __name__ == "__main__":
 	
+	import wikiconfig
+
 	metapage = ":FIcontent:private:meta:"
 	if len(sys.argv) > 1:
 		metapage = sys.argv[1]
@@ -193,8 +203,19 @@ if __name__ == "__main__":
 		# dw = wiki.DokuWikiLocal(url, 'pages', 'media')
 		dw = wiki.DokuWikiRemote(wikiconfig.url, wikiconfig.user, wikiconfig.passwd)
 
+		skipchecks = [
+			# tv
+			# 'Content Similarity', 'Audio Fingerprinting',
+			# city
+			# 'Local Information', 'Recommendation Services',
+			# gaming
+			# 'Visual Agent Design', 'Augmented Reality - Marker Tracking', 'Networked Virtual Character',
+			# common
+			# 'POI Storage', 'Content Sharing'
+		]
+		
 		logging.info("Loading FIdoc object ...")
-		fidoc = FIdoc(dw)
+		fidoc = FIdoc(dw, skipchecks)
 		
 		generate_meta_information(fidoc, generatedpage)
 		

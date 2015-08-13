@@ -196,10 +196,15 @@ class DescriptionPageStmt(Grammar):
 	def get_wiki_page(self):
 		return self.get(WikiPageStmt).string
 
+class DeprecatedStmt(Grammar):
+	grammar = (LITERAL("DEPRECATED"))
+	
+class SEKeywordStmt(Grammar):
+	grammar = OPTIONAL(DeprecatedStmt, WHITESPACE), LITERAL("SE")
 
 class SpecificEnablerStmt(DependentEntityStmt):
 	grammar = (
-		LITERAL("SE"), WHITESPACE, Identifier,
+		SEKeywordStmt, WHITESPACE, Identifier,
 		OPTIONAL(WHITESPACE, AliasStmt),
 		OriginatorStmt,
 		OPTIONAL(WHITESPACE, DescriptionPageStmt),
@@ -212,6 +217,9 @@ class SpecificEnablerStmt(DependentEntityStmt):
 		if desc is None:
 			return None
 		return desc.get_wiki_page()
+		
+	def is_deprecated(self):
+		return self.find(DeprecatedStmt) is not None
 
 
 class ApplicationStmt(DependentEntityStmt):

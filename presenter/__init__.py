@@ -8,3 +8,4 @@ from .uptake import UptakePresenter
 from .cockpit import CockpitPresenter
 from .roadmap import RoadmapPresenter
 from .summary import SummaryPresenter
+from .segraph import SEGraphPresenter

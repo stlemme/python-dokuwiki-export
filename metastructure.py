@@ -43,10 +43,10 @@ class MetaStructure(Entity):
 		return [dep[1:3] for dep in self.edges if dep[0] == entity]
 	
 	def find_edges(self, entity1, entity2):
-		return [dep for dep in self.edges if dep[0] == entity1 and dep[1] == entity2]
+		return [rel for rel in self.edges if rel[0] == entity1 and rel[1] == entity2]
 
 	def find_relations(self, entity):
-		return [dep for dep in self.edges if dep[0] == entity or dep[1] == entity]
+		return [rel for rel in self.edges if rel[0] == entity or rel[1] == entity]
 
 	
 	def find_enabler(self, id):
@@ -129,31 +129,45 @@ class MetaStructure(Entity):
 		logging.info("Extract scenarios")
 		self.extract_named_entities(Scenario, ScenarioStmt, self.scenarios)
 	
-	def extract_ses(self, dw, partners, licenses, pub):
+	def add_se(self, sestmt, se):
+		self.ses.append(se)
+		self.adapter.map(sestmt, se)
+		
+		self.add_dependencies(se, sestmt.get_dependencies())
+		
+	def extract_ses(self, dw, partners, licenses, pub, skipchecks = []):
 		stmts = self.ast.find_all(SpecificEnablerStmt)
 		for sestmt in stmts:
 			id = sestmt.get_identifier()
 			logging.info('Processing %s %s' % (sestmt.get_keyword(), id))
 			
 			se_meta_page = sestmt.get_meta_page()
+			originator = sestmt.get_originator()
+			
+			if sestmt.is_deprecated():
+				se = DeprecatedSpecificEnabler.load(dw, id, se_meta_page, originator, licenses, partners, pub)
+				self.add_se(sestmt, se)
+				se.set('/sanity-check', 'skipped')
+				continue
 
 			if se_meta_page is None:
 				logging.warning('SE %s lacks of a reference to its meta page. Skip!' % id)
 				self.declare_invalid_stmt(sestmt)
 				continue
 			
-			se = SpecificEnabler.load(dw, se_meta_page, licenses, partners, pub)
+			se = SpecificEnabler.load(dw, id, se_meta_page, originator, licenses, partners, pub)
+			self.add_se(sestmt, se)
 
 			if not se.is_valid():
-				logging.warning('SE %s has no valid information at its meta page at %s. Skip!' % (id, se_meta_page))
-				self.declare_invalid_stmt(sestmt)
+				logging.warning('SE %s has no valid information at its meta page at %s. Skip sanity checks!' % (id, se_meta_page))
+				se.set('/sanity-check', 'skipped')
 				continue
 
-			self.ses.append(se)
-			self.adapter.map(sestmt, se)
+			if id in skipchecks:
+				logging.info('Skip the sanity checks for SE %s' % id)
+				se.set('/sanity-check', 'skipped')
+				continue
 			
-			self.add_dependencies(se, sestmt.get_dependencies())
-
 			if not SpecificEnabler.perform_sanity_checks(se):
 				logging.warning('SE %s failed the sanity checks!' % id)
 				se.set('/sanity-check', 'failed')
@@ -312,7 +326,7 @@ class MetaStructure(Entity):
 	
 	
 	@staticmethod
-	def load(dw, meta_page, partners, licenses, pub):
+	def load(dw, meta_page, partners, licenses, pub, skipchecks = []):
 		ms = MetaStructure()
 		
 		logging.info("Loading page of meta structure %s ..." % meta_page)
@@ -339,7 +353,7 @@ class MetaStructure(Entity):
 		ms.extract_basic_entities()
 		
 		logging.info("Extract Specific Enablers")
-		ms.extract_ses(dw, partners, licenses, pub)
+		ms.extract_ses(dw, partners, licenses, pub, skipchecks)
 		
 		logging.info("Extract applications")
 		ms.extract_apps(partners)

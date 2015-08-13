@@ -21,7 +21,7 @@ meta_page = {
 
 
 class FIdoc(object):
-	def __init__(self, dw):
+	def __init__(self, dw, skipchecks = []):
 		self.dw = dw
 		self.partners = Partners(self.load_json_from_wiki(self.get_meta_page('partners')))
 		self.licenses = Licenses(self.load_json_from_wiki(self.get_meta_page('licenses')))
@@ -30,12 +30,15 @@ class FIdoc(object):
 
 		self.pub = wikipublisher(self.dw, mirror.export_ns)
 		
+		self.skipchecks = skipchecks
+		
 		self.meta = MetaStructure.load(
 			self.dw,
 			self.get_meta_page('structure'),
 			self.partners,
 			self.licenses,
-			self.pub
+			self.pub,
+			self.skipchecks
 		)
 		
 		self.ses = {}

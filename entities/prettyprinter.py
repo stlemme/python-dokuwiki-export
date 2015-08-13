@@ -16,7 +16,10 @@ class PrettyPrinter(object):
 
 	def print_SpecificEnabler(self, entity):
 		return '%s SE' % entity.get_name()
-	
+
+	def print_DeprecatedSpecificEnabler(self, entity):
+		return '%s SE (deprecated)' % entity.get_name()
+		
 	def print_Application(self, entity):
 		return entity.get_name()
 

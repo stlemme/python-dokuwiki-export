@@ -18,6 +18,10 @@ class SummaryPresenter(PresenterBase):
 	
 	
 	def lookup_meta(self, se):
+		if se.get_metapage() is None:
+			return False
+		if se.get('/metajson') is None:
+			return False
 		return se.get('/spec') is not None
 
 		

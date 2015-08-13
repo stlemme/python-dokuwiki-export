@@ -69,7 +69,8 @@ class NamingConventions(object):
 		return name
 		
 	def catalogurl(self):
-		url = 'http://mediafi.org/?portfolio=' + self.catalogid()
+		# url = 'http://mediafi.org/?portfolio=' + self.catalogid()
+		url = 'http://lab.mediafi.org/discover-%s.html' % self.normalizedname()
 		return url
 
 	def tncurl(self):

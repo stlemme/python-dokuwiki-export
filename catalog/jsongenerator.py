@@ -8,6 +8,8 @@ import sanitychecks
 class JsonGenerator(ProcessingGenerator):
 	terms_template = '''
 		<div class="terms-text">
+		<h2>Licence summary</h2>
+		<p>{{/spec/license/summary}}</p>
 		<h2>Licence type</h2>
 		<ul>
 			<li>Open source: {{/auto/license/is-open-source}}</li>
@@ -26,8 +28,6 @@ class JsonGenerator(ProcessingGenerator):
 		</ul>
 		<h2>Licence fee</h2>
 		<p>{{/spec/license/fee}}</p>
-		<h2>Licence summary</h2>
-		<p>{{/spec/license/summary}}</p>
 		<h2>Copyright statement</h2>
 		<p>{{/spec/license/copyright}}</p>
 		<h2>Full licence</h2>
