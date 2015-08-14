@@ -14,7 +14,7 @@ output_prefix = '_catalog/'
 
 
 def debug_invalid_se(metapage, se):
-	logging.warning("Skip meta page of %s, because it describes no valid SE." % metapage)
+	logging.warning("Skip SE %s with its meta page at %s, because it describes no valid SE." % (se.get_name(), metapage))
 	metajson = se.get('/metajson')
 	if metajson is None:
 		return
@@ -62,16 +62,16 @@ def generate_catalog(fidoc, template_filename, meta_pages = None):
 		se_name = nc.fullname()
 		
 		if se not in rel_ses:
-			logging.info("Skip meta page of %s SE, because it is not known as part of the current release." % se_name)
+			logging.info("Skip %s SE, because it is not known as part of the current release." % se_name)
 			continue
 		
 		if se.get('/sanity-check') != 'succeeded':
-			logging.info("Skip meta page of %s SE, because it did not succeed the sanity checks." % se_name)
+			logging.info("Skip %s SE, because it did not succeed the sanity checks." % se_name)
 			continue
 
 		entry_filename = output_prefix + 'catalog.' + nc.normalizedname()
 
-		logging.info("Generating catalog entry for %s ..." % se_name)
+		logging.info("Generating catalog entry for %s SE ..." % se_name)
 
 		# catalog file
 		# centry = cgen.generate_entry(se)
