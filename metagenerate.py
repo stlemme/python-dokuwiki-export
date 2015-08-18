@@ -1,5 +1,5 @@
 
-from presenter import ExperimentTimelinePresenter, ListPresenter, UptakePresenter, CockpitPresenter, RoadmapPresenter, SummaryPresenter, SEGraphPresenter
+from presenter import *
 # , DependencyPresenter, GESurveyPresenter
 import wiki
 import sys
@@ -56,6 +56,33 @@ def generate_page(dw, outpage, meta):
 		) for se in meta.get_specific_enablers()
 	]
 	
+	# All SEs and their descriptions
+	#######################################
+	
+	generated_content += [(
+			"Description of %s SE" % se.get_name(),
+			PropertyPresenter(se, '/spec/documentation/what-it-does')
+		) for se in meta.get_specific_enablers()
+	]
+
+	# All SEs and their resources
+	#######################################
+	
+	generated_content += [(
+			"Resources of %s SE" % se.get_name(),
+			ResourcesPresenter(dw, se, pp.dispatch)
+		) for se in meta.get_specific_enablers()
+	]
+
+	# All SEs and their release cycle
+	#######################################
+	
+	generated_content += [(
+			"Release cycle of %s SE" % se.get_name(),
+			ReleaseCyclePresenter(dw, se, pp.dispatch)
+		) for se in meta.get_specific_enablers()
+	]
+
 	# Dependencies per scenario
 	#######################################
 	

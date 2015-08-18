@@ -110,7 +110,7 @@ class MetaStructure(Entity):
 
 	def get_releases(self):
 		return self.releases
-		
+
 	def set_ast(self, ast, adapter):
 		self.ast = ast
 		self.adapter = adapter
@@ -312,6 +312,9 @@ class MetaStructure(Entity):
 				rel.add_se(se)
 
 			self.releases.append(rel)
+		
+		cmp_date = lambda r: r.get_date()
+		self.releases.sort(key=cmp_date)
 		
 		
 	def extract_named_entities(self, EntityClass, StmtClass, container):

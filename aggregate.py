@@ -73,13 +73,14 @@ def aggregate(dw, toc, tocns, showwikiurl = False):
 			newdoc.append(dw.heading(level, item))
 			continue
 
+		pagens = []
 		if section is not None:
 			logging.warning("Ignoring section attribute of ToC. Including complete page %s instead." % page)
+			# content = dw.getsection(page, section, tocns, pagens)
 		# print level, page, "(", heading, ")"
 		
 		# append page with level offset
-		
-		pagens = []
+		# else:
 		content = dw.getpage(page, tocns, pagens)
 		
 		# resolve page to full page name
@@ -209,6 +210,8 @@ if __name__ == "__main__":
 		outpage = sys.argv[2]
 
 	embedwikilinks = False
+	if len(sys.argv) > 3:
+		embedwikilinks = sys.argv[3] == 'embedlinks'
 
 	logging.info("Connecting to remote DokuWiki at %s" % wikiconfig.url)
 	# dw = wiki.DokuWikiLocal(url, 'pages', 'media')
@@ -227,16 +230,16 @@ if __name__ == "__main__":
 	logging.info("Flushing generated content to page %s ..." % outpage)
 	dw.putpage(doc, outpage)
 
-	if len(sys.argv) > 3:
-		outfile = sys.argv[3]
+	if len(sys.argv) > 4:
+		outfile = sys.argv[4]
 		logging.info("Writing aggregated file %s ..." % outfile)
 
 		with open(outfile, "w") as fo:
 			fo.writelines([l + '\n' for l in doc])
 
 
-	if len(sys.argv) > 4:
-		chapterfile = sys.argv[4]
+	if len(sys.argv) > 5:
+		chapterfile = sys.argv[5]
 		logging.info("Writing chapter file %s ..." % chapterfile)
 
 		import json
