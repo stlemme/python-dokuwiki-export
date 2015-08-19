@@ -129,7 +129,7 @@ def aggregate(dw, toc, tocns, showwikiurl = False):
 				# subheading = result.group(2)
 				subheading, subleveloffset = dw.parseheading(result.group())
 				sublevel = level + (subleveloffset - 1)
-				logging.info('Aggregate section "%s" at sublevel = %s' % (subheading, sublevel))
+				# logging.info('Aggregate section "%s" at sublevel = %s' % (subheading, sublevel))
 				
 				increment_numbering(numbering, sublevel)
 				logging.info("%s - %s" % (pretty_numbering(numbering), subheading))
@@ -162,6 +162,9 @@ def aggregate(dw, toc, tocns, showwikiurl = False):
 				# incsection = result.group(3)
 				incpage, incsection = dw.parseinclude(result.group())
 				# newdoc.append("INCLUDE %s - %s\n" % (incpage, incsection))
+
+				logging.info('Aggregating include from %s of section "%s"' % (incpage, incsection))
+
 				if "nightly" in incpage:
 					secdoc = None
 				else:
@@ -173,6 +176,7 @@ def aggregate(dw, toc, tocns, showwikiurl = False):
 				# print(contentQueue)
 
 				if secdoc is None:
+					logging.warning('Invalid include from %s of section "%s"' % (incpage, incsection))
 					newdoc.append('INCLUDE %s - "%s" MISSING' % (incpage, incsection))
 				else:
 					# print(contentQueue)
