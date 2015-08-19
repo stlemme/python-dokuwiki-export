@@ -65,6 +65,8 @@ class Wiki(object):
 		return result.group(2), level
 	
 	def heading(self, level, heading):
+		if level < 1:
+			logging.warning('Invalid level of %s for heading "%s"' % (level, heading))
 		return ("=" * (7 - level)) + " " + heading + " " + ("=" * (7 - level))
 
 
@@ -142,13 +144,13 @@ class Wiki(object):
 	rx_include = re.compile(r"{{page>([^}#]+)(#([^}]+))?}}")
 	
 	def parseinclude(self, include):
-		result = wiki.rx_include.match(include)
+		result = self.rx_include.match(include)
 		if result is None:
 			return None, None
 		incpage = result.group(1)
 		incsection = result.group(3)
 		return incpage, incsection
-		
+	
 	def include(self, page, section):
 		include = '{{page>' + page
 		if section is not None:

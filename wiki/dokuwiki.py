@@ -5,7 +5,7 @@ import logging
 
 class DokuWiki(Wiki):
 	def __init__(self, url):
-		wiki.__init__(self, url)
+		Wiki.__init__(self, url)
 		self.pagepath = '/doku.php/'
 		self.filepath = '/lib/exe/fetch.php/'
 
@@ -107,18 +107,21 @@ class DokuWiki(Wiki):
 				heading, level = self.parseheading(heading_found.group())
 				if heading == section:
 					# found section, store section level
-					# print("Found section - level:", level)
+					# print('Found section "%s" - level:' % heading, level)
 					seclevel = level
 					continue
-				elif seclevel == level:
-					# print("Found next section - level:", level)
-					# found same level heading after section
-					break
+				
+				if seclevel is not None:
+					# print('Collecting section', seclevel, level)
+					if seclevel >= level:
+						# print('Found next section "%s" - level:' % heading, level)
+						# found same level or above heading after section
+						break
 			
 			if seclevel is None:
 				continue
 
-			# readjust heading level
+			# re-adjust heading level
 			if heading_found is not None:
 				# print("Found heading - ", level, seclevel, targetlevel, heading)
 				l = self.heading(targetlevel + level - seclevel, heading)

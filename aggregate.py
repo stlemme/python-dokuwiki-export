@@ -69,7 +69,7 @@ def aggregate(dw, toc, tocns, showwikiurl = False):
 
 		if page is None:
 			increment_numbering(numbering, level)
-			# logging.info("%s - %s" % (pretty_numbering(numbering), heading))
+			logging.info("%s - %s" % (pretty_numbering(numbering), heading))
 			newdoc.append(dw.heading(level, item))
 			continue
 
@@ -117,7 +117,7 @@ def aggregate(dw, toc, tocns, showwikiurl = False):
 			line = contentQueue.popleft()
 			
 			# line is heading
-			result = wiki.rx_heading.match(line)
+			result = Wiki.rx_heading.match(line)
 			if result is not None:
 				# indent1 = len(result.group(1))
 				# indent2 = len(result.group(3))
@@ -129,8 +129,11 @@ def aggregate(dw, toc, tocns, showwikiurl = False):
 				# subheading = result.group(2)
 				subheading, subleveloffset = dw.parseheading(result.group())
 				sublevel = level + (subleveloffset - 1)
+				logging.info('Aggregate section "%s" at sublevel = %s' % (subheading, sublevel))
 				
 				increment_numbering(numbering, sublevel)
+				logging.info("%s - %s" % (pretty_numbering(numbering), subheading))
+				
 				target = page + "#" + dw.target(subheading)
 				chapters[target.lower()] = (numbering[:], subheading)
 				if pageheading:
@@ -153,7 +156,7 @@ def aggregate(dw, toc, tocns, showwikiurl = False):
 				continue
 			
 			# line is include
-			result = wiki.rx_include.match(line)
+			result = Wiki.rx_include.match(line)
 			if result is not None:
 				# incpage = result.group(1)
 				# incsection = result.group(3)
@@ -166,8 +169,8 @@ def aggregate(dw, toc, tocns, showwikiurl = False):
 					incpagens = []
 					secdoc = dw.getsection(incpage, incsection, pagens, incpagens, targetlevel=1)
 				
-				# print(contentQueue)
 				# print(secdoc)
+				# print(contentQueue)
 
 				if secdoc is None:
 					newdoc.append('INCLUDE %s - "%s" MISSING' % (incpage, incsection))
@@ -178,16 +181,16 @@ def aggregate(dw, toc, tocns, showwikiurl = False):
 					# contentQueue.extendleft(secdoc)
 					# incpage = dw.resolve(incpage, incpagens)
 					for line in secdoc:
-						re1line = wiki.rx_link.sub(lambda m: resolve_link(dw, incpagens, m), line)
-						re2line = wiki.rx_image.sub(lambda m: resolve_images(dw, incpagens, m), re1line)
+						re1line = Wiki.rx_link.sub(lambda m: resolve_link(dw, incpagens, m), line)
+						re2line = Wiki.rx_image.sub(lambda m: resolve_images(dw, incpagens, m), re1line)
 						contentQueue.appendleft(re2line)
 				
 				continue
 			
 			# line is usual content
 			# resolve link namespaces
-			re1line = wiki.rx_link.sub(lambda m: resolve_link(dw, pagens, m), line)
-			re2line = wiki.rx_image.sub(lambda m: resolve_images(dw, pagens, m), re1line)
+			re1line = Wiki.rx_link.sub(lambda m: resolve_link(dw, pagens, m), line)
+			re2line = Wiki.rx_image.sub(lambda m: resolve_images(dw, pagens, m), re1line)
 			newdoc.append(re2line)
 
 		newdoc.append("")
