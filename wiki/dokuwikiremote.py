@@ -8,16 +8,22 @@ class DokuWikiRemote(DokuWiki):
 	def __init__(self, url, user, passwd):
 		DokuWiki.__init__(self, url)
 		self.client = dokuwikixmlrpc.DokuWikiClient(url, user, passwd)
+		self.page_cache = {}
 
 	def getpage(self, page, ns = [], pagens = None):
 		fullname = self.resolve(page, ns)
 		if pagens is not None:
 			pagens[:] = fullname.split(self.ns_delimiter)[1:-1]
+		if fullname in self.page_cache:
+			return self.page_cache[fullname]
+		logging.debug("Request page ")
 		content = self.client.page(fullname[1:])
 		# check if page does not exist
-		if len(content) == 0:
-			return None
-		lines = content.split('\n')
+		if len(content) > 0:
+			lines = content.split('\n')
+		else:
+			lines = None
+		self.page_cache[fullname] = lines
 		return lines
 
 	def putpage(self, lines, page, ns = [], summary='regenerated'):

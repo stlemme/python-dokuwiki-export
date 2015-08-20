@@ -89,11 +89,14 @@ class DokuWiki(Wiki):
 		
 		
 	def getsection(self, page, section, ns = [], pagens = None, targetlevel = 1):
-		fullname = self.resolve(page, ns)
-		if pagens is not None:
-			pagens[:] = fullname.split(self.ns_delimiter)[1:-1]
-		content = self.client.page(fullname[1:])
-		lines = content.split('\n')
+		# fullname = self.resolve(page, ns)
+		# if pagens is not None:
+			# pagens[:] = fullname.split(self.ns_delimiter)[1:-1]
+		# content = self.client.page(fullname[1:])
+		# lines = content.split('\n')
+		lines = self.getpage(page, ns, pagens)
+		if lines is None:
+			return None
 		
 		seclines = []
 		

@@ -163,7 +163,7 @@ def aggregate(dw, toc, tocns, showwikiurl = False):
 				incpage, incsection = dw.parseinclude(result.group())
 				# newdoc.append("INCLUDE %s - %s\n" % (incpage, incsection))
 
-				logging.info('Aggregating include from %s of section "%s"' % (incpage, incsection))
+				logging.debug('Aggregating include from %s of section "%s"' % (incpage, incsection))
 
 				if "nightly" in incpage:
 					secdoc = None
