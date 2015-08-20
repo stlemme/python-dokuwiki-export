@@ -1,6 +1,5 @@
 
 from presenter import *
-# , DependencyPresenter, GESurveyPresenter
 import wiki
 import sys
 from outbuffer import *
@@ -142,17 +141,20 @@ def generate_page(dw, outpage, meta):
 	# FI-PPP SEis Usage and General Information
 	#######################################
 
+	col_fippp = ['name', 'owner', 'product', 'open-source', 'mode', 'last-update', 'next-update', 'assets', 'catalog']
+	col_overview = ['name', 'owner', 'final-release']
 	generated_content += [
-		("FI-PPP SEis Usage and General Information", CockpitPresenter())
+		("FI-PPP SEis Usage and General Information", CockpitPresenter(col_fippp, pp.dispatch)),
+		("Overview of FIcontent SEs", CockpitPresenter(col_overview, pp.dispatch, sort = ['name']))
 	]
-
+	
 	# SE Discovery Summary
 	#######################################
-
+	
 	generated_content += [
 		("SE Discovery Summary", SummaryPresenter())
 	]
-
+	
 	# Incomplete/invalid SEis
 	#######################################
 

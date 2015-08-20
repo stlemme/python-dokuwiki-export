@@ -6,16 +6,40 @@ from . import PresenterBase
 
 products = {
 	"Recommendation Services": "REPERIO",
-	"Virtual/mixed Reality": "KIWANO",
+	"Virtual/Mixed Reality": "KIWANO",
 	"Content Similarity": "Search & Discovery"
 }
 
 
 class CockpitPresenter(PresenterBase):
-	def __init__(self, placeholder = "n/a"):
+	
+	def __init__(self, columns, nice = lambda item: item, sort = [], placeholder = "n/a"):
 		PresenterBase.__init__(self)
-		self.placeholder = placeholder
+		self.available_columns = {
+			"name":             ("name", self.lookup_name),
+			"avail-fi-ppp":     ("availability for the FI-PPP partners", None),
+			"avail-fi-lab":     ("availability within FI-LAB", None),
+			"avail-3rd-party":	("availability beyond the FI-PPP", None),
+			"product":			("SE implementation product(s) name(s)", self.lookup_product),
+			"owner":			("Owner", self.lookup_owners),
+			"open-source":		("Open Source (Yes/No/Planned)", self.lookup_opensource),
+			"mode":				("mode", self.lookup_mode),
+			"last-update":		("date last update", None),
+			"next-update":		("date next / 1st update", None),
+			"assets":			("Baseline assets", self.lookup_assets),
+			"catalog":			("Entry in Catalogue", self.lookup_catalog),
+			"final-release":	("Final release", lambda se: self.lookup_release('08/15', se)),
+			"roadmap":			("Roadmap", self.lookup_roadmap)
+		}
 
+		self.columns = [col for col in columns if col in self.available_columns]
+		self.nice = nice
+		self.placeholder = placeholder
+		self.sort = [self.columns.index(col) for col in sort if col in self.columns]
+
+	def lookup_release(self, rel, se):
+		return 'X' if self.final_release.contains_se(se) else ''
+		
 	def lookup_product(self, se):
 		id = se.get_name()
 		if id in products:
@@ -25,12 +49,19 @@ class CockpitPresenter(PresenterBase):
 	def lookup_roadmap(self, se):
 		nc = se.get_naming_conventions()
 		if nc is None:
-			return None
+			return self.placeholder
 		roadmap = nc.roadmap()
+		if roadmap is None:
+			return self.placeholder
 		return roadmap
 		
 	# def lookup_availability(self, se):
 		# return self.currentrelease.contains_se(se)
+	def lookup_name(self, se):
+		name = self.nice(se)
+		if name is None:
+			return self.placeholder
+		return name
 		
 	def lookup_owners(self, se):
 		owners = se.get('/spec/owners')
@@ -39,14 +70,14 @@ class CockpitPresenter(PresenterBase):
 		return ', '.join(owners)
 	
 	def lookup_status(self, se):
-		if self.currentrelease.contains_se(se):
+		if self.final_release.contains_se(se):
 			return 'available'
 		status = se.get('/status')
 		if status is None:
 			return self.placeholder
 		return status
 	
-	def lookup_wikipage(self, se):
+	def lookup_assets(self, se):
 		wiki = se.get('/auto/documentation/wiki-url')
 		if wiki is None:
 			return self.placeholder
@@ -91,78 +122,37 @@ class CockpitPresenter(PresenterBase):
 		
 		return ', '.join(mode)
 
+	def present_col(self, se, colname):
+		if colname not in self.available_columns:
+			return self.placeholder
+		col = self.available_columns[colname]
+		f = col[1]
+		if f is None:
+			return self.placeholder
+		v = f(se)
+		if v is None:
+			return self.placeholder
+		return v
+		
 	def present_se(self, se):
-		# if isinstance(se, InvalidEntity):
-			# return (
-				# se.get_name(),    # name
-				# self.placeholder, # product
-				# self.placeholder, # owner
-				# self.placeholder, # Open Source?
-				# self.placeholder, # FI-PPP mode
-				# '', # FI-PPP date
-				# '', # FI-PPP date
-				# self.placeholder, # FI-LAB mode
-				# '', # FI-LAB date
-				# '', # FI-LAB date
-				# self.placeholder, # others mode
-				# '', # others date
-				# self.placeholder, # wiki page
-				# self.placeholder  # catalog entry
-			# )
-	
-		return (
-			se.get_name(),           # name
-			self.lookup_product(se), # product
-			self.lookup_owners(se),  # owner
-			self.lookup_opensource(se), # Open Source?
-			self.lookup_mode(se), # FI-PPP mode
-			'', # FI-PPP date
-			'', # FI-PPP date
-			# self.lookup_mode(se), # FI-LAB mode
-			# '', # FI-LAB date
-			# '', # FI-LAB date
-			# self.lookup_mode(se), # others mode
-			# '', # others date
-			self.lookup_wikipage(se), # wiki page
-			self.lookup_catalog(se) # catalog entry
-		)
+		return [self.present_col(se, colname) for colname in self.columns]
 	
 	def present(self, meta):
-		self.currentrelease = meta.find_current_release()
-		self.exploitation = []
+		# self.currentrelease = meta.find_current_release()
+		rels = meta.get_releases()
+		self.final_release = rels[-1]
+		self.rows = [self.present_se(se) for se in meta.get_specific_enablers()]
 		
-		for se in meta.get_specific_enablers():
-			row = self.present_se(se)
-			self.exploitation.append(row)
+		if len(self.sort) > 0:
+			self.rows.sort(key = lambda row: tuple([row[idx] for idx in self.sort]))
 
-		self.exploitation.sort(key = lambda tup: (tup[7], tup[0]))
-		
+	def dump_row(self, out, row, sep = '|'):
+			out.write((sep + ' %s ' + sep) % ((' ' + sep + ' ').join(row)))
+
 	def dump(self, out):
-		heading = [
-			"availability for the FI-PPP partners",
-			"availability within FI-LAB",
-			"availability beyond the FI-PPP",
-			"FI-PPP SEs",
-			"SE implementation product(s) name(s) / owner",
-			# "",
-			"Open Source (Yes/No/Planned)",
-			"mode",
-			"date last update",
-			"date next / 1st update",
-			# "mode",
-			# "date last update",
-			# "date next / 1st update",
-			# "currently planned mode",
-			# "when",
-			"Baseline assets",
-			"Entry in Catalogue"
-		]
+		headings = [self.available_columns[colname][0] for colname in self.columns]
+		self.dump_row(out, headings, '^')
 		
-		out.write('^ ^^^ %s ^^^ ^^' % "availability")
-		# out.write('^ ^^^^ %s ^^^ %s ^^^ %s ^^ ^^' % tuple(heading[0:3]))
-		out.write('^ %s ^' % (' ^ '.join(heading[3:])))
-		
-		for exp in self.exploitation:
-			out.write('| %s | %s / %s | %s | %s | %s | %s | %s | %s |' % exp)
-			# out.write('| %s | %s / %s | | %s | %s | %s | %s | %s | %s | %s | %s | %s | %s | %s |' % exp)
+		for row in self.rows:
+			self.dump_row(out, row)
 
