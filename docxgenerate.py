@@ -14,7 +14,7 @@ from fidoc import FIdoc
 
 
 rx_line = {
-	"heading": wiki.rx_heading, # re.compile(r"^(=+) ([^=]+) (=+)$"),
+	"heading": Wiki.rx_heading, # re.compile(r"^(=+) ([^=]+) (=+)$"),
 	"image": re.compile(r"^[ ]*\{\{( *)([^\?\|\} ]+)(\?([^\|\} ]+))?( *)(\|([^\}]*))?\}\}$"),
 	"olist": re.compile(r"^([ ]{2,})\- (.*)$"),
 	"ulist": re.compile(r"^([ ]{2,})\* (.*)$"),
@@ -32,7 +32,7 @@ rx_line = {
 rx_imageresize = re.compile(r"^([0-9]+)(x([0-9]+))?$")
 
 
-rx_wiki_link = wiki.rx_link # re.compile(r"\[\[([^\[\]\|]+)\|([^\[\]\|]+)\]\]")
+rx_wiki_link = Wiki.rx_link # re.compile(r"\[\[([^\[\]\|]+)\|([^\[\]\|]+)\]\]")
 
 # rx_wiki_biu = [
 	# (re.compile(r"\*\*([^\*]+)\*\*"), 'b'),
@@ -119,7 +119,7 @@ class wikiprocessor(object):
 	def replacelinks(self, c):
 		if not "[[" in c:
 			return c
-		return wiki.rx_link.sub(self.resolve_link, c)
+		return Wiki.rx_link.sub(self.resolve_link, c)
 		
 
 	def togglestyle(self, pp, p):
@@ -362,13 +362,17 @@ class wikiprocessor(object):
 		picfilename = 'graph-%s.png' % hashlib.md5(data).hexdigest()
 		caption = None
 		
-		req = urllib.request.Request(gchapi, data)
-		response = urllib.request.urlopen(req)
-		imagedata = response.read()
-		with open(os.path.join(self.imagepath, picfilename),'wb') as output:
-			output.write(imagedata)
-		
-		self.doc.insertpicture(picfilename, caption, jc=align)
+		try:
+			req = urllib.request.Request(gchapi, data)
+			response = urllib.request.urlopen(req)
+			imagedata = response.read()
+			with open(os.path.join(self.imagepath, picfilename),'wb') as output:
+				output.write(imagedata)
+			
+			self.doc.insertpicture(picfilename, caption, jc=align)
+		except urllib.error.URLException as e:
+			logging.warning("Unable to insert graph")
+			self.doc.insert(self.paragraph("FIXME Referencing graph"))
 
 		return None
 

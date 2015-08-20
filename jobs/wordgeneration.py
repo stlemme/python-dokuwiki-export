@@ -5,11 +5,12 @@ import logging
 
 
 class WordGeneration(Job):
-	def __init__(self, tocpage, templatefile, generatedfile, editor = None, injectrefs = True):
+	def __init__(self, tocpage, templatefile, generatedfile, aggregatefile = None, editor = None, injectrefs = True):
 		Job.__init__(self)
 		self.tocpage = tocpage
 		self.templatefile = templatefile
 		self.generatedfile = generatedfile
+		self.aggregatefile = aggregatefile
 		self.injectrefs = injectrefs
 		self.editor = editor
 		self.docxpath = '_generated'
@@ -59,7 +60,7 @@ class WordGeneration(Job):
 			os.path.join(self.docxpath, templatefile),
 			os.path.join(self.docxpath, generatedfile),
 			fidoc, self.tocpage,
-			aggregatefile = None,
+			aggregatefile = self.aggregatefile,
 			chapterfile = None,
 			injectrefs = self.injectrefs,
 			ignorepagelinks=[
