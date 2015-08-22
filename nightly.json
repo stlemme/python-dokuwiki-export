@@ -21,6 +21,19 @@
 			}
 		},
 
+		"d633": {
+			"job": "Aggregation",
+			"params": {
+				"tocpage": ":ficontent:private:deliverables:d633:toc",
+				"outpage": ":ficontent:private:deliverables:nightly:d633",
+				"editor": "kmitchell",
+				"embedwikilinks": true
+			}
+		},
+
+		
+		"inactive": {
+
 		"d61": {
 			"job": "Aggregation",
 			"params": {
@@ -37,16 +50,6 @@
 				"tocpage": ":ficontent:private:deliverables:d65:toc",
 				"outpage": ":ficontent:private:deliverables:nightly:d65",
 				"editor": "mariolr",
-				"embedwikilinks": true
-			}
-		},
-
-		"d633": {
-			"job": "Aggregation",
-			"params": {
-				"tocpage": ":ficontent:private:deliverables:d633:toc",
-				"outpage": ":ficontent:private:deliverables:nightly:d633",
-				"editor": "kmitchell",
 				"embedwikilinks": true
 			}
 		},
@@ -88,8 +91,6 @@
 						"embedwikilinks": true
 				}
 		},
-		
-		"inactive": {
 
 		"d732": {
 				"job": "Aggregation",
