@@ -9,6 +9,8 @@ from catalog import ThumbnailGenerator, TemplatedGenerator, JsonGenerator
 import appearance
 from entities import SpecificEnabler
 import htmlutils
+import re
+
 
 output_prefix = '_catalog/'
 
