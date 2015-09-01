@@ -16,7 +16,7 @@ class CockpitPresenter(PresenterBase):
 	def __init__(self, columns, nice = lambda item: item, sort = [], placeholder = "n/a"):
 		PresenterBase.__init__(self)
 		self.available_columns = {
-			"name":             ("name", self.lookup_name),
+			"name":             ("Specific Enabler", self.lookup_name),
 			"avail-fi-ppp":     ("availability for the FI-PPP partners", None),
 			"avail-fi-lab":     ("availability within FI-LAB", None),
 			"avail-3rd-party":	("availability beyond the FI-PPP", None),
