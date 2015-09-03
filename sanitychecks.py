@@ -22,6 +22,8 @@ def get_url_status(url):
 		return r.status == 200
 	except urllib.error.HTTPError as e:
 		logging.info('Error: %s' % e)
+	except Exception as e:
+		logging.warning('Error: %s' % e)
 	return False
 
 def check_remote_resource(url, msg = None):
