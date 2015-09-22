@@ -5,6 +5,8 @@ import logging
 
 class Partners(Values):
 	def __init__(self, partner_contacts):
+		if partner_contacts is None:
+			logging.fatal("Missing partner information!")
 		Values.__init__(self, partner_contacts)
 		
 		

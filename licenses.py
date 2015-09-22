@@ -5,6 +5,8 @@ import logging
 
 class Licenses(Values):
 	def __init__(self, templates):
+		if templates is None:
+			logging.fatal("Missing license template information!")
 		Values.__init__(self, templates)
 		
 		

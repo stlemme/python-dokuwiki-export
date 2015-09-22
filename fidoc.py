@@ -23,8 +23,8 @@ meta_page = {
 class FIdoc(object):
 	def __init__(self, dw, skipchecks = []):
 		self.dw = dw
-		self.partners = Partners(self.load_json_from_wiki(self.get_meta_page('partners')))
-		self.licenses = Licenses(self.load_json_from_wiki(self.get_meta_page('licenses')))
+		self.partners = Partners(self.load_json_from_wiki(self.get_meta_page('partners'), None))
+		self.licenses = Licenses(self.load_json_from_wiki(self.get_meta_page('licenses'), None))
 
 		# pub_pages = mirror.public_pages(self.dw)
 
