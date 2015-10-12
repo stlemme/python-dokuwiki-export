@@ -47,8 +47,8 @@ class wikipublisher(object):
 		newdoc = []
 		
 		for line in doc:
-			re1line = wiki.rx_link.sub(lambda m: self.resolve_link(srcns, destns, m), line)
-			re2line = wiki.rx_image.sub(lambda m: self.resolve_image(srcns, destns, m), re1line)
+			re1line = Wiki.rx_link.sub(lambda m: self.resolve_link(srcns, destns, m), line)
+			re2line = Wiki.rx_image.sub(lambda m: self.resolve_image(srcns, destns, m), re1line)
 			newdoc.append(re2line)
 
 		self.dw.putpage(newdoc, dest, summary='publish page')
