@@ -10,7 +10,10 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY . /usr/share/python-dokuwiki-export
 RUN mkdir -p /usr/share/python-dokuwiki-export/_catalog
 
-RUN ls -al
+RUN apt-get install -y git
+RUN git submodule update --init
+
+# RUN ls -al
 
 CMD [ "./cron_regenerate.sh" ]
 
