@@ -1,19 +1,22 @@
 
 FROM python:3.4
 
-RUN mkdir -p /usr/share/python-dokuwiki-export
-WORKDIR /usr/share/python-dokuwiki-export
+MAINTAINER Stefan Lemme <stefan.lemme@dfki.de>
 
-COPY requirements.txt /usr/share/python-dokuwiki-export/
+ENV FIDOCDIR /opt/fidoc
+
+RUN mkdir -p $FIDOCDIR
+WORKDIR $FIDOCDIR
+
+COPY requirements.txt $FIDOCDIR/
 RUN pip install --no-cache-dir -r requirements.txt
 
-COPY . /usr/share/python-dokuwiki-export
-RUN mkdir -p /usr/share/python-dokuwiki-export/_catalog
+COPY . $FIDOCDIR
 
-RUN apt-get install -y git
+RUN apt-get install -y -qq git
 RUN git submodule update --init
 
 # RUN ls -al
 
-CMD [ "./cron_regenerate.sh" ]
+CMD [ "./bootstrap.sh" ]
 
