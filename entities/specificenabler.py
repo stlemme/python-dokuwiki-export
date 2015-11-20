@@ -171,7 +171,7 @@ class SpecificEnabler(NamedEntity):
 		se.initialize(dw, licenses, partners, pub)
 		return se
 	
-	def initialize(self, dw, licenses, partners, pub):
+	def initialize(self, dw, licenses, partners, pub, warn_level=logging.warning):
 		if self.metapage is None:
 			logging.info("No meta page available for SE %s" % self.get_name())
 			return
@@ -188,7 +188,7 @@ class SpecificEnabler(NamedEntity):
 		try:
 			se_spec = json.loads(metajson)
 		except ValueError as e:
-			logging.warning("Unable to read meta data from page %s. No valid JSON!\n%s" % (self.metapage, e))
+			warn_level("Unable to read meta data from page %s. No valid JSON!\n%s" % (self.metapage, e))
 			return
 
 		schema = None
@@ -202,7 +202,7 @@ class SpecificEnabler(NamedEntity):
 		try:
 			validate(se_spec, schema)
 		except ValidationError as e:
-			logging.warning("Invalid meta data for SE at %s.\n%s" % (self.metapage, e))
+			warn_level("Invalid meta data for SE at %s.\n%s" % (self.metapage, e))
 			return
 		except SchemaError as e:
 			logging.warning("Could not validate json schema due to an invalid json schema.\n%s" % e)

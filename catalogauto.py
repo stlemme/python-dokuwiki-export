@@ -11,11 +11,12 @@ import sanitychecks
 
 
 class AutoValues(object):
-	def __init__(self, dw, pub, se):
+	def __init__(self, dw, pub, se, warn_level=logging.warning):
 		self.dw = dw
 		self.pub = pub
 		self.se = se
 		self.nc = se.get_naming_conventions()
+		self.warning = warn_level
 	
 	def items(self):
 		auto_values = {
@@ -88,7 +89,7 @@ class AutoValues(object):
 		if pub_page is None:
 			return None
 		if not self.wiki_page_exists(pub_page):
-			logging.warning("Referring to non-existent public wiki page %s" % pub_page)
+			self.warning("Referring to non-existent public wiki page %s" % pub_page)
 			return None
 		return self.dw.pageurl(pub_page)
 	
@@ -120,8 +121,10 @@ class AutoValues(object):
 		swagger = self.se.get('/spec/documentation/api/swagger')
 		if swagger is None:
 			swagger = 'http://fic2.github.io/swaggerfiles/%s/swagger.json' % self.nc.normalizedname()
-		if sanitychecks.check_remote_resource(swagger, 'No swagger.json found!'):
-			return '___SWAGGER___' + swagger
+		if self.se.get('/status') != 'deprecated':
+			if sanitychecks.check_remote_resource(swagger):
+				return '___SWAGGER___' + swagger
+			self.warning('No swagger.json found!')
 		return None
 		
 	def pub_se_faq_url(self):
@@ -195,7 +198,7 @@ class AutoValues(object):
 			return 'Binary'
 		if self.hosted_service_available(global_service=True):
 			return 'SaaS'
-		logging.warning("Unknown delivery model for %s SE" % self.se.get_name())
+		self.warning("Unknown delivery model for %s SE" % self.se.get_name())
 		return 'Unknown'
 	
 	# rx_yt_link = re.compile(r'(?:youtube(?:-nocookie)?\.com/(?:[^/]+/.+/|(?:v|e(?:mbed)?)/|.*[?&]v=)|youtu\.be/)([^"&?/ ]{11})', re.IGNORECASE)

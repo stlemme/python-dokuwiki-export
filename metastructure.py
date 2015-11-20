@@ -129,11 +129,11 @@ class MetaStructure(Entity):
 		logging.info("Extract scenarios")
 		self.extract_named_entities(Scenario, ScenarioStmt, self.scenarios)
 	
-	def add_se(self, sestmt, se):
+	def add_se(self, sestmt, se, warn_level=logging.warning):
 		self.ses.append(se)
 		self.adapter.map(sestmt, se)
 		
-		self.add_dependencies(se, sestmt.get_dependencies())
+		self.add_dependencies(se, sestmt.get_dependencies(), warn_level)
 		
 	def extract_ses(self, dw, partners, licenses, pub, skipchecks = []):
 		stmts = self.ast.find_all(SpecificEnablerStmt)
@@ -146,7 +146,7 @@ class MetaStructure(Entity):
 			
 			if sestmt.is_deprecated():
 				se = DeprecatedSpecificEnabler.load(dw, id, se_meta_page, originator, licenses, partners, pub)
-				self.add_se(sestmt, se)
+				self.add_se(sestmt, se, warn_level=logging.info)
 				se.set('/sanity-check', 'skipped')
 				continue
 
@@ -157,12 +157,12 @@ class MetaStructure(Entity):
 			
 			se = SpecificEnabler.load(dw, id, se_meta_page, originator, licenses, partners, pub)
 			self.add_se(sestmt, se)
-
+			
 			if not se.is_valid():
 				logging.warning('SE %s has no valid information at its meta page at %s. Skip sanity checks!' % (id, se_meta_page))
 				se.set('/sanity-check', 'skipped')
 				continue
-
+			
 			if id in skipchecks:
 				logging.info('Skip the sanity checks for SE %s' % id)
 				se.set('/sanity-check', 'skipped')
@@ -219,21 +219,21 @@ class MetaStructure(Entity):
 		return True
 			
 
-	def add_dependencies(self, entity, dependencies):
+	def add_dependencies(self, entity, dependencies, warn_level=logging.warning):
 		for state, depid, timing in dependencies:
 			depentity = self.find_enabler(depid)
 			# print(depentity, state, timing)
 			if depentity is None:
-				logging.warning('%s refers to unknown dependency "%s" - it is ignored!' % (entity, depid))
+				warn_level('%s refers to unknown dependency "%s" - it is ignored!' % (entity, depid))
 				continue
 				
 			if isinstance(depentity, InvalidEntity):
-				logging.warning('%s refers to dependency "%s" (%s), which contain invalid/insufficient information - it is ignored!' % (entity, depid, depentity))
+				warn_level('%s refers to dependency "%s" (%s), which contain invalid/insufficient information - it is ignored!' % (entity, depid, depentity))
 				continue
 			
 			if state != 'USES':
 				if not self.validate_timing(timing):
-					logging.warning('%s referring to dependency "%s" has an invalid timeframe "%s" for uptake!' % (entity, depentity, timing))
+					warn_level('%s referring to dependency "%s" has an invalid timeframe "%s" for uptake!' % (entity, depentity, timing))
 			
 			self.edges.append((entity, depentity, state, timing))
 		
@@ -273,7 +273,7 @@ class MetaStructure(Entity):
 			for enablerid, locationid in deployments.items():
 				enabler = self.find_enabler(enablerid)
 				if enabler is None:
-					logging.warning('%s refers to unknown enabler "%s" - it is ignored!' % (exp, enablerid))
+					logging.info('%s refers to unknown enabler "%s" - it is ignored!' % (exp, enablerid))
 					continue
 					
 				if isinstance(enabler, InvalidEntity):

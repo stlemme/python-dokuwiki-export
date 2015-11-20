@@ -54,9 +54,14 @@ def generate_catalog(fidoc, template_filename, meta_pages = None):
 	for se in meta.get_specific_enablers():
 		# logging.debug("Start processing of meta page %s" % metapage)
 		entry = None
-
+		
+		se_name = se.get_name()
+		
 		# se = fidoc.get_specific_enabler(metapage)
 		if not se.is_valid():
+			if se.get('/status') == 'deprecated':
+				logging.info("Skip %s SE, because it is deprecated." % se_name)
+				continue
 			debug_invalid_se(se.get_metapage(), se)
 			continue
 		
