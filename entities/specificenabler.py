@@ -27,6 +27,11 @@ class SpecificEnabler(NamedEntity):
 		
 	def set_valid(self, valid = True):
 		self.valid = valid
+		if not valid:
+			return
+		status = self.get('/status')
+		if status == 'invalid':
+			self.set('/status', 'valid')
 	
 	def setup_naming_conventions(self, dw):
 		self.nc = NamingConventions(dw, self.get('/spec'))
@@ -245,6 +250,11 @@ class SpecificEnabler(NamedEntity):
 		# Why-you-need-it (M)
 		r &= val_value(se, '/spec/documentation/why-you-need-it', val_length, (150, 600))
 		
+		additional = se.get('/spec/documentation/additional')
+		if additional:
+			for k in additional:
+				val_value(se, '/spec/documentation/additional/' + k, val_url)
+		
 		# Terms-and-conditions within FI-PPP (M)
 		r &= val_value(se, '/spec/license/summary', val_length, (50, 600))
 		r &= val_value(se, '/spec/license/copyright', val_length, (0, 300))
@@ -277,6 +287,7 @@ class SpecificEnabler(NamedEntity):
 		r &= val_value(se, '/auto/documentation/installguide-url', val_url)
 		# API (M)
 		r &= val_value(se, '/auto/documentation/api-url', val_url)
+		
 		# Online-demo (M)
 		r &= val_value(se, '/auto/usage/online-demo/link', val_url)
 		# ? Example-scripts (M)

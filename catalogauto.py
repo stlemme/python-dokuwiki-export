@@ -23,7 +23,8 @@ class AutoValues(object):
 				'wiki-url': self.pub_se_wiki_url,
 				'devguide-url': self.pub_se_devguide_url,
 				'installguide-url': self.pub_se_installguide_url,
-				'api-url': self.pub_se_api_url
+				'api-url': self.pub_se_api_url,
+				'additional-resources': self.additional_resources
 			},
 			'support': {
 				'faq-url': self.pub_se_faq_url,
@@ -140,6 +141,13 @@ class AutoValues(object):
 		if not self.wiki_page_exists(page):
 			return None
 		return self.wiki_pub_url(page)
+
+	def additional_resources(self):
+		additional = self.se.get('/spec/documentation/additional')
+		if additional is None:
+			return None
+		
+		return list(additional.values())
 
 	def is_open_source(self):
 		return self.YesNo(self.se.get('/spec/license/type') == 'open')

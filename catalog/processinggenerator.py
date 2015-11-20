@@ -5,7 +5,9 @@ from jsonutils import Values
 
 
 class ProcessingGenerator(object):
-
+	
+	whitespaces = re.compile('[\t\n]+')
+	
 	def __init__(self, escaping = lambda t : t):
 		self.se = None
 		self.escape = escaping
@@ -13,7 +15,7 @@ class ProcessingGenerator(object):
 	
 	# stack = 0
 	
-	def process_text_snippet(self, text):
+	def process_text_snippet(self, text, trim_whitespaces=False):
 		# print('  ' * self.stack, text.encode('ascii', 'replace'))
 		# self.stack += 1
 		
@@ -29,6 +31,8 @@ class ProcessingGenerator(object):
 			print(e);
 			text = ""
 		# self.stack -= 1
+		if trim_whitespaces:
+			text = self.whitespaces.sub('', text)
 		return text
 
 	
@@ -36,7 +40,8 @@ class ProcessingGenerator(object):
 		val = self.se.get(path)
 		if val is None:
 			logging.warning('Undefined property %s' % path)
-			val = "[[UNDEFINED]]"
+			return "[[UNDEFINED]]"
+		
 		# print(val)
 		val = self.escape(val)
 		return self.process_text_snippet(val)
