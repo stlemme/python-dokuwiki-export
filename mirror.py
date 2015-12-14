@@ -41,6 +41,9 @@ def public_pages(rel_ses):
 
 	for se in rel_ses:
 		nc = se.get_naming_conventions()
+		if nc is None:
+			logging.warning('No naming convention available for %s' % se.get_name())
+			continue
 		rx = re.compile(r'^' + nc.wikinamespace() + '([\w]+)$', re.IGNORECASE)
 		rx_public_pages.append(rx)
 	
