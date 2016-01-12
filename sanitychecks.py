@@ -18,7 +18,7 @@ def get_url_status(url):
 	if url is None:
 		return False
 	try:
-		r = urllib.request.urlopen(url)
+		r = urllib.request.urlopen(url, timeout=10)
 		return r.status == 200
 	except urllib.error.HTTPError as e:
 		logging.info('Error: %s' % e)
